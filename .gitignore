@@ -1,0 +1,17 @@
+# Ambiente Virtual do Python (Virtual Environment)
+tcc_env/
+
+# Cache do Python (arquivos compilados bytecode)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Configurações locais do VS Code
+.vscode/
+
+# Arquivos temporários e do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
