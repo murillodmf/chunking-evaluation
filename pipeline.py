@@ -3,12 +3,10 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 
-# LangChain Imports
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
-# Importando os chunkers customizados (arquivos individuais)
 from fixed_size_chunker import MeuFixedSizeChunkerTCC
 from recursive_chunker import MeuRecursiveChunkerTCC
 from semantic_chunker import MeuSemanticChunkerTCC
@@ -32,7 +30,7 @@ def print_separator(title: str):
 def main():
     # 1. Carregar o texto de exemplo (caminho dinâmico relativo à localização do script)
     script_dir = Path(__file__).parent.resolve()
-    txt_path = script_dir / "texto_exemplo.txt"
+    txt_path = script_dir / "state_of_the_union.txt"
     print(f"Carregando texto de exemplo de: {txt_path}")
     text_content = load_sample_text(str(txt_path))
     
@@ -43,25 +41,20 @@ def main():
     )
     
     # 3. Instanciar as 3 estratégias de chunking utilizando as subclasses do TCC
-    # Nota: Para o exemplo com texto_exemplo.txt (que tem cerca de 215 tokens), 
-    # instanciamos com chunk_size=80 tokens e overlap=8 tokens para demonstrar a divisão.
-    # Os valores padrão das classes seguem o planejado no PDF do TCC (chunk_size=512 tokens).
+    # Configuração experimental alvo: chunk_size=512 tokens e chunk_overlap=51 tokens.
     
     # Estratégia 1: Fixed-Size
-    fixed_splitter = MeuFixedSizeChunkerTCC(chunk_size=80, chunk_overlap=8)
+    fixed_splitter = MeuFixedSizeChunkerTCC(chunk_size=512, chunk_overlap=51)
     # Estratégia 2: Recursive Character
-    recursive_splitter = MeuRecursiveChunkerTCC(chunk_size=80, chunk_overlap=8)
+    recursive_splitter = MeuRecursiveChunkerTCC(chunk_size=512, chunk_overlap=51)
     # Estratégia 3: Semantic (Customizado) com Percentil 70
     semantic_splitter = MeuSemanticChunkerTCC(embeddings=embeddings, percentile_threshold=70.0)
     
     # 4. Executar o split nas 3 estratégias
     print("\nExecutando segmentações...")
     
-    # Chunks Fixed-Size
     chunks_fixed = fixed_splitter.split_text(text_content)
-    # Chunks Recursive
     chunks_recursive = recursive_splitter.split_text(text_content)
-    # Chunks Semânticos
     chunks_semantic = semantic_splitter.split_text(text_content)
     
     # Inicializar codificador para exibir contagem de tokens no log
@@ -69,8 +62,39 @@ def main():
     enc = tiktoken.get_encoding("cl100k_base")
     def get_token_count(txt: str) -> int:
         return len(enc.encode(txt))
+        
+    # Salvar todos os chunks gerados pelas 3 técnicas em um único arquivo para fácil inspeção
+    saida_path = script_dir / "saida.txt"
+    with open(saida_path, "w", encoding="utf-8") as f:
+        # 1. Escrever chunks da técnica Fixed-size
+        f.write("================================================================================\n")
+        f.write(" FIXED SIZE CHUNKS:\n")
+        f.write("================================================================================\n\n")
+        for idx, chunk in enumerate(chunks_fixed):
+            f.write(f"--- Chunk {idx+1} (Tokens: {get_token_count(chunk)}, Caracteres: {len(chunk)}) ---\n")
+            f.write(chunk)
+            f.write("\n\n")
+            
+        # 2. Escrever chunks da técnica Recursive
+        f.write("\n================================================================================\n")
+        f.write(" RECURSIVE CHUNKS:\n")
+        f.write("================================================================================\n\n")
+        for idx, chunk in enumerate(chunks_recursive):
+            f.write(f"--- Chunk {idx+1} (Tokens: {get_token_count(chunk)}, Caracteres: {len(chunk)}) ---\n")
+            f.write(chunk)
+            f.write("\n\n")
+            
+        # 3. Escrever chunks da técnica Semantic
+        f.write("\n================================================================================\n")
+        f.write(" SEMANTIC CHUNKS:\n")
+        f.write("================================================================================\n\n")
+        for idx, chunk in enumerate(chunks_semantic):
+            f.write(f"--- Chunk {idx+1} (Tokens: {get_token_count(chunk)}, Caracteres: {len(chunk)}) ---\n")
+            f.write(chunk)
+            f.write("\n\n")
+            
+    print(f"-> Todos os chunks salvos com sucesso em: {saida_path.name}")
     
-    # Exibir resultados de segmentação
     print_separator("1. Fixed-Size Chunking (Tamanho Fixo - baseada em Tokens)")
     print(f"Total de chunks gerados: {len(chunks_fixed)}")
     for idx, chunk in enumerate(chunks_fixed):
@@ -108,7 +132,7 @@ def main():
     print("Indexação concluída com sucesso no banco de dados vetorial in-memory!")
     
     # 6. Simular uma query de teste no RAG para cada estratégia
-    query = "Como funciona o vazio sanitário para o controle da ferrugem na soja?"
+    query = "What are the plans for Intel's semiconductor mega site in Ohio?"
     print_separator(f"Teste de Recuperação RAG - Query: '{query}'")
     
     print("\n[Fixed-size Chunks] Top 1 resultado recuperado:")

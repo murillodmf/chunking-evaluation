@@ -46,7 +46,7 @@ class MeuSemanticChunkerTCC(TextSplitter):
                 similarity = np.dot(emb1, emb2) / (norm1 * norm2)
             
             similarity = np.clip(similarity, -1.0, 1.0)
-            distances.append(1.0 - similarity)
+            distances.append(1.0 - similarity) # conferir se é necessário para o percentile
 
         # 4. Definir ponto de corte com base em percentil estatístico
         threshold = np.percentile(distances, self.percentile_threshold)
@@ -55,7 +55,7 @@ class MeuSemanticChunkerTCC(TextSplitter):
         chunks = []
         current_chunk = [sentences[0]]
         
-        for i in range(len(distances)):
+        for i in range(len(distances)): # Conferir quais distâncias estão influenciando nos joins de quem
             if distances[i] > threshold:
                 chunks.append(" ".join(current_chunk))
                 current_chunk = [sentences[i+1]]

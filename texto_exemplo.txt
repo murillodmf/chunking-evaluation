@@ -3,3 +3,11 @@ O cultivo da soja no Brasil enfrenta diversos desafios fitossanitários. Dentre 
 Além disso, a rotação de culturas e o vazio sanitário desempenham papéis fundamentais no manejo integrado da doença. O vazio sanitário consiste em um período de pelo menos 90 dias sem plantas vivas de soja no campo. Essa medida de manejo fitossanitário visa reduzir a população de esporos do fungo no ambiente durante a entressafra, quebrando o ciclo de reprodução.
 
 Por outro lado, o uso de cultivares resistentes também tem se mostrado uma ferramenta promissora. A biotecnologia permite o desenvolvimento de sementes com genes específicos de resistência. Contudo, a resistência genética não deve ser usada de forma isolada, sob o risco de seleção de raças mais virulentas do patógeno. Portanto, a integração de métodos genéticos, químicos e culturais é a chave para o sucesso do manejo na agricultura moderna brasileira.
+
+OBS: Conversar com o rapaz da agronomia pra verificar se a semântica dos assuntos fazem sentido para serem cortados 
+(Se preservam o sentido do texto) ou se eles possuem a quebra de assunto e devem ser separaados.
+
+Meta: Construir um Toy Example adequado (Não necessariamente só de agrnomia / procurar de outros assuntos para rag)
+* Quais perguntas a se fazer para o Toy
+* As perguntas são onde medimos se o conhecimento genérico foi agregado ao conhecimento específico do rag
+* A llm sozinha não pode ser tão bom pra entender o texto e o rag deve fazer o "ajuste"
