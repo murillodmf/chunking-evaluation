@@ -256,6 +256,7 @@ Pergunta:
             
         from datasets import Dataset
         from ragas import evaluate
+        from ragas.run_config import RunConfig
         from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
         from ragas.llms import LangchainLLMWrapper as LangchainLLM
         from ragas.embeddings import LangchainEmbeddingsWrapper as LangchainEmbeddings
@@ -285,7 +286,8 @@ Pergunta:
             dataset=dataset,
             metrics=metrics,
             llm=evaluator_llm,
-            embeddings=evaluator_embeddings
+            embeddings=evaluator_embeddings,
+            run_config=RunConfig(timeout=600, max_workers=1)
         )
         
         scores_df = eval_result.to_pandas()
