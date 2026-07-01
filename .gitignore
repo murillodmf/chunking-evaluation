@@ -1,5 +1,6 @@
 # Ambiente Virtual do Python (Virtual Environment)
 tcc_env/
+env/
 
 # Cache do Python (arquivos compilados bytecode)
 __pycache__/
@@ -15,3 +16,21 @@ __pycache__/
 Thumbs.db
 desktop.ini
 *.log
+
+# Pastas de análises e bases de exemplo
+analises/
+TCC - Base e Exemplos/
+
+# Arquivos auxiliares e temporários desnecessários de compilação LaTeX
+TCC_PRELIMINAR_LATEX/*.aux
+TCC_PRELIMINAR_LATEX/*.log
+TCC_PRELIMINAR_LATEX/*.out
+TCC_PRELIMINAR_LATEX/*.toc
+TCC_PRELIMINAR_LATEX/*.synctex.gz
+TCC_PRELIMINAR_LATEX/*.fdb_latexmk
+TCC_PRELIMINAR_LATEX/*.fls
+TCC_PRELIMINAR_LATEX/*.blg
+TCC_PRELIMINAR_LATEX/*.bbl
+TCC_PRELIMINAR_LATEX/*.run.xml
+TCC_PRELIMINAR_LATEX/*.bcf
+TCC_PRELIMINAR_LATEX/*.pdf

@@ -7,6 +7,11 @@ from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
+import sys
+script_dir = Path(__file__).parent.resolve()
+sys.path.append(str(script_dir.parent / "implementacoes"))
+sys.path.append(str(script_dir))
+
 from fixed_size_chunker import MeuFixedSizeChunkerTCC
 from recursive_chunker import MeuRecursiveChunkerTCC
 from semantic_chunker import MeuSemanticChunkerTCC
@@ -30,14 +35,16 @@ def print_separator(title: str):
 def main():
     # 1. Carregar o texto de exemplo (caminho dinâmico relativo à localização do script)
     script_dir = Path(__file__).parent.resolve()
-    txt_path = script_dir / "state_of_the_union.txt"
+    txt_path = script_dir.parent / "Textos_exemplo" / "state_of_the_union.txt"
     print(f"Carregando texto de exemplo de: {txt_path}")
     text_content = load_sample_text(str(txt_path))
     
-    # 2. Inicializar o modelo de Embedding fixo (leve e rápido)
-    print("\nInicializando HuggingFaceEmbeddings (all-MiniLM-L6-v2)...")
+    # 2. Inicializar o modelo de Embedding fixo (BGE-M3)
+    import torch
+    print("\nInicializando HuggingFaceEmbeddings (BAAI/bge-m3)...")
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name="BAAI/bge-m3",
+        model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"}
     )
     
     # 3. Instanciar as 3 estratégias de chunking utilizando as subclasses do TCC

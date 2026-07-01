@@ -1,0 +1,771 @@
+%% Versão Preliminar do TCC - Murillo de Moura Ferraz
+%% Baseado no template ABNT-DC-UEL v1.2
+%% Departamento de Computação - Universidade Estadual de Londrina
+
+\documentclass[
+	% -- opções da classe memoir --
+	12pt,				% tamanho da fonte
+	openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,			% twoside para impressão em verso e anverso. Oposto a oneside
+	a4paper,			% tamanho do papel. 
+    % -- opções da classe dc-uel --  
+	tccpreliminar,		% Versão Preliminar do TCC
+	]{ABNT-DC-UEL}
+
+
+% ---
+% PACOTES
+% ---
+
+% ---
+% Pacotes fundamentais 
+% ---
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage{pdfpages}			% Inclusão de (páginas de) arquivos PDF no documento
+% ---
+
+% ---
+% Pacotes adicionais
+% ---
+\usepackage{amsmath}			% Fórmulas matemáticas
+\usepackage{amssymb}			% Símbolos matemáticos
+\usepackage{booktabs}			% Tabelas profissionais
+\usepackage{multirow}			% Células mescladas em tabelas
+\usepackage{microtype}			% Melhora tipografia e justificação
+\usepackage{listings}			% Floats de código fonte
+\usepackage{xcolor}				% Cores customizadas para código
+% ---
+
+% ---
+% CONFIGURAÇÃO DE CÓDIGO FONTE (Listings)
+% ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.94}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ã}{{\~a}}1 {õ}{{\~o}}1 {â}{{\^a}}1 {ê}{{\^e}}1 {ô}{{\^o}}1 {ç}{{\c{c}}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1 {Â}{{\^A}}1 {Ê}{{\^E}}1 {Ô}{{\^O}}1 {Ç}{{\c{C}}}1,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+\lstset{style=mystyle}
+
+% ---
+% Preencha as Informações para CAPA, FOLHA DE ROSTO e outros elementos
+% ---
+\titulo{Avaliação do Impacto de Estratégias de Chunking na Qualidade de Sistemas RAG: Um Estudo Comparativo em Domínios Gerais e Agronômicos}
+\tituloingles{Evaluating the Impact of Chunking Strategies on the Quality of RAG Systems: A Comparative Study in General and Agronomic Domains}
+\palavraschave{Modelos de Linguagem de Grande Escala. Recuperação Aumentada por Geração. Segmentação de Texto. RAGAS. Agronomia.}
+\palavraschaveingles{Large Language Models. Retrieval-Augmented Generation. Document Chunking. RAGAS. Agronomy.}
+\autor{Murillo de Moura Ferraz}
+\citacaoautor{FERRAZ, M. M.}
+\data{2026}
+\diadefesa{27 de junho}
+
+\orientador{Prof. Dr. Daniel dos Santos Kaster}
+
+\membrobancadois{Prof. Dr. Segundo Membro da Banca}
+\instmembrobancadois{Universidade Estadual de Londrina -- UEL}
+\membrobancatres{Prof. Dr. Terceiro Membro da Banca}
+\instmembrobancatres{Universidade Estadual de Londrina -- UEL}
+
+% ---
+% compila o indice
+% ---
+\makeindex
+% ---
+
+% ----
+% Início do documento
+% ----
+\begin{document}
+
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing 
+
+% ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ----------------------------------------------------------
+
+% ---
+% Capa (elemento obrigatório)
+% ---
+\imprimircapa
+% ---
+
+% ---
+% Folha de rosto (elemento obrigatório)
+% (o * indica que haverá a ficha bibliográfica)
+% ---
+\imprimirfolhaderosto*
+% ---
+
+% ---
+% Ficha bibliográfica (a ser gerada para a versão final)
+% ---
+% \begin{fichacatalografica}
+%     \includepdf{ficha_catalografica.pdf}
+% \end{fichacatalografica}
+
+% ---
+% Folha de aprovação ==> omitida no caso de tccpreliminar
+% ---
+% \imprimirfolhadeaprovacao
+
+% ---
+% Dedicatória (elemento opcional)
+% ---
+\begin{dedicatoria}
+  \vspace*{\fill}
+  \hspace{.4\textwidth}
+  \begin{minipage}{.5\textwidth}
+    \begin{flushright}
+      \textit{Este trabalho é dedicado às crianças adultas\\
+      que, quando pequenas, sonharam em se\\
+      tornar cientistas.}
+    \end{flushright}  
+  \end{minipage}
+\end{dedicatoria}
+% ---
+
+% ---
+% Agradecimentos (elemento opcional, mas fortemente recomendado)
+% ---
+\begin{agradecimentos}
+Agradeço primeiramente a Deus, pela graça concedida em cada etapa desta jornada acadêmica e por me lembrar que, mesmo que eu falhe, Seu amor nunca falha.
+
+Ao meu orientador, Prof. Dr. Daniel dos Santos Kaster, pela paciência exemplar, pela disponibilidade constante e pelo direcionamento técnico preciso que foram fundamentais para a concepção e o desenvolvimento desta pesquisa.
+
+À minha família: Julio, Edinalva, Gustavo e Altamira pelo apoio incondicional, pela compreensão nos períodos de ausência e pelo incentivo em todo o percurso de graduação.
+
+À minha namorada, Lorena, pelo amor, pela paciência, pelo apoio emocional constante e a companhia nos momentos de estresse e celebração, tornando cada desafio mais leve e cada conquista mais significativa.
+
+Aos colegas da Computação pelas amizades, almoços, risadas, incentivos, piadas e histórias que ficarão para sempre gravadas no coração.
+
+\end{agradecimentos}
+% ---
+
+% ---
+% Epígrafe (elemento opcional)
+% ---
+\begin{epigrafe}
+  \vspace*{\fill}
+  \hspace{.4\textwidth}
+  \begin{minipage}{.5\textwidth}   
+    \begin{flushright}
+	\textit{
+    ``O Filho é o resplendor da glória de Deus e a expressão exata do seu ser, sustentando todas as coisas por sua palavra poderosa. Depois de ter realizado a purificação dos pecados, ele se assentou à direita da Majestade nas alturas.''\\
+    (Bíblia Sagrada, Hebreus 1:3, NVI)}
+    \end{flushright}
+  \end{minipage}
+\end{epigrafe}
+% ---
+
+% ---
+% RESUMOS
+% ---
+
+% ---
+% Resumo em Português (elemento obrigatório)
+% ---
+\begin{resumo}
+Os Modelos de Linguagem de Grande Escala (\textit{Large Language Models}, LLMs) representam um dos avanços mais significativos no campo do processamento de linguagem natural nas últimas décadas, viabilizando aplicações sofisticadas de geração de texto, sumarização e resposta a perguntas. Apesar de seu poder expressivo, esses modelos apresentam limitações estruturais amplamente documentadas, como a propensão a gerar respostas factualmente incorretas (alucinações) e a restrição a um conhecimento estático delimitado pelo período de treinamento. A arquitetura de Recuperação Aumentada por Geração (\textit{Retrieval-Augmented Generation}, RAG) emergiu como uma das soluções mais proeminentes para mitigar essas deficiências, integrando um mecanismo de recuperação de informações a partir de bases documentais externas ao processo generativo do modelo. Um componente fundamental, porém frequentemente negligenciado, do pipeline RAG é a estratégia de segmentação de texto (\textit{chunking}), que determina como os documentos-fonte são fracionados antes de sua indexação vetorial. A granularidade, o método de partição e a coesão semântica dos fragmentos resultantes exercem influência direta e mensurável sobre a qualidade do contexto recuperado e, consequentemente, sobre a fidelidade e a relevância das respostas geradas pelo LLM. Este trabalho propõe uma avaliação empírica, controlada e aprofundada de três estratégias de \textit{chunking}: segmentação de tamanho fixo (\textit{Fixed-size Chunking}), divisão hierárquica recursiva (\textit{Recursive Character Text Splitting}) e segmentação semântica baseada em \textit{embeddings} (\textit{Semantic Chunking}). A avaliação é conduzida em duas fases complementares: a primeira fase utiliza um \textit{benchmark} genérico consolidado na literatura para validação metodológica, empregando o \textit{framework} RAGAS para extração automatizada de métricas de qualidade; a segunda fase consiste na aplicação a um novo conjunto de dados de domínio agronômico com textos agrícolas e perguntas específicas do domínio. Essa abordagem de duas fases fornece tanto validação metodológica quanto contribuições práticas para o design de sistemas RAG em domínios especializados.
+\end{resumo}
+% ---
+
+% ---
+% Resumo em Inglês (elemento obrigatório)
+% ---
+\begin{Abstract}
+Large Language Models (LLMs) represent one of the most significant advances in natural language processing in recent decades, enabling sophisticated applications in text generation, summarization, and question answering. Despite their expressive power, these models present well-documented structural limitations, such as the propensity to generate factually incorrect responses (hallucinations) and the restriction to static knowledge bounded by the training period. The Retrieval-Augmented Generation (RAG) architecture has emerged as one of the most prominent solutions to mitigate these deficiencies, integrating an information retrieval mechanism from external document bases into the model's generative process. A fundamental yet frequently neglected component of the RAG pipeline is the text segmentation strategy (chunking), which determines how source documents are partitioned before vector indexing. The granularity, partitioning method, and semantic cohesion of the resulting fragments exert a direct and measurable influence on the quality of the retrieved context and, consequently, on the fidelity and relevance of the responses generated by the LLM. This work proposes an empirical, controlled, and in-depth evaluation of three chunking strategies: Fixed-size Chunking, Recursive Character Text Splitting, and Semantic Embedding-based Chunking. The evaluation is conducted in two complementary phases: the first phase uses a consolidated generic benchmark from the literature for methodological validation, employing the RAGAS framework for automated extraction of quality metrics; the second phase consists of applying the methods to a new agronomic domain dataset with agricultural texts and domain-specific questions. This two-phase approach provides both methodological validation and practical contributions to the design of RAG systems in specialized domains.
+\end{Abstract}
+% ---
+
+% ---
+% Lista de ilustrações (elemento opcional, mas fortemente recomendado)
+% ---
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+% ---
+
+% ---
+% Lista de tabelas (elemento opcional, mas fortemente recomendado)
+% ---
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+% ---
+
+% ---
+% Lista de abreviaturas e siglas (elemento opcional)
+% ---
+\begin{siglas}
+  \item[ANN] Approximate Nearest Neighbor (Vizinho Mais Próximo Aproximado)
+  \item[ANOVA] Analysis of Variance (Análise de Variância)
+  \item[API] Application Programming Interface
+  \item[BGE] BAAI General Embedding
+  \item[BPE] Byte-Pair Encoding
+  \item[BERT] Bidirectional Encoder Representations from Transformers
+  \item[DPR] Dense Passage Retrieval
+  \item[FAISS] Facebook AI Similarity Search
+  \item[GPT] Generative Pre-trained Transformer
+  \item[HNSW] Hierarchical Navigable Small World
+  \item[LLM] Large Language Model (Modelo de Linguagem de Grande Escala)
+  \item[LSTM] Long Short-Term Memory
+  \item[MTEB] Massive Text Embedding Benchmark
+  \item[NLP] Natural Language Processing (Processamento de Linguagem Natural)
+  \item[RAG] Retrieval-Augmented Generation (Recuperação Aumentada por Geração)
+  \item[RAGAS] RAG Assessment
+  \item[RLHF] Reinforcement Learning from Human Feedback
+  \item[RNN] Recurrent Neural Network (Rede Neural Recorrente)
+  \item[SQuAD] Stanford Question Answering Dataset
+  \item[UEL] Universidade Estadual de Londrina
+\end{siglas}
+% ---
+
+% ---
+% Lista de símbolos (elemento opcional)
+% ---
+\begin{simbolos}
+  \item[$ Q, K, V $] Matrizes de Consultas, Chaves e Valores no mecanismo de atenção
+  \item[$ d_k $] Dimensão das chaves no mecanismo de atenção
+  \item[$ \mathbf{v} \in \mathbb{R}^d $] Vetor denso em um espaço latente de dimensão $d$
+  \item[$ \text{sim}(\mathbf{u}, \mathbf{v}) $] Similaridade de cosseno entre os vetores $\mathbf{u}$ e $\mathbf{v}$
+  \item[$ d_i $] Distância de cosseno entre sentenças consecutivas $s_i$ e $s_{i+1}$
+  \item[$ T $] Limiar dinâmico de corte baseado em percentil estatístico
+  \item[$ P_p(\mathbf{d}) $] Percentil de grau $p$ sobre o vetor de distâncias $\mathbf{d}$
+  \item[$ k $] Número de fragmentos retornados na recuperação (parâmetro Top-$k$)
+\end{simbolos}
+% ---
+
+% ---
+% Sumário (elemento obrigatório)
+% ---
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+% ---
+
+
+
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS
+% ----------------------------------------------------------
+\textual
+\pagestyle{dc-uel-header}
+
+
+% ==========================================================
+\chapter{Introdução}
+\label{cap:introducao}
+% ==========================================================
+
+O desenvolvimento acelerado dos Modelos de Linguagem de Grande Escala (\textit{Large Language Models}, LLMs) representa uma das transformações mais profundas e abrangentes já observadas no campo da ciência da computação e, em particular, no processamento de linguagem natural (PLN). Esses modelos, fundamentados na arquitetura \textit{Transformer} \cite{vaswani2017attention}, demonstraram capacidades notáveis em tarefas complexas como geração de texto coerente, geração de código, sumarização automática de documentos extensos, tradução entre idiomas, raciocínio lógico e resposta a perguntas abertas sobre os mais variados domínios do conhecimento humano \cite{brown2020fewshot}. O impacto dessas tecnologias transcendeu o ambiente acadêmico e alcançou amplamente o mercado corporativo, impulsionando o surgimento de assistentes virtuais inteligentes, ferramentas de produtividade baseadas em inteligência artificial e plataformas de análise automatizada de dados textuais em escala industrial.
+
+A capacidade generativa dos LLMs decorre de processos massivos de pré-treinamento auto-supervisionado em corpos textuais de proporções colossais, nos quais os modelos aprendem a prever estatisticamente o próximo token em uma sequência de texto. Esse aprendizado confere aos modelos uma compreensão estatística profunda dos padrões sintáticos, semânticos e pragmáticos da linguagem humana. Modelos como o GPT-3 \cite{brown2020fewshot} demonstraram que, ao atingir escalas suficientemente grandes de parâmetros e dados de treinamento, emergem capacidades cognitivas computacionais que ultrapassam o reconhecimento de padrões, incluindo a habilidade de realizar tarefas complexas a partir de poucos exemplos contextuais (\textit{few-shot learning}) ou mesmo sem qualquer exemplo prévio (\textit{zero-shot learning}) \cite{wei2022emergent}.
+
+Contudo, apesar desse poder expressivo, os LLMs apresentam limitações estruturais intrínsecas à sua natureza paramétrica que restringem sua aplicabilidade em contextos que demandam precisão factual rigorosa. A primeira e mais amplamente documentada dessas limitações é o fenômeno das alucinações (\textit{hallucinations}), no qual o modelo gera respostas sintática e semanticamente fluentes, porém factualmente incorretas, inventando dados, citações bibliográficas, eventos históricos ou informações técnicas com um elevado grau de convicção aparente \cite{ji2023hallucination}. A segunda limitação refere-se à natureza estática do conhecimento parametrizado: todo o conhecimento acessível ao modelo encontra-se cristalizado nos pesos da rede neural, definidos exclusivamente durante a fase de treinamento, sem qualquer mecanismo nativo de atualização dinâmica \cite{lewis2020rag}. A terceira limitação, descrita na literatura \cite{liu2023lostmiddle}, aponta para a tendência sistemática de os modelos subutilizarem informações posicionadas na porção central de contextos longos, priorizando dados localizados no início ou no final da sequência de entrada.
+
+Diante dessas constatações, a comunidade científica e a indústria tecnológica desenvolveram arquiteturas que complementam as capacidades generativas dos LLMs com mecanismos externos de recuperação de informações. A mais proeminente dessas arquiteturas é a Recuperação Aumentada por Geração (\textit{Retrieval-Augmented Generation}, RAG) \cite{lewis2020rag}. O paradigma RAG acopla um módulo de busca semântica a um modelo gerador, recuperando fragmentos relevantes de uma base documental externa em tempo de inferência e fornecendo-os como contexto explícito ao LLM antes da geração da resposta. Essa abordagem permite que o sistema produza respostas ancoradas em evidências textuais verificáveis e atualizáveis, reduzindo a incidência de alucinações e possibilitando o acesso a informações contemporâneas ou proprietárias.
+
+A eficácia de um sistema RAG depende da interação coordenada de múltiplos componentes: o modelo de representação vetorial (\textit{embedding}) responsável pela codificação semântica dos textos, o banco de dados vetorial que armazena e indexa essas representações, o modelo gerador que sintetiza a resposta final e, fundamentalmente, a estratégia adotada para segmentar os documentos de origem em fragmentos menores antes da indexação, um processo denominado \textit{chunking} \cite{finardi2024chronicles}. A escolha da estratégia de \textit{chunking} determina a granularidade semântica dos fragmentos armazenados no banco vetorial e influencia diretamente a qualidade do contexto recuperado para o modelo gerador \cite{wang2024bestpractices}.
+
+Apesar de sua relevância central para o funcionamento adequado do pipeline RAG, a etapa de \textit{chunking} permanece como um dos componentes menos sistematicamente estudados na literatura científica. A maioria dos trabalhos publicados até o momento trata essa etapa como um detalhe de implementação secundário, adotando configurações padrão sem qualquer justificativa empírica ou análise comparativa \cite{barnett2024failure}. Essa lacuna torna-se especialmente preocupante quando se considera a aplicação de sistemas RAG em domínios técnicos especializados, nos quais a precisão factual e a integridade contextual das respostas são requisitos críticos.
+
+O domínio agronômico nacional constitui um exemplo de aplicação de tais arquiteturas. A produção agrícola nacional depende de um vasto corpo de conhecimento técnico-científico produzido por instituições como a Empresa Brasileira de Pesquisa Agropecuária (Embrapa). Documentos técnicos sobre manejo de culturas, controle de pragas e doenças, e recomendações de plantio são caracterizados por uma linguagem densa, terminologia especializada e relações conceituais interdependentes. A fragmentação inadequada desses textos pode separar informações tecnicamente correlatas, comprometendo a capacidade do sistema RAG de fornecer respostas precisas e completas a consultas sobre a área de agronomia.
+
+
+
+% ==========================================================
+\chapter{Fundamentação Teórico-Metodológica e Estado da Arte}
+\label{cap:fundamentacao}
+% ==========================================================
+
+Este capítulo apresenta os conceitos teóricos, as técnicas computacionais e os referenciais metodológicos que fundamentam o desenvolvimento da pesquisa proposta. A exposição segue uma progressão do geral ao específico: parte dos fundamentos arquiteturais dos Modelos de Linguagem de Grande Escala, percorre o paradigma de Recuperação Aumentada por Geração e suas etapas constituintes, detalha as representações vetoriais de texto e os mecanismos de busca por similaridade, aprofunda-se nas estratégias de segmentação de documentos (\textit{chunking}) que constituem o objeto central deste estudo, e culmina na apresentação do \textit{framework} de avaliação automatizada e nas particularidades do domínio agronômico.
+
+
+% ---
+\section{Modelos de Linguagem de Grande Escala}
+\label{sec:llms}
+
+Os Modelos de Linguagem de Grande Escala (LLMs) constituem uma classe de redes neurais profundas de proporções massivas, projetadas para modelar a distribuição estatística da linguagem natural a partir de volumes imensos de dados textuais. O marco fundacional dessa geração de modelos é a arquitetura \textit{Transformer}, proposta no artigo seminal intitulado \textit{Attention Is All You Need} \cite{vaswani2017attention}. A inovação central introduzida pelo \textit{Transformer} reside no mecanismo de auto-atenção (\textit{self-attention}), que permite ao modelo computar simultaneamente a relevância mútua entre todas as posições de uma sequência de entrada, capturando dependências de longo alcance de forma eficiente e paralelizável.
+
+\subsection{Mecanismo de Atenção}
+
+O mecanismo de atenção escalada por produto interno (\textit{scaled dot-product attention}) opera sobre três matrizes derivadas da entrada: Consultas ($Q$), Chaves ($K$) e Valores ($V$). Para cada posição na sequência, o modelo computa um vetor de atenção ponderado que agrega informações de todas as demais posições, com pesos proporcionais à similaridade entre as consultas e as chaves correspondentes. Formalmente, a atenção é definida como:
+
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right)V
+\end{equation}
+
+\noindent onde $d_k$ representa a dimensão das chaves, utilizada como fator de escala para estabilizar os gradientes durante o treinamento e evitar que os produtos internos atinjam magnitudes excessivas em espaços de alta dimensionalidade. O operador \textit{softmax} normaliza os pesos de atenção, garantindo que somem unitariamente e possam ser interpretados como uma distribuição de probabilidade sobre as posições da sequência.
+
+A arquitetura \textit{Transformer} estende esse mecanismo básico por meio da atenção multi-cabeça (\textit{multi-head attention}), que executa múltiplas operações de atenção em paralelo com projeções lineares distintas, permitindo que o modelo capture simultaneamente diferente tipos de relações semânticas e sintáticas entre os tokens da sequência. Essa abordagem paralela representou um avanço substancial em relação às arquiteturas recorrentes anteriores (RNNs e LSTMs), que processavam sequências de forma estritamente sequencial, limitando tanto a eficiência computacional quanto a capacidade de captura de dependências distantes.
+
+\subsection{Pré-treinamento e Capacidades Emergentes}
+
+O paradigma de pré-treinamento auto-supervisionado em larga escala constitui a segunda inovação fundamental dos LLMs modernos. Nessa abordagem, o modelo é treinado para predizer o próximo token em uma sequência de texto (\textit{causal language modeling}), consumindo volumes massivos de textos disponíveis na internet. Esse processo, originado no modelo GPT (\textit{Generative Pre-trained Transformer}, GPT) \cite{radford2018gpt1} e amplificado pelo GPT-3 \cite{brown2020fewshot}, permite que os pesos da rede neural codifiquem implicitamente uma vasta gama de conhecimentos linguísticos, factuais e procedimentais.
+
+A abordagem bidirecional do BERT (\textit{Bidirectional Encoder Representations from Transformers}) \cite{devlin2019bert} introduziu o \textit{masked language modeling}, no qual tokens aleatórios da entrada são mascarados e o modelo é treinado para predizê-los a partir do contexto circundante. Essa estratégia bidirecional demonstrou-se particularmente eficaz para tarefas de compreensão textual, produzindo representações contextuais mais ricas do que as abordagens unidirecionais.
+
+Com o crescimento progressivo da escala dos modelos (em termos de parâmetros, dados de treinamento e recursos computacionais), a comunidade científica observou o surgimento de capacidades emergentes (\textit{emergent abilities}) \cite{wei2022emergent}, que são habilidades que se manifestam de forma abrupta e não antecipada quando o modelo ultrapassa determinados limiares de escala. Entre essas capacidades destacam-se o raciocínio encadeado (\textit{chain-of-thought}), a capacidade de aprender a partir de poucos exemplos contextuais (\textit{in-context learning}) e a habilidade de seguir instruções complexas em linguagem natural.
+
+Modelos de código aberto como o LLaMA 2 \cite{touvron2023llama} democratizaram o acesso a essas capacidades, permitindo que pesquisadores e desenvolvedores implementem e adaptem LLMs de grande porte sem dependência exclusiva de provedores comerciais. O ajuste fino por instruções com feedback humano (\textit{RLHF}, Reinforcement Learning from Human Feedback) \cite{ouyang2022instructgpt} aprimorou significativamente o alinhamento dos modelos com as intenções humanas, tornando-os mais cooperativos e informativos em interações conversacionais.
+
+\subsection{Limitações Estruturais dos LLMs}
+
+Apesar dos avanços extraordinários descritos, os LLMs possuem limitações estruturais intrínsecas que restringem sua aplicabilidade em cenários que demandam precisão factual absoluta.
+
+A primeira limitação refere-se ao fenômeno das alucinações, no qual o modelo gera respostas factualmente incorretas com alta fluência linguística \cite{ji2023hallucination}. O modelo, ao gerar texto, baseia suas predições em padrões de plausibilidade estatística aprendidos durante o treinamento, sem dispor de qualquer mecanismo interno de verificação factual. Essa característica torna a detecção de erros particularmente desafiadora para usuários não especializados.
+
+A segunda limitação refere-se ao conhecimento estático. Todo o conhecimento acessível ao modelo está codificado de forma paramétrica nos pesos da rede neural, delimitado pelo corte temporal dos dados de treinamento (\textit{knowledge cutoff}), fazendo com que o modelo seja estruturalmente incapaz de acessar informações posteriores ao seu treinamento ou de consultar bases de dados externas de forma autônoma \cite{lewis2020rag}.
+
+A terceira limitação manifesta-se no tratamento desigual de informações posicionadas em diferentes regiões do contexto de entrada. Estudos experimentais indicam que os modelos apresentam desempenho superior na utilização de informações localizadas no início ou no final do contexto, ocorrendo degradação significativa para informações posicionadas na porção central, um efeito conhecido como a tendência de perda de informações no meio da janela de contexto \cite{liu2023lostmiddle}. Essa constatação possui implicações diretas para o design de sistemas RAG, uma vez que a posição dos fragmentos recuperados no contexto fornecido ao modelo pode influenciar a qualidade da resposta gerada.
+
+\subsection{Modelos de Linguagem de Pequeno Porte (SLMs)}
+
+Embora o desenvolvimento de LLMs de grande porte continue a avançar, uma vertente proeminente de pesquisa e desenvolvimento tem focado nos Modelos de Linguagem de Pequeno Porte (\textit{Small Language Models}, SLMs). Ao contrário dos modelos gigantes de dezenas ou centenas de bilhões de parâmetros, os SLMs são projetados com arquiteturas compactas que variam tipicamente entre 1 e 8 bilhões de parâmetros, possibilitando sua execução local em hardwares comuns ou plataformas em nuvem de recursos moderados, como o Google Colab, com baixa latência e menor custo computacional \cite{abdin2024phi}.
+
+A viabilidade prática dos SLMs baseia-se na constatação de que modelos menores, quando treinados com dados altamente purificados, refinados e semanticamente ricos, podem alcançar ou até superar o desempenho de modelos muito maiores em tarefas específicas e domínios especializados \cite{abdin2024phi}. Esse conceito foi demonstrado com a família de modelos Phi, cujos relatórios técnicos indicam que o treinamento focado em dados de alta qualidade e livros didáticos sintéticos permite alta capacidade de raciocínio lógico em escalas reduzidas de parâmetros. De forma semelhante, o projeto TinyLlama \cite{zhang2024tinyllama} demonstrou ser possível treinar um modelo de 1,1 bilhão de parâmetros em 3 trilhões de tokens, entregando capacidade conversacional e de compreensão robusta sob restrições extremas de memória.
+
+No contexto de sistemas especializados em domínios delimitados, a utilização de SLMs apresenta vantagens significativas. Como o sistema não necessita de conhecimentos genéricos abrangentes, a especialização de um SLM por meio de RAG permite que um modelo menor recupere e processe fatos específicos do domínio de forma eficiente, viabilizando a execução econômica do pipeline de inferência localmente ou em ambientes com restrição de GPU.
+
+% ---
+\section{Recuperação Aumentada por Geração (RAG)}
+\label{sec:rag}
+
+A arquitetura de Recuperação Aumentada por Geração (RAG) funciona como um paradigma que integra mecanismos de recuperação de informação ao processo generativo dos LLMs \cite{lewis2020rag}. O objetivo fundamental do RAG é complementar o conhecimento paramétrico do modelo com evidências textuais extraídas dinamicamente de bases documentais externas, permitindo respostas mais precisas, atualizadas e rastreáveis.
+
+\subsection{Arquitetura e Etapas do Pipeline}
+
+O pipeline RAG típico é composto por três etapas operacionais sequenciais e interdependentes:
+
+\begin{enumerate}
+    \item \textbf{Indexação}: os documentos de origem são carregados, pré-processados e segmentados em fragmentos menores (\textit{chunks}) de acordo com uma estratégia de \textit{chunking} definida. Cada fragmento é então submetido a um modelo de \textit{embedding} que o codifica como um vetor denso de alta dimensionalidade. Os vetores resultantes são armazenados e indexados em um banco de dados vetorial especializado, criando uma representação consultável da base de conhecimento;
+    
+    \item \textbf{Recuperação}: quando uma consulta é submetida pelo usuário, o sistema a codifica no mesmo espaço vetorial utilizado para os fragmentos e executa uma busca por similaridade no banco de dados vetorial. Os $k$ fragmentos cujos vetores apresentam maior proximidade com o vetor da consulta, tipicamente medida pela similaridade de cosseno, são selecionados e retornados como contexto candidato;
+    
+    \item \textbf{Geração}: os fragmentos recuperados são concatenados com a consulta original em um \textit{prompt} estruturado, que instrui explicitamente o LLM a basear sua resposta exclusivamente no contexto fornecido. O modelo gerador processa o \textit{prompt} composto e produz uma resposta sintetizada a partir das evidências textuais recuperadas.
+\end{enumerate}
+
+Essa arquitetura tripartite confere ao sistema RAG vantagens fundamentais sobre o uso isolado de LLMs: reduz a dependência do conhecimento parametrizado estático, possibilita o acesso a informações atualizadas ou proprietárias e permite a rastreabilidade das fontes utilizadas na geração da resposta \cite{gao2024survey}.
+
+\subsection{RAG Modular e Pontos de Falha}
+
+O conceito de \textit{Modular RAG} decompõe o pipeline em componentes intercambiáveis e independentes, cada um responsável por uma função específica \cite{gao2024modular}. Essa perspectiva modular facilita a experimentação isolada de cada componente, permitindo que pesquisadores avaliem o impacto de variações em uma etapa específica enquanto mantêm as demais constantes. O presente trabalho adota essa filosofia: todos os componentes do pipeline são mantidos fixos, variando-se exclusivamente a estratégia de \textit{chunking}.
+
+A identificação e categorização dos pontos de falha mais frequentes em sistemas RAG apontam para sete tipos principais de falhas que podem comprometer a qualidade das respostas geradas \cite{barnett2024failure}. Entre essas categorias, destacam-se a fragmentação inadequada do contexto durante o \textit{chunking}, a recuperação de fragmentos irrelevantes ou ruidosos e a geração de alucinações a partir de contextos ambíguos ou incompletos. Essas constatações reforçam a importância crítica de se estudar isoladamente a etapa de segmentação documental.
+
+Complementarmente, a presença de fragmentos irrelevantes no contexto recuperado exerce um impacto negativo quantificável sobre a qualidade das respostas geradas \cite{noise2024power}. Evidenciou-se experimentalmente que a inclusão de apenas 20% de conteúdo irrelevante no contexto já é suficiente para degradar significativamente métricas como fidelidade e relevância, sublinhando a importância de estratégias de \textit{chunking} que maximizem a coesão e a pertinência dos fragmentos indexados.
+
+
+% ---
+\section{Representações Vetoriais de Texto (\textit{Embeddings})}
+\label{sec:embeddings}
+
+A viabilidade técnica da recuperação semântica em sistemas RAG repousa sobre a capacidade de representar textos como vetores numéricos densos em espaços de alta dimensionalidade, de modo que a proximidade geométrica entre vetores reflita a similaridade semântica entre os textos originais. Os modelos responsáveis por essa transformação são denominados modelos de \textit{embedding}.
+
+\subsection{Similaridade de Cosseno}
+
+A métrica predominante para mensurar a proximidade semântica entre representações vetoriais é a similaridade de cosseno, definida para dois vetores $\mathbf{u}$ e $\mathbf{v}$ como:
+
+\begin{equation}
+\text{sim}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|\,\|\mathbf{v}\|}
+\end{equation}
+
+\noindent onde $\mathbf{u} \cdot \mathbf{v}$ representa o produto interno entre os vetores e $\|\cdot\|$ denota a norma euclidiana. A similaridade de cosseno fornece valores no intervalo $[-1, 1]$, onde $1$ indica vetores perfeitamente alinhados, $0$ indica ortogonalidade e $-1$ indica vetores diametralmente opostos. Na prática dos sistemas RAG, os valores observados tipicamente concentram-se na faixa positiva do espectro devido ao fenômeno da anisotropia das representações em alta dimensão, que confina os vetores de texto a um cone estreito no espaço latente \cite{ethayarajh2019contextual}.
+
+\subsection{Evolução dos Modelos de Embedding}
+
+O modelo Sentence-BERT representou um avanço fundamental na geração de \textit{embeddings} de sentenças completas \cite{reimers2019sentencebert}. A arquitetura emprega redes siamesas baseadas no BERT, aplicando uma operação de \textit{mean pooling} sobre as representações contextuais produzidas pelo encoder para gerar um vetor denso único para cada sentença de entrada. Essa abordagem permite a comparação eficiente de pares de sentenças com complexidade computacional $O(n)$, viabilizando aplicações de recuperação em larga escala.
+
+Os modelos da família MiniLM, derivados do Sentence-BERT por meio de técnicas de destilação de conhecimento, alcançam um equilíbrio notável entre qualidade de representação e eficiência computacional. O modelo \texttt{all-MiniLM-L6-v2}, frequentemente utilizado como ponto de partida em investigações de sistemas RAG por produzir vetores de 384 dimensões com alta velocidade de inferência, mantém desempenho competitivo em \textit{benchmarks} de recuperação semântica. Embora a definição do modelo de \textit{embedding} final permaneça em aberto neste estudo, tal modelo é adotado como uma referência preliminar ilustrativa.
+
+O modelo \textit{Dense Passage Retrieval} (DPR) opera com uma arquitetura bi-encoder treinada especificamente para a tarefa de recuperação de passagens em sistemas de perguntas e respostas \cite{karpukhin2020dpr}. Os resultados demonstraram que modelos de \textit{embedding} treinados com objetivos de recuperação superam abordagens de recuperação esparsa baseadas em correspondência lexical (como o BM25) em múltiplos \textit{benchmarks} de domínio aberto.
+
+Modelos de geração mais recente, a exemplo do BGE M3-Embedding, estendem as capacidades de recuperação vetorial para cenários multilíngues e multigranulares \cite{bge2024improving}. O benchmark \textit{Massive Text Embedding Benchmark} (MTEB) consolidou uma suíte de 56 tarefas de avaliação para modelos de \textit{embedding}, estabelecendo um referencial padronizado para comparação de desempenho \cite{muennighoff2022mteb}.
+
+\subsection{Relação entre Qualidade do Embedding e Granularidade do Chunk}
+
+A qualidade das representações vetoriais é sensível ao comprimento e à coesão semântica dos fragmentos codificados \cite{salemi2024evaluating}. Fragmentos excessivamente curtos tendem a perder o contexto necessário para uma representação semântica precisa, produzindo vetores que capturam significados parciais ou ambíguos. Fragmentos excessivamente longos, por outro lado, tendem a diluir a informação relevante em meio a conteúdo tangencial, comprometendo a especificidade da representação vetorial e, consequentemente, a precisão da busca por similaridade. Essa relação direta entre a granularidade dos fragmentos e a qualidade da representação vetorial constitui um dos fundamentos centrais que justificam o estudo sistemático das estratégias de \textit{chunking}.
+
+% ---
+\section{Tokenização}
+\label{sec:tokenizacao}
+
+A tokenização constitui a etapa computacional responsável pela conversão de sequências de caracteres em linguagem natural para sequências de identificadores numéricos interpretáveis pelos modelos neurais. Essa transformação é um pré-requisito absoluto tanto para o processamento pelos LLMs quanto para a geração de \textit{embeddings} pelos modelos de representação vetorial.
+
+A abordagem predominante nos modelos de linguagem contemporâneos é a tokenização por subpalavras, implementada por algoritmos como o \textit{Byte-Pair Encoding} (BPE) \cite{sennrich2016bpe}. O BPE opera construindo iterativamente um vocabulário de subpalavras a partir de um corpus de treinamento, fundindo progressivamente os pares de símbolos mais frequentes até que o vocabulário atinja um tamanho predefinido. Essa abordagem equilibra a cobertura lexical, que é a capacidade de representar qualquer palavra, incluindo neologismos e termos técnicos, com a eficiência de representação, produzindo um vocabulário compacto com representações densas.
+
+A tokenização possui relevância direta para este trabalho por duas razões fundamentais. Primeiramente, a janela de contexto dos LLMs é definida em unidades de tokens, o que implica que o tamanho efetivo dos fragmentos fornecidos ao modelo deve ser mensurado nessa unidade para evitar truncamentos. Em segundo lugar, a correspondência entre caracteres e tokens varia significativamente em função do idioma e do vocabulário técnico empregado. Na língua portuguesa, palavras longas e compostas comuns na terminologia científica agrícola podem ser decompostas em múltiplos tokens pelo algoritmo BPE, fazendo com que um texto com $N$ caracteres consuma substancialmente mais tokens do que o equivalente em inglês.
+
+Neste trabalho, a mensuração do tamanho dos fragmentos é realizada exclusivamente em tokens, utilizando a biblioteca \texttt{tiktoken} com a codificação \texttt{cl100k\_base}, adotada pelos modelos GPT-4 e Ada-002 da OpenAI. Essa decisão garante que os parâmetros de configuração das estratégias de \textit{chunking} sejam diretamente comparáveis e alinhados com os limites efetivos dos modelos utilizados no pipeline.
+
+
+% ---
+\section{Bancos de Dados Vetoriais}
+\label{sec:vectordb}
+
+Os bancos de dados vetoriais são sistemas de armazenamento e indexação projetados especificamente para suportar operações eficientes de busca por similaridade em espaços de alta dimensionalidade. No contexto de um pipeline RAG, esses sistemas armazenam os vetores produzidos pelo modelo de \textit{embedding} e respondem a consultas retornando os $k$ vetores mais similares ao vetor da consulta submetida.
+
+\subsection{Busca Aproximada ao Vizinho Mais Próximo}
+
+A busca exata pelo vizinho mais próximo em espaços de alta dimensão apresenta complexidade computacional proibitiva para aplicações em larga escala, degradando-se para complexidade linear $O(n)$ devido ao fenômeno da ``maldição da dimensionalidade''. Para contornar essa limitação, os bancos de dados vetoriais empregam algoritmos de busca aproximada ao vizinho mais próximo (\textit{Approximate Nearest Neighbor}, ANN), que sacrificam uma pequena fração da precisão em troca de ganhos substanciais em velocidade de consulta.
+
+O algoritmo HNSW (\textit{Hierarchical Navigable Small World}) destaca-se como uma das estruturas de grafos mais amplamente adotadas na prática para busca vetorial aproximada \cite{malkov2018hnsw}. O HNSW constrói um grafo hierárquico de múltiplas camadas, onde cada camada representa o espaço vetorial com diferentes graus de granularidade. A busca inicia nas camadas superiores, que são mais esparsas, e progressivamente refina o resultado nas camadas inferiores, mais densas, alcançando complexidade aproximada $O(\log n)$ com excelente equilíbrio entre velocidade e precisão de recuperação.
+
+A biblioteca FAISS (\textit{Facebook AI Similarity Search}) oferece implementações otimizadas de múltiplos algoritmos de busca vetorial, incluindo IVF, PQ e HNSW, com suporte a aceleração por GPU \cite{johnson2019faiss}, sendo referência em ambientes de pesquisa e produção para busca de similaridade em escala de bilhões de vetores.
+
+\subsection{ChromaDB como Componente Fixo}
+
+Neste trabalho, o banco de dados vetorial selecionado é o ChromaDB, operando em modo \textit{in-memory}. A escolha fundamenta-se em três critérios: (i) simplicidade de integração com o \textit{framework} LangChain, que constitui a base de orquestração do pipeline; (ii) ausência de dependências externas de infraestrutura, como contêineres Docker, simplificando a reprodutibilidade experimental; e (iii) utilização interna do algoritmo HNSW para indexação e busca, garantindo eficiência adequada para os volumes de dados previstos neste estudo. Conforme a perspectiva modular adotada, o banco de dados vetorial é mantido como componente fixo do pipeline, de modo que sua influência sobre os resultados experimentais seja neutralizada na comparação entre as estratégias de \textit{chunking}.
+
+
+% ---
+\section{Estratégias de \textit{Chunking}}
+\label{sec:chunking}
+
+O \textit{chunking} é o processo computacional de divisão dos documentos-fonte em fragmentos menores antes de sua indexação no banco de dados vetorial. A estratégia adotada para essa divisão determina a granularidade semântica, a coesão contextual e o tamanho dos fragmentos que serão posteriormente codificados como vetores e utilizados na etapa de recuperação. A escolha da estratégia influencia, portanto, toda a cadeia subsequente do pipeline RAG \cite{finardi2024chronicles, wang2024bestpractices}. As três estratégias avaliadas neste trabalho são apresentadas a seguir.
+
+\subsection{\textit{Fixed-size Chunking} (Segmentação de Tamanho Fixo)}
+
+A segmentação de tamanho fixo constitui a abordagem mais elementar e computacionalmente eficiente para o fracionamento de documentos. O algoritmo percorre o texto de forma linear e realiza cortes em intervalos regulares definidos por um número predeterminado de tokens ou caracteres, produzindo fragmentos de dimensões uniformes. Para atenuar a perda de continuidade semântica nas fronteiras entre fragmentos consecutivos, é comum a configuração de uma região de sobreposição (\textit{overlap}), na qual uma fração do final de um fragmento é replicada no início do fragmento seguinte.
+
+Essa estratégia é amplamente adotada como \textit{baseline} em experimentos e \textit{benchmarks} de sistemas RAG \cite{wang2024bestpractices} por sua previsibilidade e simplicidade de implementação. Sua principal limitação, no entanto, reside na completa insensibilidade à estrutura semântica e sintática do texto: os pontos de corte são destinados de forma exclusiva por critérios quantitativos (contagem de tokens), desconsiderando fronteiras naturais como parágrafos, sentenças ou unidades conceituais. Essa característica pode resultar na fragmentação de sentenças, na separação de conceitos interdependentes e na produção de fragmentos semanticamente incoerentes \cite{barnett2024failure}.
+
+A sobreposição entre fragmentos consecutivos atenua parcialmente esse problema ao garantir que informações próximas às fronteiras de corte estejam presentes em mais de um fragmento. No entanto, a sobreposição introduz redundância no banco de dados vetorial e amplia o volume de armazenamento necessário, sem resolver a fragmentação semântica em sua essência.
+
+\subsection{\textit{Recursive Character Text Splitting} (Divisão Hierárquica Recursiva)}
+
+O \textit{Recursive Character Text Splitter} representa uma evolução em relação à segmentação de tamanho fixo ao incorporar sensibilidade parcial à estrutura do texto. O algoritmo opera com uma lista hierárquica de separadores textuais, ordenados por prioridade decrescente de preservação estrutural. Em sua configuração típica, a lista inclui: quebras de parágrafo (\verb|\n\n|), quebras de linha simples (\verb|\n|), pontos finais (\verb|.|), vírgulas e espaços em branco.
+
+O processamento inicia-se pela tentativa de dividir o texto utilizando o separador de maior prioridade, que são as quebras de parágrafo. Se os fragmentos resultantes respeitam o limite de tamanho máximo configurado, a divisão é aceita. Caso algum fragmento exceda o limite, o algoritmo aplica recursivamente o próximo separador da hierarquia sobre os fragmentos problemáticos, repetindo o processo até que todos os fragmentos se enquadrem dentro dos limites estabelecidos.
+
+Essa abordagem recursiva preserva a integridade estrutural do texto em maior grau do que a segmentação fixa, uma vez que os pontos de corte tendem a coincidir com fronteiras linguísticas naturais definidas pelo próprio autor do documento. A implementação do \textit{Recursive Character Text Splitter} é nativa do \textit{framework} LangChain e constitui a estratégia mais amplamente adotada em implementações de produção de sistemas RAG \cite{finardi2024chronicles}, o que a torna um ponto de comparação de relevância prática imediata.
+
+\subsection{\textit{Semantic Chunking} (Segmentação Semântica Baseada em \textit{Embeddings})}
+
+A segmentação semântica representa a abordagem de maior sofisticação computacional entre as estratégias avaliadas neste trabalho. Ao contrário das abordagens anteriores, que se baseiam em critérios puramente quantitativos, como no tamanho fixo, ou estruturais, como nos separadores textuais, a segmentação semântica utiliza modelos de \textit{embedding} para analisar o conteúdo significativo do texto e determinar os pontos de corte com base em transições temáticas identificadas algoritmicamente.
+
+O algoritmo implementado neste trabalho opera nas seguintes etapas sequenciais:
+
+\begin{enumerate}
+    \item \textbf{Segmentação sentencial}: o texto é dividido em sentenças individuais por meio de expressões regulares que identificam marcadores de finalização sentencial (pontos finais, interrogações e exclamações);
+    
+    \item \textbf{Codificação vetorial}: cada sentença $s_i$ é submetida ao modelo de \textit{embedding}, gerando sua representação vetorial $\mathbf{v}_i \in \mathbb{R}^d$;
+    
+    \item \textbf{Cálculo de distâncias}: a distância de cosseno entre cada par de sentenças consecutivas é computada:
+    \begin{equation}
+      d_i = 1 - \frac{\mathbf{v}_i \cdot \mathbf{v}_{i+1}}{\|\mathbf{v}_i\|\,\|\mathbf{v}_{i+1}\|}
+    \end{equation}
+    \noindent onde valores elevados de $d_i$ indicam baixa similaridade semântica entre as sentenças adjacentes, sugerindo uma transição temática no texto;
+    
+    \item \textbf{Determinação do limiar de corte}: um limiar dinâmico $T$ é calculado como o percentil $p$ do vetor de distâncias $\mathbf{d} = [d_1, d_2, \ldots, d_{n-1}]$:
+    \begin{equation}
+      T = P_p(\mathbf{d})
+    \end{equation}
+    \noindent onde $P_p$ denota a função de percentil de ordem $p$. Essa abordagem adaptativa calibra automaticamente o limiar em função da distribuição estatística das distâncias observadas no texto específico em processamento;
+    
+    \item \textbf{Inserção de quebras}: uma fronteira de fragmento é inserida entre as sentenças $s_i$ e $s_{i+1}$ sempre que $d_i > T$, agrupando sentenças semanticamente relacionadas em um mesmo fragmento.
+\end{enumerate}
+
+A segmentação semântica tende a produzir fragmentos internamente coesos e tematicamente homogêneos, o que favorece a geração de representações vetoriais mais precisas e, consequentemente, melhora a qualidade da recuperação por similaridade. Uma variante recente dessa abordagem é a segmentação semântica baseada em máximos e mínimos (\textit{Max-Min Semantic Chunking}), que refina o critério de corte combinando distâncias máximas e mínimas para equilibrar coesão interna e separação inter-fragmentos \cite{semantic2025maxmin}.
+
+O custo computacional da segmentação semântica é substancialmente superior ao das abordagens anteriores, uma vez que requer a geração de \textit{embeddings} para todas as sentenças do texto antes mesmo da criação dos fragmentos finais. Esse custo adicional é incorrido apenas uma vez (durante a fase de indexação) e é amortizado ao longo de todas as consultas subsequentes ao sistema.
+
+
+% ---
+\section{\textit{Framework} de Avaliação: RAGAS}
+\label{sec:ragas}
+
+A avaliação quantitativa de sistemas RAG apresenta desafios metodológicos específicos, pois é necessário mensurar simultaneamente a qualidade da recuperação (os fragmentos corretos foram encontrados?) e a qualidade da geração (a resposta sintetizada é fiel ao contexto e relevante para a pergunta?). As métricas tradicionais de recuperação de informação (precisão e revocação) e as métricas de avaliação de geração textual (BLEU e ROUGE) capturam apenas aspectos parciais e superficiais do desempenho de um sistema RAG, sendo insuficientes para uma avaliação abrangente \cite{salemi2024evaluating}.
+
+O \textit{framework} RAGAS (\textit{RAG Assessment}) foi desenvolvido especificamente para suprir essa lacuna de avaliação automatizada \cite{ragas2024}. O RAGAS implementa um conjunto de métricas automatizadas que utilizam o próprio LLM como avaliador (\textit{LLM-as-a-judge}), operando sobre quatro dimensões complementares:
+
+\begin{itemize}
+    \item \textbf{Faithfulness (Fidelidade)}: mensura o grau em que as afirmações presentes na resposta gerada estão ancoradas e sustentadas pelo contexto recuperado. O procedimento de cálculo envolve a decomposição automática da resposta em afirmações atômicas individuais, seguida da verificação de cada afirmação contra o conteúdo do contexto. O escore final é computado como a razão entre o número de afirmações suportadas pelo contexto e o número total de afirmações identificadas na resposta. Escores baixos de fidelidade indicam a presença de alucinações;
+    
+    \item \textbf{Answer Relevance (Relevância da Resposta)}: avalia a pertinência e a completude da resposta em relação à pergunta formulada. A métrica opera gerando perguntas hipotéticas a partir da resposta e calculando a similaridade semântica média entre essas perguntas geradas e a pergunta original. Respostas que abordam tangencialmente o tema ou que omitem informações solicitadas recebem escores reduzidos;
+    
+    \item \textbf{Context Relevance (Relevância do Contexto)}: mensura a proporção do contexto recuperado que é efetivamente relevante para responder à pergunta, identificando e penalizando a presença de fragmentos ruidosos ou irrelevantes no conjunto recuperado. Essa métrica é particularmente sensível à estratégia de \textit{chunking}, pois fragmentos semanticamente coesos tendem a conter maior proporção de conteúdo pertinente à consulta;
+    
+    \item \textbf{Context Recall (Revocação do Contexto)}: avalia se o sistema recuperou todos os fragmentos necessários para construir uma resposta correta e completa. O cálculo requer a existência de uma resposta de referência (\textit{ground truth}) anotada por especialistas humanos, contra a qual o contexto recuperado é comparado. O LLM avaliador verifica se cada elemento informacional presente na resposta de referência pode ser derivado do contexto recuperado.
+\end{itemize}
+
+A combinação dessas quatro métricas fornece uma visão multidimensional do desempenho do sistema RAG, permitindo a identificação precisa de deficiências em componentes específicos do pipeline. No contexto deste trabalho, as métricas de relevância e revocação do contexto são especialmente relevantes, pois refletem diretamente a qualidade dos fragmentos produzidos pela estratégia de \textit{chunking}.
+
+
+% ---
+\section{O Domínio Agronômico: Particularidades e Desafios}
+\label{sec:agronomia}
+
+A aplicação de sistemas RAG em domínios técnicos especializados impõe desafios adicionais que transcendem as dificuldades encontradas em contextos genéricos. O domínio agronômico brasileiro, selecionado para a validação prática deste trabalho, exemplifica de forma evidente essas particularidades.
+
+A literatura técnica agrícola, representada por manuais de recomendações, boletins de pesquisa e compêndios oficiais publicados por órgãos de pesquisa como a Embrapa, apresenta características textuais singulares que desafiam as estratégias convencionais de segmentação. Em primeiro lugar, a terminologia empregada é altamente especializada, incluindo conceitos como estádios fenológicos, germinação epígea, fotoperíodo e coeficientes de evapotranspiração, cujas definições e inter-relações são fundamentais para a compreensão correta do conteúdo.
+
+Em segundo lugar, os textos agronômicos frequentemente apresentam uma estrutura conceitual fortemente interligada, na qual informações apresentadas em parágrafos adjacentes são mutuamente dependentes. As exigências microclimáticas para o desenvolvimento de uma cultura, por exemplo, envolvem simultaneamente a temperatura do ar, a temperatura do solo, a umidade do substrato e a profundidade de semeadura. Estes conceitos, embora tratados em sentenças ou parágrafos distintos, formam um complexo de informações indissociáveis. A fragmentação arbitrária dessas relações conceituais por uma estratégia de \textit{chunking} insensível à semântica pode gerar fragmentos que capturam dados numéricos isolados de suas condições de aplicabilidade, levando o sistema RAG a produzir recomendações incompletas ou incorretas. A título de exemplo prático, o manual de \textit{Ecofisiologia da Soja} \cite{neumaier2020ecofisiologia} ilustra essa complexidade ao tratar de temas técnicos densos onde a precisão na fragmentação é vital.
+
+Em terceiro lugar, o volume de dados anotados disponíveis para avaliação automatizada de sistemas de perguntas e respostas no domínio agronômico brasileiro é extremamente limitado. A construção de um conjunto de dados anotado com perguntas e respostas de referência para esse domínio técnico constitui, portanto, uma contribuição relevante deste trabalho, fornecendo recursos úteis para pesquisas futuras. Embora o dataset agronômico final ainda esteja sob definição e estruturação, a validação inicial do pipeline é realizada de forma qualitativa para demonstrar a viabilidade da abordagem proposta.
+
+
+% ==========================================================
+\chapter{Procedimentos Metodológicos e Implementação}
+\label{cap:metodologia}
+% ==========================================================
+
+Este capítulo descreve os procedimentos metodológicos adotados e as implementações computacionais realizadas ao longo do desenvolvimento deste trabalho. A exposição abrange o delineamento experimental, a configuração dos componentes do pipeline RAG, a implementação das estratégias de \textit{chunking} como classes Python reutilizáveis, o processamento de textos de teste do domínio agronômico e a correção de inconsistências encontradas nas bibliotecas utilizadas.
+
+
+\section{Delineamento Experimental}
+
+O fundamento metodológico deste estudo reside em um delineamento experimental controlado, no qual todos os componentes do pipeline RAG são mantidos fixos com exceção da variável independente sob investigação: a estratégia de \textit{chunking}. Essa abordagem de controle experimental garante que quaisquer diferenças observadas nos resultados das métricas de avaliação possam ser atribuídas à estratégia de segmentação empregada.
+
+\subsection{Configuração e Ambiente de Execução}
+
+Com o intuito de viabilizar a execução de modelos de linguagem e processamento de embeddings sem as restrições de desempenho do hardware local, o ambiente computacional adotado para a execução das avaliações e testes do pipeline é a plataforma Google Colab. Esse ambiente permite a utilização de instâncias aceleradas por hardware em nuvem, garantindo a reprodutibilidade dos testes e a eficiência computacional necessária para as rodadas de processamento em lote.
+
+Os seguintes componentes iniciais são adotados para a validação qualitativa do pipeline:
+
+\begin{itemize}
+    \item \textbf{Modelo de \textit{Embedding}}: o modelo definitivo de representação vetorial ainda será selecionado a partir de testes empíricos adicionais na literatura e em benchmarks de embeddings. Para fins de validação e realização dos testes qualitativos preliminares deste relatório, adotou-se o modelo \texttt{sentence-transformers/all-MiniLM-L6-v2}, que codifica sentenças em vetores de 384 dimensões;
+    
+    \item \textbf{Banco de Dados Vetorial}: ChromaDB em modo \textit{in-memory}, com indexação baseada no algoritmo HNSW. A operação em memória elimina variabilidade decorrente de operações de entrada e saída em disco, contribuindo para a reprodutibilidade dos experimentos;
+    
+    \item \textbf{Parâmetro \textit{Top-k}}: fixado em $k = 3$, determinando que exatamente três fragmentos são recuperados por consulta. Esse valor foi selecionado como compromisso entre a provisão de contexto suficiente para a geração e a contenção de ruído informacional;
+    
+    \item \textbf{\textit{Framework} de Orquestração}: LangChain em ambiente Python, utilizado para a composição e a execução do pipeline, incluindo a cadeia de recuperação e a formatação do \textit{prompt} de geração.
+\end{itemize}
+
+\subsection{Fases Experimentais}
+
+A avaliação será conduzida em duas fases complementares:
+
+\textbf{Fase 1, Benchmark Genérico}: utiliza um \textit{dataset} consolidado na literatura, composto por perguntas, contextos e respostas de referência (\textit{ground truth}), permitindo a validação da robustez metodológica do experimento e a comparação com resultados publicados.
+
+\textbf{Fase 2, Domínio Agronômico}: aplica o mesmo protocolo experimental a um conjunto de dados do domínio agronômico nacional a ser definido e estruturado ao longo do projeto. Embora a ecofisiologia da soja seja utilizada neste relatório preliminar para testes qualitativos ilustrativos, a definição final da base documental e da área agrícola do dataset definitivo permanece em aberto.
+
+\section{Correção da Unidade de Medida: O Problema da Contagem de Caracteres}
+
+Durante a fase de implementação das estratégias de \textit{chunking}, identificou-se uma inconsistência metodológica significativa nas bibliotecas de orquestração. A classe nativa \texttt{RecursiveCharacterTextSplitter} do \textit{framework} LangChain, amplamente utilizada como implementação padrão para segmentação recursiva, emprega por padrão a contagem de \textbf{caracteres} como critério para a determinação do tamanho dos fragmentos. Essa configuração padrão introduz uma distorção sistemática na comparação entre estratégias, uma vez que a janela de contexto dos LLMs é definida em \textbf{tokens} e a relação entre caracteres e tokens varia em função do idioma, do vocabulário técnico e da codificação do tokenizador utilizado.
+
+No caso da língua portuguesa e, em particular, do vocabulário técnico agronômico, termos compostos e de alta complexidade morfológica (como ``evapotranspiração'', ``fotossintato'' ou ``nodulação'') são decompostos pelo tokenizador BPE em múltiplos tokens, fazendo com que a contagem de caracteres subestime o consumo efetivo de tokens. Um fragmento configurado para 512 ``caracteres'' pode, na prática, conter apenas 100 a 150 tokens, gerando fragmentos substancialmente menores do que o pretendido e comprometendo a comparabilidade entre estratégias.
+
+Para resolver essa inconsistência, todas as estratégias implementadas neste trabalho utilizam uma função de comprimento customizada baseada na biblioteca \texttt{tiktoken}, que computa a contagem exata de tokens de acordo com a codificação \texttt{cl100k\_base}. Essa padronização garante que os parâmetros de tamanho configurados para cada estratégia sejam efetivamente expressos em tokens, tornando os resultados experimentais diretamente comparáveis.
+
+
+\section{Implementação das Estratégias de \textit{Chunking}}
+
+Cada uma das três estratégias de segmentação foi implementada como uma subclasse customizada dos componentes do LangChain, garantindo uma interface uniforme para a integração com o pipeline RAG. Os códigos-fonte das implementações são apresentados a seguir.
+
+\subsection{Implementação do \textit{Fixed-size Chunker}}
+
+O Código~\ref{lst:fixedsize} apresenta a implementação da estratégia de segmentação de tamanho fixo com contagem de tokens via \texttt{tiktoken}.
+
+\begin{lstlisting}[language=Python, caption={Implementação do \textit{Fixed-size Chunker} com contagem de tokens via \texttt{tiktoken}.}, label=lst:fixedsize]
+import tiktoken
+from langchain.text_splitter import CharacterTextSplitter
+
+class FixedSizeTokenChunker(CharacterTextSplitter):
+    """Chunker de tamanho fixo baseado em contagem 
+    real de tokens via tiktoken."""
+    
+    def __init__(self, chunk_size=512, chunk_overlap=51,
+                 encoding_name="cl100k_base", **kwargs):
+        self.tokenizer = tiktoken.get_encoding(encoding_name)
+        super().__init__(
+            separator="",
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            length_function=self._token_length,
+            **kwargs
+        )
+
+    def _token_length(self, text: str) -> int:
+        """Retorna o comprimento em tokens."""
+        return len(self.tokenizer.encode(text))
+\end{lstlisting}
+
+\subsection{Implementação do \textit{Recursive Chunker}}
+
+O Código~\ref{lst:recursive} apresenta a implementação da estratégia de divisão hierárquica recursiva, igualmente adaptada para contagem de tokens.
+
+\begin{lstlisting}[language=Python, caption={Implementação do \textit{Recursive Character Text Splitter} com contagem de tokens via \texttt{tiktoken}.}, label=lst:recursive]
+import tiktoken
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+class RecursiveTokenChunker(RecursiveCharacterTextSplitter):
+    """Chunker recursivo com contagem de tokens 
+    via tiktoken."""
+    
+    def __init__(self, chunk_size=512, chunk_overlap=51,
+                 encoding_name="cl100k_base", **kwargs):
+        self.tokenizer = tiktoken.get_encoding(encoding_name)
+        super().__init__(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            length_function=self._token_length,
+            separators=["\n\n", "\n", ". ", " ", ""],
+            **kwargs
+        )
+
+    def _token_length(self, text: str) -> int:
+        """Retorna o comprimento em tokens."""
+        return len(self.tokenizer.encode(text))
+\end{lstlisting}
+
+\subsection{Implementação do \textit{Semantic Chunker}}
+
+O Código~\ref{lst:semantic} apresenta a implementação completa da estratégia de segmentação semântica baseada em \textit{embeddings}, incluindo a segmentação sentencial, o cálculo de distâncias de cosseno e a determinação do limiar dinâmico por percentil.
+
+\begin{lstlisting}[language=Python, caption={Implementação do \textit{Semantic Chunker} com \textit{breakpoints} baseados em distância de cosseno e limiar por percentil.}, label=lst:semantic]
+import re
+import numpy as np
+from typing import List
+from langchain.text_splitter import TextSplitter
+
+class SemanticChunker(TextSplitter):
+    """Chunker semantico baseado na distancia de cosseno 
+    entre embeddings de sentencas consecutivas."""
+    
+    def __init__(self, embeddings, 
+                 percentile_threshold=70.0, **kwargs):
+        super().__init__(**kwargs)
+        self.embeddings = embeddings
+        self.percentile_threshold = percentile_threshold
+
+    def split_text(self, text: str) -> List[str]:
+        # Segmentacao sentencial via regex
+        sentences = [s.strip() for s in 
+                     re.split(r'(?<=[.!?])\s+', text) 
+                     if s.strip()]
+        if len(sentences) <= 1:
+            return sentences
+
+        # Codificacao vetorial de cada sentenca
+        embs = self.embeddings.embed_documents(sentences)
+        
+        # Calculo das distancias de cosseno consecutivas
+        distances = []
+        for i in range(len(embs) - 1):
+            v1 = np.array(embs[i])
+            v2 = np.array(embs[i + 1])
+            sim = np.dot(v1, v2) / (
+                np.linalg.norm(v1) * np.linalg.norm(v2))
+            distances.append(
+                1.0 - float(np.clip(sim, -1.0, 1.0)))
+
+        # Limiar dinamico por percentil
+        threshold = np.percentile(
+            distances, self.percentile_threshold)
+        
+        # Agrupamento de sentencas em chunks
+        chunks, current = [], [sentences[0]]
+        for i, dist in enumerate(distances):
+            if dist > threshold:
+                chunks.append(" ".join(current))
+                current = [sentences[i + 1]]
+            else:
+                current.append(sentences[i + 1])
+        if current:
+            chunks.append(" ".join(current))
+        return chunks
+\end{lstlisting}
+
+\section{Ingestão e Processamento da Base Documental Agronômica de Teste}
+
+A validação qualitativa inicial do pipeline RAG requer o processamento de textos técnicos do domínio agronômico. Para esta validação inicial, utilizou-se como base documental de teste o manual \textit{Ecofisiologia da Soja} \cite{neumaier2020ecofisiologia}, publicado pela Embrapa Soja, servindo como uma representação ilustrativa da densidade conceitual encontrada nos textos agrícolas nacionais. O documento original, disponível em formato PDF, foi processado computacionalmente por meio da biblioteca \texttt{PyPDF} em Python.
+
+O algoritmo de extração e pré-processamento realiza as seguintes operações sequenciais: (i) extração do texto bruto a partir das páginas do PDF correspondentes à seção de exigências climáticas; (ii) remoção de cabeçalhos e rodapés institucionais recorrentes por meio de expressões regulares; (iii) exclusão de legendas de figuras e créditos fotográficos não passíveis de representação semântica adequada; (iv) correção de hifenizações artificiais introduzidas pela formatação de margem do documento impresso; e (v) remoção das referências bibliográficas finais para evitar a inclusão de conteúdo não informativo no banco de dados vetorial.
+
+O produto desse processamento é um corpo textual contínuo, pronto para ser submetido às três estratégias de segmentação avaliadas neste trabalho. A definição final do dataset agronômico e da área específica a ser abordada no trabalho definitivo permanece em aberto.
+
+
+% ==========================================================
+\chapter{Resultados e Discussões Preliminares}
+\label{cap:resultados}
+% ==========================================================
+
+Este capítulo apresenta os resultados preliminares obtidos durante as fases iniciais de implementação e teste do pipeline RAG desenvolvido neste trabalho. Os resultados reportados são de natureza qualitativa, derivados de análises manuais das saídas do sistema para consultas de teste específicas aplicadas ao texto selecionado para validação preliminar. A avaliação quantitativa completa, empregando o \textit{framework} RAGAS e análise estatística, será conduzida na fase subsequente de testes definitivos.
+
+
+\section{Análise Qualitativa das Estratégias no Domínio Agronômico de Teste}
+
+Para avaliar qualitativamente as diferenças de comportamento entre as três estratégias de segmentação implementadas, submeteu-se o texto processado do manual de ecofisiologia da soja ao pipeline RAG configurado com cada uma das três estratégias, utilizando a seguinte consulta de teste:
+
+\begin{citacao}
+``Quais são as exigências térmicas e de temperatura do solo para a germinação da soja?''
+\end{citacao}
+
+Essa consulta foi selecionada por abordar um tópico no qual as informações técnicas relevantes encontram-se distribuídas ao longo de múltiplas sentenças e parágrafos interconectados no documento original. As exigências térmicas para germinação da cultura envolvem a temperatura mínima do solo (aproximadamente 20°C), a faixa ótima de temperatura do ar (entre 20°C e 30°C), as condições de umidade do substrato e os efeitos de temperaturas extremas sobre o vigor das plântulas, conceitos que no texto original são apresentados de forma progressiva e interdependente.
+
+A Tabela~\ref{tab:qualitativa} sintetiza os comportamentos observados para cada estratégia e seus impactos sobre a qualidade da recuperação contextual.
+
+\begin{table}[ht]
+\centering
+\caption{Análise qualitativa comparativa das estratégias de \textit{chunking} aplicadas à consulta sobre exigências térmicas de germinação.}
+\label{tab:qualitativa}
+\begin{tabular}{p{3cm}p{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Estratégia} & \textbf{Comportamento Observado na Segmentação} & \textbf{Impacto na Qualidade da Recuperação} \\
+\midrule
+Fixed-size (512 tokens) & A fronteira de corte fixa posicionou-se no interior de uma sentença técnica, separando o valor numérico da temperatura mínima do solo (20°C) do parágrafo subsequente que descreve suas implicações para a emergência das plântulas. & Fragmento recuperado continha dados numéricos isolados de seu contexto explicativo, gerando risco de resposta incompleta ou de alucinação por omissão contextual. \\
+\midrule
+Recursive (512 tokens, 10\% overlap) & Preservou a integridade das sentenças individuais, respeitando os limites impostos pelos pontos finais. Contudo, segmentou em blocos distintos a introdução conceitual das exigências térmicas e os dados numéricos específicos de temperatura. & A busca vetorial retornou o fragmento introdutório conceitual, de maior proximidade semântica com a consulta, porém desprovido dos valores numéricos precisos necessários para uma resposta completa. \\
+\midrule
+Semantic (Percentil 70) & Detectou a continuidade temática entre as sentenças que descrevem as exigências de temperatura do ar, temperatura do solo e condições de umidade, mantendo o conjunto completo de informações correlatas em um único fragmento coeso. & Recuperação precisa e integral do contexto necessário, fornecendo todas as informações técnicas requeridas para a construção de uma resposta completa. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Discussão dos Resultados Preliminares}
+
+Os resultados qualitativos observados são consistentes com as previsões teóricas fundamentadas na literatura e corroboram as hipóteses estabelecidas sobre a sensibilidade da qualidade do RAG à estratégia de segmentação adotada \cite{wang2024bestpractices, finardi2024chronicles}.
+
+A segmentação de tamanho fixo demonstrou a fragilidade esperada ao operar em textos técnicos com alta coesão conceitual: a fronteira de corte baseada na contagem de tokens desconsiderou a estrutura semântica do texto, produzindo fragmentos que capturavam dados numéricos isolados de suas condições de aplicabilidade. Essa fragmentação é particularmente problemática no domínio agronômico, onde valores numéricos de temperatura, umidade e profundidade de semeadura são indissociáveis de seus contextos de aplicação.
+
+A divisão hierárquica recursiva apresentou comportamento intermediário: ao respeitar os limites sentenciais impostos pelos pontos finais, preservou a integridade sintática dos fragmentos, porém separou em blocos distintos informações que, embora distribuídas em parágrafos separados no documento original, pertencem ao mesmo complexo conceitual. Essa observação sugere que a sensibilidade estrutural (baseada em delimitadores gramaticais) é condição necessária, porém insuficiente, para a preservação da coesão semântica em textos técnicos.
+
+A segmentação semântica demonstrou capacidade de identificar a continuidade temática entre sentenças adjacentes, agrupando em um único fragmento todas as informações relevantes sobre as exigências térmicas de germinação. Esse comportamento decorre do mecanismo de limiar dinâmico por percentil, que identifica as transições temáticas significativas no texto com base nas distâncias de cosseno entre os \textit{embeddings} das sentenças consecutivas. As sentenças que abordam diferentes aspectos de um mesmo conceito apresentaram baixas distâncias de cosseno entre si, indicando alta similaridade semântica, e foram consequentemente agrupadas no mesmo fragmento.
+
+Esses achados preliminares motivam a condução das avaliações quantitativas completas previstas na fase subsequente de testes definitivos, na qual as métricas do \textit{framework} RAGAS serão empregadas para quantificar as diferenças de desempenho observadas.
+
+% ----------------------------------------------------------
+% ELEMENTOS PÓS-TEXTUAIS
+% ----------------------------------------------------------
+\postextual
+
+
+% ----------------------------------------------------------
+% Referências bibliográficas
+% ----------------------------------------------------------
+\bibliography{references}
+
+
+%---------------------------------------------------------------------
+% INDICE REMISSIVO (elemento opcional)
+%---------------------------------------------------------------------
+\printindex
+
+\end{document}
