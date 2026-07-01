@@ -32,9 +32,9 @@ def get_gemini_response(prompt: str, model_client) -> str:
         print(f"Erro ao gerar resposta com o Gemini: {e}")
         return "Erro na geração da resposta."
 
-def load_llama_model():
+def load_qwen_model():
     """
-    Carrega o modelo LLaMA 3.1 8B Instruct localmente com quantização de 4 bits.
+    Carrega o modelo Qwen 2.5 7B Instruct localmente com quantização de 4 bits.
     """
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, pipeline
@@ -43,11 +43,11 @@ def load_llama_model():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     if device == "cpu":
         raise RuntimeError(
-            "CUDA (GPU) não está disponível. O carregamento do LLaMA local em 4 bits requer GPU.\n"
+            "CUDA (GPU) não está disponível. O carregamento do Qwen local em 4 bits requer GPU.\n"
             "Verifique se o runtime está configurado com aceleração de GPU (ex: T4 no Colab)."
         )
         
-    model_id = "meta-llama/Llama-3.1-8B-Instruct"
+    model_id = "Qwen/Qwen2.5-7B-Instruct"
     print(f"Carregando tokenizer para {model_id}...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     
@@ -66,7 +66,7 @@ def load_llama_model():
         device_map="auto"
     )
     
-    llama_pipe = pipeline(
+    qwen_pipe = pipeline(
         "text-generation",
         model=model,
         tokenizer=tokenizer,
@@ -75,42 +75,43 @@ def load_llama_model():
         do_sample=True
     )
     
-    return HuggingFacePipeline(pipeline=llama_pipe)
+    return HuggingFacePipeline(pipeline=qwen_pipe)
 
-def get_llama_response(prompt: str, llama_pipeline) -> str:
+def get_qwen_response(prompt: str, qwen_pipeline) -> str:
     """
-    Gera a resposta do RAG utilizando o LLaMA 3.1 local.
+    Gera a resposta do RAG utilizando o Qwen 2.5 local.
     """
     try:
-        response = llama_pipeline.invoke(prompt)
+        response = qwen_pipeline.invoke(prompt)
         if prompt in response:
             response = response.replace(prompt, "")
         return response.strip()
     except Exception as e:
-        print(f"Erro ao gerar resposta com o LLaMA: {e}")
+        print(f"Erro ao gerar resposta com o Qwen: {e}")
         return "Erro na geração da resposta."
 
 def run_rag_evaluation():
-    # 1. Verificar chaves de API para RAGAS e Gemini
+    # 1. Verificar chaves de API para RAGAS e Gemini (opcional, para fallback em CPU)
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("GEMINI_API_KEY não encontrada nas variáveis de ambiente.")
-        api_key = input("API Key do Gemini: ").strip()
+    if api_key:
+        genai.configure(api_key=api_key)
+        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+        print("✅ API Key do Gemini configurada para fallback.")
+    else:
+        gemini_model = None
+        print("ℹ️ GEMINI_API_KEY não configurada. Executando em modo 100% local (sem fallback em nuvem).")
         
-    if not api_key:
-        print("Erro: Chave de API do Gemini é necessária para rodar a avaliação RAGAS.")
-        return
-        
-    genai.configure(api_key=api_key)
-    gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-    
-    # Inicializar o LLaMA 3.1 8B local se GPU disponível, caso contrário usar Gemini de fallback
+    # Inicializar o Qwen 2.5 7B local
     try:
-        llama_model = load_llama_model()
+        qwen_model = load_qwen_model()
     except Exception as e:
-        print(f"\n[AVISO] Falha ao carregar o LLaMA 3.1 8B local: {e}")
-        print("Usando o Gemini 1.5 Flash como gerador de fallback para esta execução.")
-        llama_model = None
+        print(f"\n[FALHA] Erro ao inicializar o Qwen local: {e}")
+        if gemini_model is not None:
+            print("Usando o Gemini 1.5 Flash em nuvem como fallback...")
+            qwen_model = None
+        else:
+            print("Não há API Key do Gemini configurada para fallback. Abortando execução.")
+            return
     
     # 2. Carregar o Dataset de QA
     qa_path = script_dir.parent / "Textos_exemplo" / "qa_dataset.json"
@@ -188,18 +189,21 @@ def run_rag_evaluation():
             context_text = "\n\n".join(contexts)
             
             # B. Geração (Generation)
-            if llama_model is not None:
-                prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+            if qwen_model is not None:
+                prompt = f"""<|im_start|>system
 Você é um assistente virtual agronômico de alta precisão.
 Responda à pergunta do usuário baseando-se estritamente nas informações fornecidas no contexto abaixo.
 Se a resposta não estiver contida no contexto, diga "Não encontrei essa informação no contexto".
-Não invente nenhum fato ou valor numérico que não esteja explicitamente escrito no contexto.<|eot_id|><|start_header_id|>user<|end_header_id|>
+Não invente nenhum fato ou valor numérico que não esteja explicitamente escrito no contexto.<|im_end|>
+<|im_start|>user
 Contexto:
 {context_text}
 
 Pergunta:
-{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-                answer = get_llama_response(prompt, llama_model)
+{question}<|im_end|>
+<|im_start|>assistant
+"""
+                answer = get_qwen_response(prompt, qwen_model)
             else:
                 prompt = f"""
 Você é um assistente virtual agronômico de alta precisão.
@@ -233,22 +237,30 @@ Resposta:
     print(" INICIANDO AVALIAÇÃO RAGAS ".center(50, "="))
     print("="*50)
     
-    # Instalador automático do Ragas se não estiver presente
     try:
         from datasets import Dataset
         from ragas import evaluate
         from ragas.metrics import faithfulness, answer_relevance, context_precision, context_recall
-        # Para Ragas usar o Gemini na avaliação
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        from langchain_google_genai import GoogleGenAIEmbeddings
+        # Para Ragas usar modelos locais
+        from ragas.llms import LangchainLLM
+        from ragas.embeddings import LangchainEmbeddings
     except ImportError:
-        print("Erro: Ragas ou LangChain-Google não instalados. No Colab, certifique-se de rodar:")
-        print("!pip install ragas langchain-google-genai datasets pandas")
+        print("Erro: Ragas ou dependências não instaladas. No Colab, certifique-se de rodar:")
+        print("!pip install ragas datasets pandas")
         return
         
-    evaluator_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
-    evaluator_embeddings = GoogleGenAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
-    
+    # Configurar avaliadores locais ou fallback em nuvem
+    if qwen_model is not None:
+        print("Configurando RAGAS para avaliação local usando Qwen 2.5 e BGE-M3...")
+        evaluator_llm = LangchainLLM(llm=qwen_model)
+        evaluator_embeddings = LangchainEmbeddings(embeddings=embeddings)
+    else:
+        print("Configurando RAGAS para avaliação em nuvem (fallback)...")
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        from langchain_google_genai import GoogleGenAIEmbeddings
+        evaluator_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
+        evaluator_embeddings = GoogleGenAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
+        
     metrics = [faithfulness, answer_relevance, context_precision, context_recall]
     
     ragas_scores = {}
@@ -257,7 +269,7 @@ Resposta:
         print(f"\nCalculando métricas RAGAS para: {strategy.upper()}...")
         dataset = Dataset.from_pandas(df)
         
-        # Executar o Ragas com o avaliador Gemini
+        # Executar o Ragas
         eval_result = evaluate(
             dataset=dataset,
             metrics=metrics,

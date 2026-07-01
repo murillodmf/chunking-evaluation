@@ -34,3 +34,6 @@ TCC_PRELIMINAR_LATEX/*.bbl
 TCC_PRELIMINAR_LATEX/*.run.xml
 TCC_PRELIMINAR_LATEX/*.bcf
 TCC_PRELIMINAR_LATEX/*.pdf
+
+# Notebooks do Colab (podem conter chaves de API pessoais)
+*.ipynb

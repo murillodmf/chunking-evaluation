@@ -224,6 +224,7 @@ Large Language Models (LLMs) represent one of the most significant advances in n
   \item[ANN] Approximate Nearest Neighbor (Vizinho Mais Próximo Aproximado)
   \item[ANOVA] Analysis of Variance (Análise de Variância)
   \item[API] Application Programming Interface
+  \item[BAAI] Beijing Academy of Artificial Intelligence
   \item[BGE] BAAI General Embedding
   \item[BPE] Byte-Pair Encoding
   \item[BERT] Bidirectional Encoder Representations from Transformers
@@ -239,6 +240,7 @@ Large Language Models (LLMs) represent one of the most significant advances in n
   \item[RAGAS] RAG Assessment
   \item[RLHF] Reinforcement Learning from Human Feedback
   \item[RNN] Recurrent Neural Network (Rede Neural Recorrente)
+  \item[SLM] Small Language Model (Modelo de Linguagem de Pequeno Porte)
   \item[SQuAD] Stanford Question Answering Dataset
   \item[UEL] Universidade Estadual de Londrina
 \end{siglas}
@@ -351,6 +353,18 @@ A viabilidade prática dos SLMs baseia-se na constatação de que modelos menore
 
 No contexto de sistemas especializados em domínios delimitados, a utilização de SLMs apresenta vantagens significativas. Como o sistema não necessita de conhecimentos genéricos abrangentes, a especialização de um SLM por meio de RAG permite que um modelo menor recupere e processe fatos específicos do domínio de forma eficiente, viabilizando a execução econômica do pipeline de inferência localmente ou em ambientes com restrição de GPU.
 
+No escopo deste trabalho, o modelo selecionado para atuar como o gerador central do pipeline RAG é o \textbf{Llama-3.1-8B-Instruct}, desenvolvido pela Meta. A escolha desse modelo fundamenta-se em três pilares principais:
+
+\begin{enumerate}
+    \item \textbf{Poder de Raciocínio em Textos Densos}: com uma escala de 8 bilhões de parâmetros, o Llama-3.1-8B possui uma capacidade de representação conceitual superior se comparado a modelos mais compactos de 1B a 3B de parâmetros. Textos do domínio agronômico apresentam relações complexas de causa e efeito e dependências cruzadas (por exemplo, a determinação de estádios fenológicos e suas respectivas faixas ótimas de umidade do solo), exigindo que o modelo decodifique e integre múltiplos trechos de informações correlacionadas presentes no contexto recuperado. O modelo Llama-3.1-8B demonstra competência superior nessa síntese lógica;
+    
+    \item \textbf{Seguimento Rígido de Instruções e Alinhamento}: o ajuste fino por instruções e o alinhamento com preferências humanas (\textit{RLHF}) do Llama-3.1-8B-Instruct conferem ao modelo uma aderência rigorosa às restrições de comportamento inseridas no \textit{prompt}. Em sistemas RAG técnicos, é crítico instruir o modelo a responder estritamente com base nas evidências fornecidas no contexto e a emitir declarações de desconhecimento (ex: ``não sei'' ou ``não encontrado no texto'') caso a resposta não esteja presente nas passagens recuperadas. Modelos menores frequentemente falham em respeitar essas restrições, recorrendo a tentativas de extrapolação conceitual que resultam no surgimento de alucinações;
+    
+    \item \textbf{Referencial Científico e Reprodutibilidade}: a família de modelos Llama 3/3.1 estabeleceu-se como o estado da arte e o benchmark de referência para a comunidade acadêmica de código aberto, conferindo robustez metodológica ao TCC perante a banca examinadora ao empregar um modelo amplamente validado em pesquisas contemporâneas.
+\end{enumerate}
+
+Para mitigar a restrição computacional imposta pela plataforma Google Colab, que disponibiliza tipicamente GPUs Tesla T4 com 16 GB de VRAM (insuficientes para carregar a versão FP16 completa de um modelo de 8B parâmetros em tempo de inferência e avaliação), a implantação do modelo utiliza a técnica de \textbf{quantização em 4 bits}. Essa otimização de precisão numérica é viabilizada através da biblioteca \texttt{bitsandbytes}, reduzindo significativamente a pegada de memória do modelo e o consumo de VRAM sem acarretar degradação substancial em sua acurácia de raciocínio.
+
 % ---
 \section{Recuperação Aumentada por Geração (RAG)}
 \label{sec:rag}
@@ -405,6 +419,18 @@ Os modelos da família MiniLM, derivados do Sentence-BERT por meio de técnicas 
 O modelo \textit{Dense Passage Retrieval} (DPR) opera com uma arquitetura bi-encoder treinada especificamente para a tarefa de recuperação de passagens em sistemas de perguntas e respostas \cite{karpukhin2020dpr}. Os resultados demonstraram que modelos de \textit{embedding} treinados com objetivos de recuperação superam abordagens de recuperação esparsa baseadas em correspondência lexical (como o BM25) em múltiplos \textit{benchmarks} de domínio aberto.
 
 Modelos de geração mais recente, a exemplo do BGE M3-Embedding, estendem as capacidades de recuperação vetorial para cenários multilíngues e multigranulares \cite{bge2024improving}. O benchmark \textit{Massive Text Embedding Benchmark} (MTEB) consolidou uma suíte de 56 tarefas de avaliação para modelos de \textit{embedding}, estabelecendo um referencial padronizado para comparação de desempenho \cite{muennighoff2022mteb}.
+
+No escopo deste projeto, o modelo selecionado como a representação vetorial oficial do pipeline RAG é o \textbf{BGE-M3}, desenvolvido pela BAAI (\textit{Beijing Academy of Artificial Intelligence}). O BGE-M3 destaca-se como um dos modelos abertos mais potentes e versáteis da atualidade. O acrônimo ``M3'' refere-se aos três pilares arquiteturais fundamentais que sustentam seu desempenho superior:
+
+\begin{itemize}
+    \item \textbf{Multi-lingualidade (Multi-Linguality)}: o modelo foi pré-treinado em um corpus massivo que abrange mais de 100 idiomas. Esse suporte robusto é de vital importância para a aplicação prática deste trabalho, uma vez que a literatura agronômica brasileira é redigida em português. Modelos treinados de forma dominante em inglês apresentam degradação conceitual significativa ao traduzir semanticamente termos da terminologia agrícola nacional. O BGE-M3 preserva a coerência semântica e a relação entre palavras complexas em língua portuguesa;
+    
+    \item \textbf{Multi-funcionalidade (Multi-Functionality)}: a arquitetura do BGE-M3 é unificada de forma a suportar simultaneamente três métodos principais de recuperação de informação: a busca densa tradicional (baseada em similaridade de cosseno de vetores densos), a busca esparsa lexical (que computa pesos de importância para termos específicos semelhantes ao BM25) e a representação multi-vetor (que adota buscas do tipo ColBERT baseadas em múltiplos vetores por token). Essa característica viabiliza o desenvolvimento de mecanismos híbridos de busca semântica e correspondência de palavras-chave, o que é altamente valioso em domínios técnicos que exigem precisão lexical rigorosa;
+    
+    \item \textbf{Multi-granularidade (Multi-Granularity)}: o modelo suporta de forma nativa contextos longos de entrada de até 8.192 tokens. Modelos tradicionais (como a família MiniLM) limitam a entrada a 512 tokens, o que provoca a perda de informações contextuais em fragmentos de texto mais longos. O suporte a 8k tokens no BGE-M3 expande a flexibilidade do design experimental, permitindo avaliar estratégias de \textit{chunking} com maior amplitude sem o risco de truncamento vetorial na entrada.
+\end{itemize}
+
+O principal trade-off na escolha do BGE-M3 reside no seu custo computacional e latência. Por se tratar de um modelo de maior complexidade de parâmetros (com tamanho de arquivo de aproximadamente 2,2 GB), ele demanda recursos computacionais substancialmente maiores e maior tempo de inferência por codificação em comparação a modelos leves de 384 dimensões como o \texttt{all-MiniLM-L6-v2}. Consequentemente, sua execução eficiente exige a alocação de hardware acelerado por GPU no ambiente Google Colab para garantir a viabilidade operacional do pipeline em processamentos de lote.
 
 \subsection{Relação entre Qualidade do Embedding e Granularidade do Chunk}
 
@@ -548,13 +574,15 @@ Com o intuito de viabilizar a execução de modelos de linguagem e processamento
 Os seguintes componentes iniciais são adotados para a validação qualitativa do pipeline:
 
 \begin{itemize}
-    \item \textbf{Modelo de \textit{Embedding}}: o modelo definitivo de representação vetorial ainda será selecionado a partir de testes empíricos adicionais na literatura e em benchmarks de embeddings. Para fins de validação e realização dos testes qualitativos preliminares deste relatório, adotou-se o modelo \texttt{sentence-transformers/all-MiniLM-L6-v2}, que codifica sentenças em vetores de 384 dimensões;
+    \item \textbf{Modelo de \textit{Embedding}}: BGE-M3 (desenvolvido pela BAAI). O modelo foi adotado como o padrão de representação vetorial do projeto devido às suas capacidades nativas de processamento multilingue (fornecendo excelente representação para a língua portuguesa), suporte a busca híbrida (densidade, esparsidade lexical e multi-vetor) e limite ampliado de contexto de entrada (8.192 tokens), o que é ideal para a representação de fragmentos maiores (*chunks* longos). A inferência é acelerada por GPU Tesla T4 no Google Colab devido ao tamanho do modelo (~2,2 GB);
+    
+    \item \textbf{Modelo Gerador (\textit{Small Language Model} - SLM)}: Llama-3.1-8B-Instruct (desenvolvido pela Meta). A escolha fundamenta-se em seu elevado poder de raciocínio lógico (8 bilhões de parâmetros), permitindo a correta interpretação de relações conceituais complexas encontradas nos textos agrícolas brasileiros, e na sua capacidade superior de seguimento rígido de instruções em linguagem natural (evitando a ocorrência de alucinações). Devido às restrições de memória de vídeo (VRAM) da GPU Tesla T4 (16 GB) no Google Colab, o modelo é implantado sob a técnica de quantização de 4 bits por meio da biblioteca \texttt{bitsandbytes};
     
     \item \textbf{Banco de Dados Vetorial}: ChromaDB em modo \textit{in-memory}, com indexação baseada no algoritmo HNSW. A operação em memória elimina variabilidade decorrente de operações de entrada e saída em disco, contribuindo para a reprodutibilidade dos experimentos;
     
     \item \textbf{Parâmetro \textit{Top-k}}: fixado em $k = 3$, determinando que exatamente três fragmentos são recuperados por consulta. Esse valor foi selecionado como compromisso entre a provisão de contexto suficiente para a geração e a contenção de ruído informacional;
     
-    \item \textbf{\textit{Framework} de Orquestração}: LangChain em ambiente Python, utilizado para a composição e a execução do pipeline, incluindo a cadeia de recuperação e a formatação do \textit{prompt} de geração.
+    \item \textbf{\textit{Framework} de Orquestração}: LangChain em ambiente Python, utilizado para a composição e a execução do pipeline, incluindo a cadeia de recuperação, orquestração das chamadas ao embedding e ao SLM, e a formatação do \textit{prompt} de geração.
 \end{itemize}
 
 \subsection{Fases Experimentais}
