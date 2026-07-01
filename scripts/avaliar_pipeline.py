@@ -243,6 +243,17 @@ Pergunta:
     print("-"*50)
     
     try:
+        import sys
+        from unittest.mock import MagicMock
+        
+        # Correção de compatibilidade: o Ragas tenta importar o ChatVertexAI por padrão.
+        # Como não vamos usar o VertexAI (estamos usando o Qwen), criamos um "dummy" 
+        # para enganar o import e evitar o ModuleNotFoundError.
+        if 'langchain_community.chat_models.vertexai' not in sys.modules:
+            dummy_module = MagicMock()
+            dummy_module.ChatVertexAI = MagicMock
+            sys.modules['langchain_community.chat_models.vertexai'] = dummy_module
+            
         from datasets import Dataset
         from ragas import evaluate
         from ragas.metrics import faithfulness, answer_relevance, context_precision, context_recall
