@@ -2,7 +2,6 @@ import os
 import json
 import re
 from pathlib import Path
-import google.generativeai as genai
 from pypdf import PdfReader
 
 def load_and_clean_pdf(pdf_path: str) -> str:
@@ -80,76 +79,105 @@ def split_text_into_large_blocks(text: str, block_size_chars: int = 5000) -> lis
         current_idx = end_idx
     return blocks
 
-def generate_qa_pairs_for_block(block: str, gemini_client) -> list:
+def load_qwen_model():
     """
-    Usa o Gemini para gerar perguntas e respostas técnicas baseadas no bloco de texto.
+    Carrega o modelo Qwen 2.5 7B Instruct localmente com quantização de 4 bits.
     """
-    prompt = f"""
+    import torch
+    from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, pipeline
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device == "cpu":
+        raise RuntimeError(
+            "CUDA (GPU) não está disponível. O carregamento do Qwen local em 4 bits requer GPU.\n"
+            "Verifique se o runtime está configurado com aceleração de GPU (ex: T4 no Colab)."
+        )
+        
+    model_id = "Qwen/Qwen2.5-7B-Instruct"
+    print(f"Carregando tokenizer para {model_id}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    
+    print("Configurando quantização de 4 bits (bitsandbytes)...")
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16
+    )
+    
+    print(f"Carregando modelo {model_id} (isso pode levar alguns minutos na primeira vez)...")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=bnb_config,
+        device_map="auto"
+    )
+    
+    qwen_pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        max_new_tokens=1024,
+        temperature=0.3,
+        do_sample=True
+    )
+    
+    return qwen_pipe, tokenizer
+
+def generate_qa_pairs_for_block(block: str, qwen_pipe) -> list:
+    """
+    Usa o Qwen 2.5 7B local para gerar perguntas e respostas técnicas baseadas no bloco de texto.
+    """
+    prompt = f"""<|im_start|>system
 Você é um especialista em Agronomia e Inteligência Artificial.
 Baseando-se exclusivamente no texto técnico da Embrapa fornecido abaixo, crie de 3 a 5 perguntas técnicas de alta qualidade acompanhadas de suas respectivas respostas de referência (ground_truth).
 
 Regras obrigatórias:
 1. As perguntas devem ser extremamente específicas e detalhadas, típicas de provas ou consultas técnicas de agrônomos (ex: evitar perguntas genéricas como "O que é soja?", prefira "Qual o efeito de temperaturas do solo abaixo de 20°C na germinação da soja?").
 2. A resposta de referência (ground_truth) deve ser detalhada, completa e conter todos os fatos e dados numéricos presentes no texto que respondam à pergunta.
-3. Retorne a resposta estritamente formatada como um array JSON válido de objetos, sem blocos de código adicionais (como ```json) ou introduções. Cada objeto do array deve ter as chaves "question" e "ground_truth".
-
-Exemplo de formato esperado:
-[
-  {{
-    "question": "Pergunta 1...",
-    "ground_truth": "Resposta 1..."
-  }},
-  {{
-    "question": "Pergunta 2...",
-    "ground_truth": "Resposta 2..."
-  }}
-]
-
+3. Retorne a resposta estritamente formatada como um array JSON válido de objetos, sem blocos de código adicionais (como ```json) ou introduções. Cada objeto do array deve ter as chaves "question" e "ground_truth".<|im_end|>
+<|im_start|>user
 Texto de referência:
 ---
 {block}
 ---
+
+Gere o array JSON de perguntas e respostas:<|im_end|>
+<|im_start|>assistant
 """
     try:
-        response = gemini_client.generate_content(prompt)
-        text_response = response.text.strip()
+        result = qwen_pipe(prompt, return_full_text=False)
+        text_response = result[0]["generated_text"].strip()
         
-        # Limpar markdown do JSON se o modelo teimar em retornar com ```json
+        # Limpar markdown do JSON se o modelo retornar com ```json
         if text_response.startswith("```json"):
             text_response = text_response[7:]
+        if text_response.startswith("```"):
+            text_response = text_response[3:]
         if text_response.endswith("```"):
             text_response = text_response[:-3]
         text_response = text_response.strip()
         
         qa_pairs = json.loads(text_response)
         return qa_pairs
+    except json.JSONDecodeError as e:
+        print(f"Erro ao parsear JSON da resposta do Qwen: {e}")
+        return []
     except Exception as e:
         print(f"Erro ao gerar perguntas para o bloco: {e}")
         return []
 
 def main():
-    # 1. Configurar API do Gemini
-    # No Colab, o usuário deve setar a API key nas "Secrets" com o nome GEMINI_API_KEY
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("AVISO: GEMINI_API_KEY não encontrada nas variáveis de ambiente.")
-        print("Insira a chave do Gemini manualmente abaixo para prosseguir (ou configure no Colab Secrets):")
-        api_key = input("API Key do Gemini: ").strip()
-        
-    if not api_key:
-        print("Erro: Chave de API necessária.")
-        return
-        
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # 1. Carregar modelo Qwen 2.5 7B local (100% gratuito, sem API keys)
+    print("=" * 60)
+    print(" GERAÇÃO DE DATASET QA - 100% LOCAL (Qwen 2.5 7B)")
+    print("=" * 60)
+    
+    qwen_pipe, tokenizer = load_qwen_model()
+    print("✅ Modelo Qwen 2.5 7B carregado com sucesso!\n")
     
     # 2. Carregar texto do PDF
     script_dir = Path(__file__).parent.resolve()
-    pdf_path = script_dir / "ecofisiologia_soja_embrapa.pdf"
-    
-    # Caso esteja rodando no repositório clonado no Colab
-    if not pdf_path.exists():
-        pdf_path = script_dir.parent / "Textos_exemplo" / "ecofisiologia_soja_embrapa.pdf"
+    pdf_path = script_dir.parent / "Textos_exemplo" / "ecofisiologia_soja_embrapa.pdf"
         
     if not pdf_path.exists():
         pdf_path = Path("Textos_exemplo/ecofisiologia_soja_embrapa.pdf")
@@ -163,13 +191,13 @@ def main():
         
     # 3. Dividir texto em blocos grandes
     blocks = split_text_into_large_blocks(text_content)
-    print(f"Texto dividido em {len(blocks)} blocos de contexto.")
+    print(f"Texto dividido em {len(blocks)} blocos de contexto.\n")
     
-    # 4. Iterar e gerar as perguntas
+    # 4. Iterar e gerar as perguntas usando Qwen local
     all_qa_pairs = []
     for idx, block in enumerate(blocks):
         print(f"Gerando perguntas para o bloco {idx+1}/{len(blocks)}...")
-        block_qa = generate_qa_pairs_for_block(block, model)
+        block_qa = generate_qa_pairs_for_block(block, qwen_pipe)
         print(f"-> Gerou {len(block_qa)} pares de perguntas e respostas.")
         all_qa_pairs.extend(block_qa)
         

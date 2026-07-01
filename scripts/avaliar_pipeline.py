@@ -2,7 +2,6 @@ import os
 import json
 import pandas as pd
 from pathlib import Path
-import google.generativeai as genai
 
 # Importando os components do LangChain
 from langchain_core.documents import Document
@@ -21,16 +20,6 @@ from recursive_chunker import MeuRecursiveChunkerTCC
 from semantic_chunker import MeuSemanticChunkerTCC
 from gerar_dataset_qa import load_and_clean_pdf
 
-def get_gemini_response(prompt: str, model_client) -> str:
-    """
-    Função utilitária para chamar a API do Gemini e gerar a resposta do RAG (fallback).
-    """
-    try:
-        response = model_client.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Erro ao gerar resposta com o Gemini: {e}")
-        return "Erro na geração da resposta."
 
 def load_qwen_model():
     """
@@ -91,27 +80,18 @@ def get_qwen_response(prompt: str, qwen_pipeline) -> str:
         return "Erro na geração da resposta."
 
 def run_rag_evaluation():
-    # 1. Verificar chaves de API para RAGAS e Gemini (opcional, para fallback em CPU)
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if api_key:
-        genai.configure(api_key=api_key)
-        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-        print("✅ API Key do Gemini configurada para fallback.")
-    else:
-        gemini_model = None
-        print("ℹ️ GEMINI_API_KEY não configurada. Executando em modo 100% local (sem fallback em nuvem).")
-        
-    # Inicializar o Qwen 2.5 7B local
+    # 1. Inicializar o Qwen 2.5 7B local (100% local, sem APIs)
+    print("="*60)
+    print(" AVALIAÇÃO RAG - 100% LOCAL (Qwen 2.5 7B + BGE-M3)")
+    print("="*60)
+    
     try:
         qwen_model = load_qwen_model()
+        print("✅ Qwen 2.5 7B carregado com sucesso!\n")
     except Exception as e:
         print(f"\n[FALHA] Erro ao inicializar o Qwen local: {e}")
-        if gemini_model is not None:
-            print("Usando o Gemini 1.5 Flash em nuvem como fallback...")
-            qwen_model = None
-        else:
-            print("Não há API Key do Gemini configurada para fallback. Abortando execução.")
-            return
+        print("Verifique se o runtime está configurado com GPU (T4).")
+        return
     
     # 2. Carregar o Dataset de QA
     qa_path = script_dir.parent / "Textos_exemplo" / "qa_dataset.json"
@@ -188,9 +168,8 @@ def run_rag_evaluation():
             contexts = [doc.page_content for doc in retrieved_docs]
             context_text = "\n\n".join(contexts)
             
-            # B. Geração (Generation)
-            if qwen_model is not None:
-                prompt = f"""<|im_start|>system
+            # B. Geração (Generation) - Qwen 2.5 local
+            prompt = f"""<|im_start|>system
 Você é um assistente virtual agronômico de alta precisão.
 Responda à pergunta do usuário baseando-se estritamente nas informações fornecidas no contexto abaixo.
 Se a resposta não estiver contida no contexto, diga "Não encontrei essa informação no contexto".
@@ -203,23 +182,7 @@ Pergunta:
 {question}<|im_end|>
 <|im_start|>assistant
 """
-                answer = get_qwen_response(prompt, qwen_model)
-            else:
-                prompt = f"""
-Você é um assistente virtual agronômico de alta precisão.
-Responda à pergunta do usuário baseando-se estritamente nas informações fornecidas no contexto abaixo.
-Se a resposta não estiver contida no contexto, diga "Não encontrei essa informação no contexto".
-Não invente nenhum fato ou valor numérico que não esteja explicitamente escrito no contexto.
-
-Contexto:
-{context_text}
-
-Pergunta:
-{question}
-
-Resposta:
-"""
-                answer = get_gemini_response(prompt, gemini_model)
+            answer = get_qwen_response(prompt, qwen_model)
             
             records.append({
                 "question": question,
@@ -249,17 +212,10 @@ Resposta:
         print("!pip install ragas datasets pandas")
         return
         
-    # Configurar avaliadores locais ou fallback em nuvem
-    if qwen_model is not None:
-        print("Configurando RAGAS para avaliação local usando Qwen 2.5 e BGE-M3...")
-        evaluator_llm = LangchainLLM(llm=qwen_model)
-        evaluator_embeddings = LangchainEmbeddings(embeddings=embeddings)
-    else:
-        print("Configurando RAGAS para avaliação em nuvem (fallback)...")
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        from langchain_google_genai import GoogleGenAIEmbeddings
-        evaluator_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
-        evaluator_embeddings = GoogleGenAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
+    # Configurar avaliadores 100% locais
+    print("Configurando RAGAS para avaliação local usando Qwen 2.5 e BGE-M3...")
+    evaluator_llm = LangchainLLM(llm=qwen_model)
+    evaluator_embeddings = LangchainEmbeddings(embeddings=embeddings)
         
     metrics = [faithfulness, answer_relevance, context_precision, context_recall]
     
