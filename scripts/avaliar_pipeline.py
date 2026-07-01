@@ -248,8 +248,9 @@ Pergunta:
         from ragas.metrics import faithfulness, answer_relevance, context_precision, context_recall
         from ragas.llms import LangchainLLM
         from ragas.embeddings import LangchainEmbeddings
-    except ImportError:
-        print("Erro: Ragas não instalado. (!pip install ragas)")
+    except Exception as e:
+        print(f"Erro ao importar dependências do Ragas: {e}")
+        print("Tente rodar: !pip install langchain langchain-community ragas datasets")
         return
         
     try:
