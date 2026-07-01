@@ -271,7 +271,7 @@ Pergunta:
         return
         
     print("Configurando RAGAS para avaliação local usando Qwen 2.5 e BGE-M3...")
-    evaluator_llm = LangchainLLM(llm=qwen_model)
+    evaluator_llm = LangchainLLM(langchain_llm=qwen_model)
     evaluator_embeddings = LangchainEmbeddings(embeddings=embeddings)
         
     metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
