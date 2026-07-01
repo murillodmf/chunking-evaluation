@@ -256,9 +256,9 @@ Pergunta:
             
         from datasets import Dataset
         from ragas import evaluate
-        from ragas.metrics import faithfulness, answer_relevance, context_precision, context_recall
-        from ragas.llms import LangchainLLM
-        from ragas.embeddings import LangchainEmbeddings
+        from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
+        from ragas.llms import LangchainLLMWrapper as LangchainLLM
+        from ragas.embeddings import LangchainEmbeddingsWrapper as LangchainEmbeddings
     except Exception as e:
         print(f"Erro ao importar dependências do Ragas: {e}")
         print("Tente rodar: !pip install langchain langchain-community ragas datasets")
@@ -274,7 +274,7 @@ Pergunta:
     evaluator_llm = LangchainLLM(llm=qwen_model)
     evaluator_embeddings = LangchainEmbeddings(embeddings=embeddings)
         
-    metrics = [faithfulness, answer_relevance, context_precision, context_recall]
+    metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
     ragas_scores = {}
     
     for strategy, df in results_by_strategy.items():
@@ -293,7 +293,7 @@ Pergunta:
         ragas_scores[strategy] = scores_df
         
         print(f"\nResultados Médios - {strategy.upper()}:")
-        for metric in ["faithfulness", "answer_relevance", "context_precision", "context_recall"]:
+        for metric in ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]:
             if metric in eval_result:
                 print(f"  {metric.capitalize()}: {eval_result[metric]:.4f}")
                 
@@ -307,7 +307,7 @@ Pergunta:
     csv_path = output_dir / "ragas_evaluation_results.csv"
     all_scores.to_csv(csv_path, index=False, encoding="utf-8")
     
-    summary = all_scores.groupby("strategy")[["faithfulness", "answer_relevance", "context_precision", "context_recall"]].mean()
+    summary = all_scores.groupby("strategy")[["faithfulness", "answer_relevancy", "context_precision", "context_recall"]].mean()
     summary_path = output_dir / "ragas_summary.csv"
     summary.to_csv(summary_path, encoding="utf-8")
     
