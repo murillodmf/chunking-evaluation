@@ -79,7 +79,7 @@ GEN_QA_TEMP = 0.3
 RAG_TOKENS = 512
 RAG_TEMP = 0.1
 JUDGE_TOKENS = 256  # juiz RAGAS gera pouco (notas/JSON); 512 estourava a T4
-JUDGE_TEMP = 0.0
+JUDGE_TEMP = 0.1  # >0 obrigatorio: transformers rejeita temperature=0.0 com do_sample=True
 
 EMBEDDINGS_DEVICE = "cpu"  # BGE-M3 na CPU libera ~2,3 GB de VRAM p/ os LLMs
 RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
