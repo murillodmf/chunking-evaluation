@@ -62,21 +62,76 @@ def free_vram() -> None:
 # ----------------------------------------------------------------------------
 # PDF genérico (parametrizado por documento — ver config.DOCS)
 # ----------------------------------------------------------------------------
-def load_and_clean_pdf(pdf_path: str, doc_cfg: dict) -> str:
+def _extract_with_pymupdf(pdf_path: str, start_page: int = 0) -> str:
+    """Extração primária via PyMuPDF (melhor com fontes sem ToUnicode)."""
+    import pymupdf
+
+    doc = pymupdf.open(pdf_path)
+    try:
+        parts = []
+        for i in range(start_page, len(doc)):
+            parts.append(doc[i].get_text("text") or "")
+        return "\n".join(parts)
+    finally:
+        doc.close()
+
+
+def _extract_with_pypdf(pdf_path: str, start_page: int = 0) -> str:
+    """Extração de fallback via pypdf."""
     from pypdf import PdfReader
 
+    reader = PdfReader(str(pdf_path))
+    extracted = []
+    for i in range(start_page, len(reader.pages)):
+        t = reader.pages[i].extract_text()
+        if t:
+            extracted.append(t)
+    return "\n".join(extracted)
+
+
+def _text_quality(text: str) -> dict:
+    """Gate de qualidade: detecta extração degenerada (glifos /0 /1, sem pontuação)."""
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    return {
+        "chars": len(text),
+        "dots": text.count("."),
+        "nsent": len(sentences),
+    }
+
+
+def load_and_clean_pdf(pdf_path: str, doc_cfg: dict) -> str:
     path = Path(pdf_path)
     if not path.exists():
         raise FileNotFoundError(f"PDF não encontrado em: {path.absolute()}")
     print(f"Lendo PDF de: {path.absolute()}")
-    reader = PdfReader(str(path))
+    start_page = doc_cfg.get("start_page", 0)
 
-    extracted = []
-    for i in range(doc_cfg.get("start_page", 0), len(reader.pages)):
-        t = reader.pages[i].extract_text()
-        if t:
-            extracted.append(t)
-    full = "\n".join(extracted)
+    # 1) Tenta PyMuPDF (primário); 2) fallback pypdf. Escolhe o de melhor qualidade.
+    candidates = {}
+    try:
+        candidates["pymupdf"] = _extract_with_pymupdf(str(path), start_page)
+    except Exception as e:
+        print(f"[extração] pymupdf falhou ({e}); tentando pypdf...")
+    try:
+        candidates["pypdf"] = _extract_with_pypdf(str(path), start_page)
+    except Exception as e:
+        print(f"[extração] pypdf falhou ({e}).")
+
+    if not candidates:
+        raise RuntimeError(f"Nenhum extrator conseguiu ler {path.name}. PDF escaneado? Considere OCR.")
+
+    scored = {k: _text_quality(v) for k, v in candidates.items()}
+    for k, q in scored.items():
+        print(f"[extração] {k}: chars={q['chars']} dots={q['dots']} nsent={q['nsent']}")
+    # Critério: mais sentenças; desempate por mais pontos.
+    best = max(scored, key=lambda k: (scored[k]["nsent"], scored[k]["dots"]))
+    full = candidates[best]
+    print(f"[extração] selecionado: {best}")
+    q = scored[best]
+    if q["nsent"] < 10 or q["dots"] == 0:
+        raise RuntimeError(
+            f"Extração degenerada em {path.name} ({best}: nsent={q['nsent']}, dots={q['dots']}). "
+            "Fonte sem mapa ToUnicode. Troque o PDF ou rode OCR (ocrmypdf/tesseract).")
 
     full = re.sub(r'Figura \d+\..*?\.(?=\s*\n|\s*$)', '', full, flags=re.DOTALL)
 

@@ -7,6 +7,7 @@ langchain-chroma
 ragas
 datasets
 pypdf
+pymupdf
 tiktoken
 transformers
 bitsandbytes
