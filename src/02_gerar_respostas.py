@@ -75,11 +75,15 @@ def main() -> None:
     for strategy, db in dbs.items():
         print(f"\nGerando respostas: {strategy.upper()}")
         records = []
+        per_ctx = max(500, config.RAG_MAX_CONTEXT_CHARS // max(1, args.k))
         for i, item in enumerate(qa):
             ctx_docs = db.similarity_search(item["question"], k=args.k)
-            contexts = [d.page_content for d in ctx_docs]
+            # Trava anti-OOM: cada contexto e truncado; o prompt nunca explode
+            # mesmo que um chunk gigante seja recuperado.
+            contexts = [d.page_content[:per_ctx] for d in ctx_docs]
+            context_text = "\n\n".join(contexts)
             try:
-                ans = llm.invoke(rag_prompt("\n\n".join(contexts), item["question"]))
+                ans = llm.invoke(rag_prompt(context_text, item["question"]))
             except Exception as e:
                 print(f"  Erro na pergunta {i + 1}: {e}")
                 ans = "Erro na geração da resposta."

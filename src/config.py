@@ -68,13 +68,18 @@ BNB_4BIT = dict(
 # ----------------------------------------------------------------------------
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 51
-SEMANTIC_PERCENTILE = 70.0
+SEMANTIC_PERCENTILE = 50.0  # fixado no piloto (DOC1, BGE-M3): p50 -> ~10 chunks
+# p70 gerava blocos de >10k tokens; p30 fragmentava em 1 frase/chunk.
+# Percentil e parametro DO metodo (experimento continua puro); vale p/ todos os docs.
 TOP_K = 3
+RAG_MAX_CONTEXT_CHARS = 6000  # trava: prompt do Llama nunca passa disso em contexto
 
 GEN_QA_TOKENS = 1024
 GEN_QA_TEMP = 0.3
 RAG_TOKENS = 512
 RAG_TEMP = 0.1
+JUDGE_TOKENS = 256  # juiz RAGAS gera pouco (notas/JSON); 512 estourava a T4
+JUDGE_TEMP = 0.0
 
 EMBEDDINGS_DEVICE = "cpu"  # BGE-M3 na CPU libera ~2,3 GB de VRAM p/ os LLMs
 RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]

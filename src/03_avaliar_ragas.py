@@ -19,6 +19,11 @@ import common
 def main() -> None:
     ap = argparse.ArgumentParser(description="Fase 2: avaliação RAGAS (Qwen 2.5 7B).")
     ap.add_argument("--doc", default=config.DOC_ATIVO, choices=list(config.DOCS))
+    ap.add_argument("--strategy", default="todas",
+                    choices=["todas", "fixed", "recursive", "semantic"],
+                    help="Avalia 1 estrategia por processo (menos VRAM). Default: %(default)s")
+    ap.add_argument("--metrics", default=",".join(config.RAGAS_METRICS),
+                    help="Subset separado por virgula p/ smoke test. Default: todas")
     args = ap.parse_args()
 
     common.setup_reproducibility()
@@ -45,6 +50,8 @@ def main() -> None:
     from ragas.embeddings import LangchainEmbeddingsWrapper as LangchainEmbeddings
 
     strategies = ["fixed", "recursive", "semantic"]
+    if args.strategy != "todas":
+        strategies = [args.strategy]
     dfs = {}
     for s in strategies:
         p = paths["geracoes"](s)
@@ -53,13 +60,26 @@ def main() -> None:
         dfs[s] = pd.DataFrame(common.load_json(p))
         print(f"{s}: {len(dfs[s])} registros carregados de {p.name}.")
 
+    wanted = [m.strip() for m in args.metrics.split(",") if m.strip()]
+    metric_map = {
+        "faithfulness": faithfulness,
+        "answer_relevancy": answer_relevancy,
+        "context_precision": context_precision,
+        "context_recall": context_recall,
+    }
+    unknown = [m for m in wanted if m not in metric_map]
+    if unknown:
+        raise SystemExit(f"--metrics desconhecidas: {unknown}. Use: {list(metric_map)}")
+    metrics = [metric_map[m] for m in wanted]
+
     pipe, _ = common.build_causal_llm(
-        config.MODELS["juiz"], config.RAG_TOKENS, config.RAG_TEMP)
+        config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP)
     from langchain_huggingface import HuggingFacePipeline
     evaluator_llm = LangchainLLM(langchain_llm=HuggingFacePipeline(pipeline=pipe))
     evaluator_embeddings = LangchainEmbeddings(embeddings=common.build_embeddings())
 
-    metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
+    metrics = [metric_map[m] for m in wanted]
+
     out = {}
     for s, df in dfs.items():
         print(f"\nCalculando RAGAS para: {s.upper()}...")
@@ -71,13 +91,22 @@ def main() -> None:
         scored = res.to_pandas()
         scored["strategy"] = s
         out[s] = scored
-        for m in config.RAGAS_METRICS:
-            if m in res:
-                print(f"  {m}: {res[m]:.4f}")
+        # Media direta do DataFrame (EvaluationResult nao suporta `in`)
+        for m in wanted:
+            if m in scored.columns:
+                print(f"  {m}: {scored[m].mean():.4f}")
+            else:
+                print(f"  {m}: sem coluna (jobs falharam — ver NaN)")
+        # Salvamento incremental: se a proxima estrategia estourar VRAM,
+        # o progresso desta nao se perde.
+        partial = pd.concat(out.values(), ignore_index=True)
+        partial.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
+        common.free_vram()
 
     all_scores = pd.concat(out.values(), ignore_index=True)
     all_scores.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
-    summary = all_scores.groupby("strategy")[config.RAGAS_METRICS].mean()
+    present = [m for m in wanted if m in all_scores.columns]
+    summary = all_scores.groupby("strategy")[present].mean()
     summary.to_csv(paths["ragas_summary"], encoding="utf-8")
 
     print("\n" + "=" * 50)
