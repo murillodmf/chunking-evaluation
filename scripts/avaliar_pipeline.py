@@ -149,7 +149,7 @@ def run_rag_evaluation():
     print("\nInicializando HuggingFaceEmbeddings (BAAI/bge-m3)...")
     embeddings = HuggingFaceEmbeddings(
         model_name="BAAI/bge-m3",
-        model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"}
+        model_kwargs={"device": "cpu"}
     )
     
     # 4. Instanciar as 3 estratégias de chunking
