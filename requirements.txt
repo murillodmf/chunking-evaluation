@@ -1,0 +1,17 @@
+# Dependências do Colab (rode: pip install -r requirements.txt)
+# torch já vem no Colab com GPU; sentence-transformers vem via langchain-huggingface.
+langchain
+langchain-community
+langchain-huggingface
+langchain-chroma
+ragas
+datasets
+pypdf
+tiktoken
+transformers
+bitsandbytes
+accelerate
+pandas
+matplotlib
+seaborn
+huggingface_hub

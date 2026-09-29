@@ -35,5 +35,12 @@ TCC_PRELIMINAR_LATEX/*.run.xml
 TCC_PRELIMINAR_LATEX/*.bcf
 TCC_PRELIMINAR_LATEX/*.pdf
 
-# Notebooks do Colab (podem conter chaves de API pessoais)
+# Notebooks avulsos (podem conter chaves de API pessoais).
+# Exceção: o notebook oficial versionado em notebooks/.
 *.ipynb
+!notebooks/*.ipynb
+
+# Artefatos gerados pelo pipeline (grandes; regenere com src/01..03)
+Textos_exemplo/qa_dataset*.json
+analises/geracoes_*.json
+analises/ragas_*.csv
