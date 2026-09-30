@@ -78,8 +78,10 @@ GEN_QA_TOKENS = 1024
 GEN_QA_TEMP = 0.3
 RAG_TOKENS = 512
 RAG_TEMP = 0.1
-JUDGE_TOKENS = 256  # juiz RAGAS gera pouco (notas/JSON); 512 estourava a T4
-JUDGE_TEMP = 0.1  # >0 obrigatorio: transformers rejeita temperature=0.0 com do_sample=True
+JUDGE_TOKENS = 512  # vereditos RAGAS sao longos; 256 truncava o JSON no meio.
+# Na A100 (40GB) cabe; smoke na T4: prefira --metrics faithfulness.
+JUDGE_TEMP = 0.1  # ignorado com greedy (mantido p/ documentacao)
+JUDGE_DO_SAMPLE = False  # greedy: deterministico, melhor p/ JSON estrito do RAGAS
 
 EMBEDDINGS_DEVICE = "cpu"  # BGE-M3 na CPU libera ~2,3 GB de VRAM p/ os LLMs
 RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]

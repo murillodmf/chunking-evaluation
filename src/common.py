@@ -187,8 +187,13 @@ def _require_cuda() -> None:
         raise RuntimeError("CUDA (GPU) não disponível. Use um runtime com GPU (ex: T4 no Colab).")
 
 
-def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float):
-    """Carrega LLM causal 4 bits e devolve (pipeline, tokenizer)."""
+def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
+                     do_sample: bool = True):
+    """Carrega LLM causal 4 bits e devolve (pipeline, tokenizer).
+
+    do_sample=False = greedy (deterministico): recomendado p/ o juiz RAGAS,
+    que precisa emitir JSON estrito — amostragem gera saídas fora do schema.
+    """
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, pipeline
 
@@ -206,10 +211,10 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float):
     model = AutoModelForCausalLM.from_pretrained(
         model_id, quantization_config=bnb, device_map="auto"
     )
-    pipe = pipeline(
-        "text-generation", model=model, tokenizer=tokenizer,
-        max_new_tokens=max_new_tokens, temperature=temperature, do_sample=True,
-    )
+    gen_kwargs = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
+    if do_sample:
+        gen_kwargs["temperature"] = temperature
+    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, **gen_kwargs)
     vram_log(f"após carregar {model_id}")
     return pipe, tokenizer
 

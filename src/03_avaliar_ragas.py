@@ -73,12 +73,30 @@ def main() -> None:
     metrics = [metric_map[m] for m in wanted]
 
     pipe, _ = common.build_causal_llm(
-        config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP)
+        config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP,
+        do_sample=config.JUDGE_DO_SAMPLE)
     from langchain_huggingface import HuggingFacePipeline
     evaluator_llm = LangchainLLM(langchain_llm=HuggingFacePipeline(pipeline=pipe))
     evaluator_embeddings = LangchainEmbeddings(embeddings=common.build_embeddings())
 
     metrics = [metric_map[m] for m in wanted]
+
+    def persist(out: dict) -> "pd.DataFrame":
+        """Salva fundindo com o CSV ja em disco: cada run --strategy sobrescreve
+        APENAS as linhas das suas estrategias, sem apagar as demais."""
+        merged = pd.concat(out.values(), ignore_index=True)
+        if paths["ragas_csv"].exists():
+            try:
+                prev = pd.read_csv(paths["ragas_csv"])
+                prev = prev[~prev["strategy"].isin(list(out))]
+                merged = pd.concat([prev, merged], ignore_index=True)
+            except Exception as e:
+                print(f"[aviso] nao fundiu CSV previo ({e}); salvando so o atual.")
+        merged.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
+        present = [m for m in wanted if m in merged.columns]
+        summary = merged.groupby("strategy")[present].mean()
+        summary.to_csv(paths["ragas_summary"], encoding="utf-8")
+        return merged, summary
 
     out = {}
     for s, df in dfs.items():
@@ -91,23 +109,19 @@ def main() -> None:
         scored = res.to_pandas()
         scored["strategy"] = s
         out[s] = scored
-        # Media direta do DataFrame (EvaluationResult nao suporta `in`)
+        # Media + n valido por metrica (jobs com OOM/parse-fail viram NaN)
         for m in wanted:
             if m in scored.columns:
-                print(f"  {m}: {scored[m].mean():.4f}")
+                n_ok = int(scored[m].notna().sum())
+                print(f"  {m}: {scored[m].mean():.4f} (n_valid={n_ok}/{len(scored)})")
             else:
                 print(f"  {m}: sem coluna (jobs falharam — ver NaN)")
-        # Salvamento incremental: se a proxima estrategia estourar VRAM,
-        # o progresso desta nao se perde.
-        partial = pd.concat(out.values(), ignore_index=True)
-        partial.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
+        # Salvamento incremental fundido: se a proxima estrategia estourar VRAM,
+        # o progresso desta (e das anteriores em disco) nao se perde.
+        persist(out)
         common.free_vram()
 
-    all_scores = pd.concat(out.values(), ignore_index=True)
-    all_scores.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
-    present = [m for m in wanted if m in all_scores.columns]
-    summary = all_scores.groupby("strategy")[present].mean()
-    summary.to_csv(paths["ragas_summary"], encoding="utf-8")
+    _, summary = persist(out)
 
     print("\n" + "=" * 50)
     print(" TABELA COMPARATIVA GERAL (MÉDIAS) ".center(50, "="))
