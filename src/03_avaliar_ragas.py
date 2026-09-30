@@ -20,7 +20,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Fase 2: avaliação RAGAS (Qwen 2.5 7B).")
     ap.add_argument("--doc", default=config.DOC_ATIVO, choices=list(config.DOCS))
     ap.add_argument("--strategy", default="todas",
-                    choices=["todas", "fixed", "recursive", "semantic"],
+                    choices=["todas", "fixed", "recursive", "semantic", "baseline"],
                     help="Avalia 1 estrategia por processo (menos VRAM). Default: %(default)s")
     ap.add_argument("--metrics", default=",".join(config.RAGAS_METRICS),
                     help="Subset separado por virgula p/ smoke test. Default: todas")
@@ -46,6 +46,7 @@ def main() -> None:
     from ragas import evaluate
     from ragas.run_config import RunConfig
     from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
+    from ragas.metrics import answer_correctness  # dispensa contexts: serve ao baseline
     from ragas.llms import LangchainLLMWrapper as LangchainLLM
     from ragas.embeddings import LangchainEmbeddingsWrapper as LangchainEmbeddings
 
@@ -66,7 +67,18 @@ def main() -> None:
         "answer_relevancy": answer_relevancy,
         "context_precision": context_precision,
         "context_recall": context_recall,
+        "answer_correctness": answer_correctness,
     }
+    # Baseline (contexts=[]) nao admite metricas de retrieval: filtra sozinho.
+    if strategies == ["baseline"]:
+        precisa_ctx = {"faithfulness", "context_precision", "context_recall"}
+        fora = [m for m in wanted if m in precisa_ctx]
+        if fora:
+            print(f"[baseline] sem contexts: ignorando {fora}.")
+        wanted = [m for m in wanted if m not in precisa_ctx]
+        if not wanted:
+            wanted = ["answer_relevancy", "answer_correctness"]
+            print(f"[baseline] usando {wanted}.")
     unknown = [m for m in wanted if m not in metric_map]
     if unknown:
         raise SystemExit(f"--metrics desconhecidas: {unknown}. Use: {list(metric_map)}")

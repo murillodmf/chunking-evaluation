@@ -12,8 +12,9 @@ BASE_DIR = Path(__file__).parent.parent.resolve()
 # ----------------------------------------------------------------------------
 DOCS = {
     "milho": {
-        "pdf": "Textos_exemplo/milho_enfezamento.pdf",
-        "qa": "Textos_exemplo/qa_dataset_milho.json",
+        "pdf": "Textos_exemplo/milho_hibridos_enfezamento.pdf",
+        "qa": "Textos_exemplo/qa_milho_curado.json",  # curado a mao (15 pares);
+        # Fase 0 (Qwen) desativada p/ este doc: QA gerado por LLM nao e gabarito
         "start_page": 0,          # artigo curto: lê desde a primeira página
         "start_marker": None,     # sem recorte inicial
         "ref_markers": ["REFERÊNCIAS", "Referências", "REFERENCIAS", "Referencias"],
@@ -52,7 +53,9 @@ DOC_ATIVO = "milho"
 MODELS = {
     "qa_gerador": "Qwen/Qwen2.5-7B-Instruct",      # gera pares pergunta-resposta
     "rag_gerador": "meta-llama/Llama-3.1-8B-Instruct",  # responde (Fase 1)
-    "juiz": "Qwen/Qwen2.5-7B-Instruct",            # avalia RAGAS (Fase 2)
+    "juiz": "Qwen/Qwen2.5-14B-Instruct",  # avalia RAGAS (Fase 2). Upgrade piloto:
+    # o 7B repetia o enunciado e errava o schema JSON do RAGAS (parse-fail
+    # sistematico). 14B 4-bit ~= 8 GiB: folga total na A100 (40GB).
     "embeddings": "BAAI/bge-m3",
 }
 
@@ -84,7 +87,9 @@ JUDGE_TEMP = 0.1  # ignorado com greedy (mantido p/ documentacao)
 JUDGE_DO_SAMPLE = False  # greedy: deterministico, melhor p/ JSON estrito do RAGAS
 
 EMBEDDINGS_DEVICE = "cpu"  # BGE-M3 na CPU libera ~2,3 GB de VRAM p/ os LLMs
-RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall",
+                 "answer_correctness"]  # answer_correctness usa answer+ground_truth:
+# unica alem de answer_relevancy que avalia o braço baseline (sem contexts)
 RAGAS_TIMEOUT = 600
 RAGAS_WORKERS = 1
 

@@ -1,11 +1,15 @@
-"""Fase 1 — geração RAG com LLaMA 3.1 8B (1 estratégia de chunking por vez).
+"""Fase 1 — geração RAG com LLaMA 3.1 8B + braço baseline sem retrieval.
 
 Roda em processo próprio: ao terminar, salva geracoes_<doc>_<estrategia>.json
 em analises/ e o processo morre (VRAM 100% limpa para a Fase 2).
 
+Braços: fixed / recursive / semantic (RAG) + baseline (LLM puro, sem contexto).
+O baseline permite a Tabela 2 do TCC: RAG (melhor chunking) x LLM paramétrico.
+
 Uso:
     python src/02_gerar_respostas.py --doc milho --amostra 5
     python src/02_gerar_respostas.py --doc milho --amostra todas
+    python src/02_gerar_respostas.py --doc milho --amostra todas --sem-baseline
 """
 import argparse
 import sys
@@ -20,6 +24,10 @@ Responda à pergunta do usuário baseando-se estritamente nas informações forn
 Se a resposta não estiver contida no contexto, diga "Não encontrei essa informação no contexto".
 Não invente nenhum fato ou valor numérico que não esteja explicitamente escrito no contexto."""
 
+BASELINE_SYSTEM = """Você é um assistente virtual agronômico de alta precisão.
+Responda à pergunta do usuário com base no seu próprio conhecimento, de forma
+direta e factual. Se não souber a resposta, diga "Não sei responder com segurança"."""
+
 
 def rag_prompt(context_text: str, question: str) -> str:
     return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -31,12 +39,21 @@ Pergunta:
 {question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
 
+def baseline_prompt(question: str) -> str:
+    return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+{BASELINE_SYSTEM}<|eot_id|><|start_header_id|>user<|end_header_id|>
+Pergunta:
+{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Fase 1: geração RAG (LLaMA 3.1 8B).")
     ap.add_argument("--doc", default=config.DOC_ATIVO, choices=list(config.DOCS))
     ap.add_argument("--amostra", default="todas",
                     help="N de perguntas ou 'todas' (default: %(default)s)")
     ap.add_argument("--k", type=int, default=config.TOP_K, help="Top-K recuperados")
+    ap.add_argument("--sem-baseline", action="store_true",
+                    help="Pula o braço baseline (LLM puro, sem retrieval)")
     args = ap.parse_args()
 
     common.setup_reproducibility()
@@ -93,6 +110,24 @@ def main() -> None:
             })
             print(f"  Pergunta {i + 1}/{len(qa)} processada.")
         common.save_json(records, paths["geracoes"](strategy))
+
+    # Braço baseline: mesmo LLM, mesmas perguntas, ZERO contexto recuperado.
+    # Mede o conhecimento paramétrico puro (Tabela 2 do TCC: RAG x LLM).
+    if not args.sem_baseline:
+        print("\nGerando respostas: BASELINE (sem retrieval)")
+        records = []
+        for i, item in enumerate(qa):
+            try:
+                ans = llm.invoke(baseline_prompt(item["question"]))
+            except Exception as e:
+                print(f"  Erro na pergunta {i + 1}: {e}")
+                ans = "Erro na geração da resposta."
+            records.append({
+                "question": item["question"], "contexts": [],
+                "answer": ans, "ground_truth": item["ground_truth"],
+            })
+            print(f"  Pergunta {i + 1}/{len(qa)} processada.")
+        common.save_json(records, paths["geracoes"]("baseline"))
 
     print("\nFase 1 concluída. Encerre este processo antes da Fase 2 (VRAM limpa).")
 

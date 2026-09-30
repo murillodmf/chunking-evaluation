@@ -127,6 +127,9 @@ def load_and_clean_pdf(pdf_path: str, doc_cfg: dict) -> str:
     best = max(scored, key=lambda k: (scored[k]["nsent"], scored[k]["dots"]))
     full = candidates[best]
     print(f"[extração] selecionado: {best}")
+    # Higiene: PDFs com fonte quebrada vazam controles binários (\x00-\x1f)
+    # que corrompem chunking/embeddings. Limpeza neutra (só remove lixo).
+    full = re.sub(r"[\x00-\x08\x0b-\x1f\x7f]", "", full)
     q = scored[best]
     if q["nsent"] < 10 or q["dots"] == 0:
         raise RuntimeError(
