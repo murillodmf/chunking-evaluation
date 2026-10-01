@@ -233,12 +233,14 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
     except Exception:
         pass
     # O generation_config.json dos Instruct traz max_length=20: com
-    # max_new_tokens setado isso gera o warning "Both ... set" e o RAGAS
-    # ainda injeta max_length=20 por dentro. Neutraliza aqui.
+    # max_new_tokens setado isso gera o warning "Both ... set" (benigno:
+    # max_new_tokens vence). Fixa o teto aqui para o valor pedido e loga,
+    # para diagnosticar se o limite real aplicado confere com o config.
     try:
-        model.generation_config.max_length = None
+        model.generation_config.max_new_tokens = max_new_tokens
     except Exception:
         pass
+    print(f"[gen] {model_id}: max_new_tokens={max_new_tokens} do_sample={do_sample}")
     # Sem max_new_tokens / temperature aqui: só flags de formato.
     # Sem truncation=True: ele usava o max_length do tokenizer e recriava
     # o conflito com max_new_tokens.

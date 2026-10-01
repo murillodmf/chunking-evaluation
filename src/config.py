@@ -81,7 +81,7 @@ GEN_QA_TOKENS = 1024
 GEN_QA_TEMP = 0.3
 RAG_TOKENS = 512
 RAG_TEMP = 0.1
-JUDGE_TOKENS = 512  # vereditos RAGAS sao longos; 256 truncava o JSON no meio.
+JUDGE_TOKENS = 1024  # faithfulness gera 4-6 statements+reason+verdict; 256/512 truncava o JSON no meio (verdict missing).
 # Na A100 (40GB) cabe; smoke na T4: prefira --metrics faithfulness.
 JUDGE_TEMP = 0.1  # ignorado com greedy (mantido p/ documentacao)
 JUDGE_DO_SAMPLE = False  # greedy: deterministico, melhor p/ JSON estrito do RAGAS
