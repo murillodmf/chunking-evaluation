@@ -71,7 +71,6 @@ def main() -> None:
 
     from langchain_core.documents import Document
     from langchain_chroma import Chroma
-    from langchain_huggingface import HuggingFacePipeline
 
     embeddings = common.build_embeddings()  # CPU por default (config)
     chunkers = common.build_chunkers(embeddings)
@@ -85,9 +84,9 @@ def main() -> None:
         dbs[name] = Chroma.from_documents(docs, embeddings, collection_name=f"db_{args.doc}_{name}")
     print("Indexação concluída.")
 
-    pipe, _ = common.build_causal_llm(
+    pipe, tokenizer, gen_kwargs = common.build_causal_llm(
         config.MODELS["rag_gerador"], config.RAG_TOKENS, config.RAG_TEMP)
-    llm = HuggingFacePipeline(pipeline=pipe)
+    llm = common.build_hf_llm(pipe, tokenizer, gen_kwargs, use_chat_template=False)
 
     for strategy, db in dbs.items():
         print(f"\nGerando respostas: {strategy.upper()}")

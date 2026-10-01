@@ -84,11 +84,12 @@ def main() -> None:
         raise SystemExit(f"--metrics desconhecidas: {unknown}. Use: {list(metric_map)}")
     metrics = [metric_map[m] for m in wanted]
 
-    pipe, _ = common.build_causal_llm(
+    pipe, tokenizer, gen_kwargs = common.build_causal_llm(
         config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP,
         do_sample=config.JUDGE_DO_SAMPLE)
-    from langchain_huggingface import HuggingFacePipeline
-    evaluator_llm = LangchainLLM(langchain_llm=HuggingFacePipeline(pipeline=pipe))
+    evaluator_llm = LangchainLLM(
+        langchain_llm=common.build_hf_llm(
+            pipe, tokenizer, gen_kwargs, use_chat_template=True))
     evaluator_embeddings = LangchainEmbeddings(embeddings=common.build_embeddings())
 
     metrics = [metric_map[m] for m in wanted]

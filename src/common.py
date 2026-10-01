@@ -192,7 +192,17 @@ def _require_cuda() -> None:
 
 def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
                      do_sample: bool = True):
-    """Carrega LLM causal 4 bits e devolve (pipeline, tokenizer).
+    """Carrega LLM causal 4 bits e devolve (pipeline, tokenizer, gen_kwargs).
+
+    Correções p/ RAGAS + A100:
+    - pipeline criado SEM args de geração (evita conflito
+      `max_new_tokens x max_length=20` do warning do transformers).
+    - `return_full_text=False`: antes o pipe devolvia prompt+resposta,
+      o que poluía as respostas e quebrava o parser JSON do RAGAS.
+    - `clean_up_tokenization_spaces=False`: True é destrutivo p/ BPE
+      (Llama/Qwen) e corrompia o JSON.
+    - `gen_kwargs` vai em `HuggingFacePipeline(model_kwargs=...)`, não no
+      construtor do pipeline. Use `build_hf_llm()` para montar.
 
     do_sample=False = greedy (deterministico): recomendado p/ o juiz RAGAS,
     que precisa emitir JSON estrito — amostragem gera saídas fora do schema.
@@ -202,7 +212,9 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
 
     _require_cuda()
     print(f"Carregando tokenizer para {model_id}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     print("Configurando quantização de 4 bits (bitsandbytes)...")
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -212,14 +224,83 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
     )
     print(f"Carregando modelo {model_id}...")
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, quantization_config=bnb, device_map="auto"
+        model_id, quantization_config=bnb, device_map="auto",
+        trust_remote_code=True,
     )
-    gen_kwargs = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
+    try:
+        if tokenizer.pad_token_id is not None:
+            model.generation_config.pad_token_id = tokenizer.pad_token_id
+    except Exception:
+        pass
+    # Sem max_new_tokens / temperature aqui: só flags de formato.
+    pipe = pipeline(
+        "text-generation", model=model, tokenizer=tokenizer,
+        return_full_text=False, clean_up_tokenization_spaces=False,
+        truncation=True,
+    )
+    gen_kwargs: dict = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
     if do_sample:
         gen_kwargs["temperature"] = temperature
-    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, **gen_kwargs)
+    # Garante que nenhum max_length vaze para o generate (causa do warning
+    # "Both max_new_tokens (=512) and max_length (=20)...").
+    gen_kwargs.pop("max_length", None)
     vram_log(f"após carregar {model_id}")
-    return pipe, tokenizer
+    return pipe, tokenizer, gen_kwargs
+
+
+def build_hf_llm(pipe, tokenizer, gen_kwargs: dict, use_chat_template: bool = False):
+    """Monta o LLM LangChain com os kwargs no lugar certo.
+
+    - Fase 1 (Llama, prompt manual já formatado): use_chat_template=False.
+    - Fase 2 (juiz RAGAS, prompts crus do ragas): use_chat_template=True,
+      que embrulha cada prompt via `tokenizer.apply_chat_template`
+      (Qwen/Llama-Instruct só segue JSON estrito com chat template).
+    """
+    from langchain_huggingface import HuggingFacePipeline as _BaseHF
+
+    # Sanitiza: greedy não aceita temperature/top_p/top_k (warning
+    # "generation flags are not valid"); max_length conflita com max_new_tokens.
+    clean = dict(gen_kwargs or {})
+    clean.pop("max_length", None)
+    if not clean.get("do_sample", True):
+        for k in ("temperature", "top_p", "top_k"):
+            clean.pop(k, None)
+
+    if not use_chat_template:
+        return _BaseHF(pipeline=pipe, model_kwargs=clean)
+
+    # Juiz: aplica chat_template + filtra kwargs invasores do RAGAS/LangChain.
+    try:
+        from langchain_core.outputs import Generation, LLMResult
+    except ImportError:  # fallback p/ versões antigas
+        from langchain.schema import Generation, LLMResult  # type: ignore
+
+    class ChatTemplateHFPipeline(_BaseHF):  # type: ignore
+        def _generate(self, prompts, stop=None, run_manager=None, **kwargs):
+            kwargs.pop("max_length", None)
+            if not clean.get("do_sample", True):
+                for k in ("temperature", "top_p", "top_k"):
+                    kwargs.pop(k, None)
+            chat_prompts = []
+            for p in prompts:
+                try:
+                    chat_prompts.append(tokenizer.apply_chat_template(
+                        [{"role": "user", "content": p}],
+                        tokenize=False, add_generation_prompt=True,
+                    ))
+                except Exception:
+                    chat_prompts.append(p)
+            return super()._generate(
+                chat_prompts, stop=stop, run_manager=run_manager, **kwargs)
+
+    try:
+        return ChatTemplateHFPipeline(
+            pipeline=pipe, model_kwargs=clean, tokenizer=tokenizer)
+    except TypeError:
+        # Versões antigas de HuggingFacePipeline não aceitam kwarg extra.
+        obj = ChatTemplateHFPipeline(pipeline=pipe, model_kwargs=clean)
+        obj.tokenizer = tokenizer  # type: ignore
+        return obj
 
 
 def build_embeddings(device: str = config.EMBEDDINGS_DEVICE):

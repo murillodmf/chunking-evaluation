@@ -64,7 +64,7 @@ def main() -> None:
     print(f" FASE 0: DATASET QA — doc='{args.doc}' ({doc_cfg['area']})")
     print("=" * 60)
 
-    qwen_pipe, _ = common.build_causal_llm(
+    qwen_pipe, _, gen_kwargs = common.build_causal_llm(
         config.MODELS["qa_gerador"], config.GEN_QA_TOKENS, config.GEN_QA_TEMP)
     print("Modelo Qwen 2.5 7B carregado com sucesso!\n")
 
@@ -82,7 +82,10 @@ def main() -> None:
     for i, block in enumerate(blocks):
         print(f"Gerando perguntas para o bloco {i + 1}/{len(blocks)}...")
         try:
-            res = qwen_pipe(qa_prompt(block, doc_cfg), return_full_text=False)
+            res = qwen_pipe(
+                qa_prompt(block, doc_cfg),
+                return_full_text=False, clean_up_tokenization_spaces=False,
+                **gen_kwargs)
             pairs = json.loads(clean_model_json(res[0]["generated_text"]))
             print(f"-> Gerou {len(pairs)} pares.")
             all_qa.extend(pairs)
