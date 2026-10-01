@@ -1,0 +1,5 @@
+strategy,chunks,faithfulness,n_faithfulness,answer_relevancy,n_answer_relevancy,answer_correctness,n_answer_correctness,context_precision,n_context_precision,context_recall,n_context_recall,obs
+fixed,46,0.654762,14/15,0.445458,15/15,0.463553,13/15,0.744444,15/15,0.583333,15/15,CHUNK_SIZE=512 OVERLAP=51 TOP_K=3
+recursive,15,0.819048,n/d (ver CSV),0.556374,15/15,0.548485,14/15,0.933333,15/15,0.822222,15/15,CHUNK_SIZE=512 OVERLAP=51 TOP_K=3
+semantic_p50,70,0.773810,14/15,0.607404,15/15,0.575191,14/15,0.855556,15/15,0.616667,15/15,SEMANTIC_PERCENTILE=50.0 TOP_K=3
+baseline,0,,,,0.240303,15/15,0.138249,14/15,,,,sem retrieval; faithfulness/context_* nao aplicaveis
