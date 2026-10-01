@@ -232,11 +232,19 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
             model.generation_config.pad_token_id = tokenizer.pad_token_id
     except Exception:
         pass
+    # O generation_config.json dos Instruct traz max_length=20: com
+    # max_new_tokens setado isso gera o warning "Both ... set" e o RAGAS
+    # ainda injeta max_length=20 por dentro. Neutraliza aqui.
+    try:
+        model.generation_config.max_length = None
+    except Exception:
+        pass
     # Sem max_new_tokens / temperature aqui: só flags de formato.
+    # Sem truncation=True: ele usava o max_length do tokenizer e recriava
+    # o conflito com max_new_tokens.
     pipe = pipeline(
         "text-generation", model=model, tokenizer=tokenizer,
         return_full_text=False, clean_up_tokenization_spaces=False,
-        truncation=True,
     )
     gen_kwargs: dict = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
     if do_sample:
@@ -265,26 +273,32 @@ def build_hf_llm(pipe, tokenizer, gen_kwargs: dict, use_chat_template: bool = Fa
     if not clean.get("do_sample", True):
         for k in ("temperature", "top_p", "top_k"):
             clean.pop(k, None)
+    greedy = not clean.get("do_sample", True)
+    _tok = tokenizer  # closure: NAO passar como field pydantic (extra_forbidden)
 
-    if not use_chat_template:
-        return _BaseHF(pipeline=pipe, model_kwargs=clean)
-
-    # Juiz: aplica chat_template + filtra kwargs invasores do RAGAS/LangChain.
-    try:
-        from langchain_core.outputs import Generation, LLMResult
-    except ImportError:  # fallback p/ versões antigas
-        from langchain.schema import Generation, LLMResult  # type: ignore
-
-    class ChatTemplateHFPipeline(_BaseHF):  # type: ignore
+    class _SanitizedHF(_BaseHF):  # type: ignore
         def _generate(self, prompts, stop=None, run_manager=None, **kwargs):
             kwargs.pop("max_length", None)
-            if not clean.get("do_sample", True):
+            if greedy:
+                for k in ("temperature", "top_p", "top_k"):
+                    kwargs.pop(k, None)
+            return super()._generate(
+                prompts, stop=stop, run_manager=run_manager, **kwargs)
+
+    if not use_chat_template:
+        return _SanitizedHF(pipeline=pipe, model_kwargs=clean)
+
+    # Juiz: aplica chat_template + filtra kwargs invasores do RAGAS/LangChain.
+    class ChatTemplateHFPipeline(_SanitizedHF):  # type: ignore
+        def _generate(self, prompts, stop=None, run_manager=None, **kwargs):
+            kwargs.pop("max_length", None)
+            if greedy:
                 for k in ("temperature", "top_p", "top_k"):
                     kwargs.pop(k, None)
             chat_prompts = []
             for p in prompts:
                 try:
-                    chat_prompts.append(tokenizer.apply_chat_template(
+                    chat_prompts.append(_tok.apply_chat_template(
                         [{"role": "user", "content": p}],
                         tokenize=False, add_generation_prompt=True,
                     ))
@@ -293,14 +307,7 @@ def build_hf_llm(pipe, tokenizer, gen_kwargs: dict, use_chat_template: bool = Fa
             return super()._generate(
                 chat_prompts, stop=stop, run_manager=run_manager, **kwargs)
 
-    try:
-        return ChatTemplateHFPipeline(
-            pipeline=pipe, model_kwargs=clean, tokenizer=tokenizer)
-    except TypeError:
-        # Versões antigas de HuggingFacePipeline não aceitam kwarg extra.
-        obj = ChatTemplateHFPipeline(pipeline=pipe, model_kwargs=clean)
-        obj.tokenizer = tokenizer  # type: ignore
-        return obj
+    return ChatTemplateHFPipeline(pipeline=pipe, model_kwargs=clean)
 
 
 def build_embeddings(device: str = config.EMBEDDINGS_DEVICE):
