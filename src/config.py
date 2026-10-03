@@ -26,6 +26,22 @@ DOCS = {
         ),
         "block_chars": 5000,
     },
+    "cartilha": {
+        "pdf": "Textos_exemplo/cartilha_manejo_cigarrinhas.pdf",
+        "qa": "Textos_exemplo/qa_cartilha_curado.json",  # curado a mao (15 pares);
+        # Fase 0 (Qwen) desativada p/ este doc: QA gerado por LLM nao e gabarito
+        "start_page": 0,          # cartilha Embrapa/IDR-PR: lê desde a primeira página
+        "start_marker": None,     # sem recorte inicial
+        "ref_markers": ["REFERÊNCIAS", "Referências", "REFERENCIAS", "Referencias",
+                        "BIBLIOGRAFIA", "Bibliografia"],
+        "drop_substrings": [],
+        "area": "milho — manejo da cigarrinha e protocolos de diagnose (Cartilha Embrapa/IDR-PR)",
+        "qa_example": (
+            "Como funciona o método do saco plástico para amostragem da cigarrinha "
+            "(amostragem, periodicidade e armazenamento)?"
+        ),
+        "block_chars": 5000,
+    },
     "soja": {  # legado: mantém as regras do experimento original
         "pdf": "Textos_exemplo/ecofisiologia_soja_embrapa.pdf",
         "qa": "Textos_exemplo/qa_dataset_soja.json",
@@ -71,7 +87,7 @@ BNB_4BIT = dict(
 # ----------------------------------------------------------------------------
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 51
-SEMANTIC_PERCENTILE = 65.0  # exp p65 (p50=70chunks p60=56 p65=49 p70=43chunks, contagem local CPU)
+SEMANTIC_PERCENTILE = 60.0  # oficial (melhor answer_* no milho); p50/p65/p70 como ablacao
 # p70 gerava blocos de >10k tokens; p30 fragmentava em 1 frase/chunk.
 # Percentil e parametro DO metodo (experimento continua puro); vale p/ todos os docs.
 TOP_K = 3
