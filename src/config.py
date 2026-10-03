@@ -71,7 +71,7 @@ BNB_4BIT = dict(
 # ----------------------------------------------------------------------------
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 51
-SEMANTIC_PERCENTILE = 60.0  # exp p60 (entre p50=70chunks e p70=43chunks)
+SEMANTIC_PERCENTILE = 65.0  # exp p65 (p50=70chunks p60=56 p65=49 p70=43chunks, contagem local CPU)
 # p70 gerava blocos de >10k tokens; p30 fragmentava em 1 frase/chunk.
 # Percentil e parametro DO metodo (experimento continua puro); vale p/ todos os docs.
 TOP_K = 3
