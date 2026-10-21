@@ -1,11 +1,11 @@
-ANALISE DOCUMENTAL — BENCHMARK RAG MILHO/CIGARRINHA/CEM
+ANALISE DOCUMENTAL - BENCHMARK RAG MILHO/CIGARRINHA/CEM
 Gerado por triagem automatica (gate de extracao de src/common.py) + chunkability real
 (fixed 512/51, recursive 512/51, semantic BGE-M3 p60). Faixa de custo de referencia:
 milho (27,9k chars / 313 sents). Contagens sem corte de referencias (teto).
-Legenda: F=fixed R=recursive S60=semantic_p60. PT~=fração de stopwords PT (relativo).
+Legenda: F=fixed R=recursive S60=semantic_p60. PT~=fracao de stopwords PT (relativo).
 
 ================================================================
-PARTE 1 — DOCUMENTOS ESCOLHIDOS (dataset final, 6 PDFs em PT)
+PARTE 1 - DOCUMENTOS ESCOLHIDOS (dataset final, 6 PDFs em PT)
 ================================================================
 
 [1] milho_hibridos_enfezamento.pdf (Textos_exemplo; original: Avaliacao-de-hibridos...)
@@ -59,62 +59,141 @@ PARTE 1 — DOCUMENTOS ESCOLHIDOS (dataset final, 6 PDFs em PT)
     porte proximo ao teto aceitavel (34,5k).
 
 ================================================================
-PARTE 2 — DESCARTADOS: FALHA DE EXTRACAO (todas as tecnicas cegas)
+PARTE 2 - DESCARTADOS: FALHA DE EXTRACAO (todas as tecnicas cegas)
 ================================================================
 
 [6] Resistencia de hibridos experimentais...Sete Lagoas MG.pdf
-    chars=16828 sents=12 PT~=0.00 | chunkers: semântico TRAVA (sequencia gigante)
-    Como falhou: fonte sem mapa ToUnicode; 16,8k chars viram 12 "sentenças".
+    chars=16828 sents=12 PT~=0.00 | chunkers: semntico TRAVA (sequencia gigante)
+    Como falhou: fonte sem mapa ToUnicode; 16,8k chars viram 12 "sentencas".
     Por que saiu: gate nsent/dots reprova; embeddings sem sentido; retrieval aleatorio.
-[7] milho_enfezamento.pdf (Textos_exemplo) — idem ao [6] (mesmo arquivo).
+[7] milho_enfezamento.pdf (Textos_exemplo) - idem ao [6] (mesmo arquivo).
 [8] Estrategias-contra-a-cigarrinha-do-milho.pdf
     chars=8111 sents=31 PT~=0.00 | F=18 R=15 S60=13 (sobre lixo)
-    Como falhou: pagina escaneada/imagem; pypdf retorna 1 sentença gigante.
+    Como falhou: pagina escaneada/imagem; pypdf retorna 1 sentenca gigante.
     Por que saiu: garbage-in-garbage-out + embedding de sequência gigante e lento.
 [9] Protecao antecipada...tratamento de sementes..pdf
-    chars=5204 sents=67 PT~=0.00 | chunkers: semântico TRAVA
+    chars=5204 sents=67 PT~=0.00 | chunkers: semntico TRAVA
     Como falhou: idem [8]. Por que saiu: idem [8].
 
 ================================================================
-PARTE 3 — DESCARTADOS: CURTOS (percentil sem sentido, recursive colapsa)
+PARTE 3 - DESCARTADOS: CURTOS (percentil sem sentido, recursive colapsa)
 ================================================================
 
-[10] DIAGNOSE MOLECULAR...pdf — 5024 chars/18 sents | F=11 R=4 S60=8.
-     Falha: 18 sentenças nao sustentam percentil; recursive com 4 chunks.
-[11] Impacto-dos-danos...qualidade dos graos...pdf — 3795 chars/27 sents | F=9 R=3 S60=11.
+[10] DIAGNOSE MOLECULAR...pdf - 5024 chars/18 sents | F=11 R=4 S60=8.
+     Falha: 18 sentencas nao sustentam percentil; recursive com 4 chunks.
+[11] Impacto-dos-danos...qualidade dos graos...pdf - 3795 chars/27 sents | F=9 R=3 S60=11.
      Falha: recursive com 3 chunks; 15 pares especificos impossiveis.
-[12] Charles-Guia-Boas-Praticas...pdf — 16172 chars/160 sents PT~=0.21 | F=35 R=13 S60=65.
+[12] Charles-Guia-Boas-Praticas...pdf - 16172 chars/160 sents PT~=0.21 | F=35 R=13 S60=65.
      REAVALIADO e APROVADO (ver [2b] na Parte 1): guia de boas praticas nov/2020.
-[13] Application of drone-based imagery...pdf — 17297 chars/172 sents EN | F=38 R=10 S60=69.
+[13] Application of drone-based imagery...pdf - 17297 chars/172 sents EN | F=38 R=10 S60=69.
      Tecnicamente passa, mas curto + EN (reserva).
 
 ================================================================
-PARTE 4 — DESCARTADOS: GRANDES (custo GPU/juiz 2-5x; semantico fragmenta)
+PARTE 4 - DESCARTADOS: GRANDES (custo GPU/juiz 2-5x; semantico fragmenta)
 ================================================================
 
-[14] 2022-Pozebon...pdf — 104661 chars/2711 sents EN | F=227 R=68 S60=1085 (media ~100 chars).
-     Falha: semântico fragmenta em 1085 micro-chunks; retrieval e juiz 5x o custo.
-[15] 2022-Neves...pdf — 66043 chars/398 sents EN | F=144 R=42 S60=160.
-[16] 2026-Medrada...pdf — 52952 chars/581 sents EN | F=115 R=35 S60=233.
-[17] 2024-Luz...pdf — 51014 chars/432 sents EN | F=111 R=51 S60=173.
-[18] 2025-Moritz...pdf — 52287 chars/358 sents EN | F=114 R=33 S60=144.
-[19] 2022-Carpane...pdf — 52226 chars/652 sents EN | F=114 R=33 S60=261.
-[20] 2025-Oliveira_EscapeBehaviour...pdf — 50475 chars/889 sents EN | F=111 R=34 S60=356.
-[21] Is_insecticide_resistance...pdf — 50368 chars/380 sents EN | F=110 R=37 S60=153.
-[22] 2025-Redoan...pdf — 45950 chars/536 sents EN | contagem n/concluida (timeout);
+[14] 2022-Pozebon...pdf - 104661 chars/2711 sents EN | F=227 R=68 S60=1085 (media ~100 chars).
+     Falha: semntico fragmenta em 1085 micro-chunks; retrieval e juiz 5x o custo.
+[15] 2022-Neves...pdf - 66043 chars/398 sents EN | F=144 R=42 S60=160.
+[16] 2026-Medrada...pdf - 52952 chars/581 sents EN | F=115 R=35 S60=233.
+[17] 2024-Luz...pdf - 51014 chars/432 sents EN | F=111 R=51 S60=173.
+[18] 2025-Moritz...pdf - 52287 chars/358 sents EN | F=114 R=33 S60=144.
+[19] 2022-Carpane...pdf - 52226 chars/652 sents EN | F=114 R=33 S60=261.
+[20] 2025-Oliveira_EscapeBehaviour...pdf - 50475 chars/889 sents EN | F=111 R=34 S60=356.
+[21] Is_insecticide_resistance...pdf - 50368 chars/380 sents EN | F=110 R=37 S60=153.
+[22] 2025-Redoan...pdf - 45950 chars/536 sents EN | contagem n/concluida (timeout);
      excluido por porte+idioma independentemente da contagem.
-[23] 2025-Silva...pdf — 34787 chars/495 sents EN | F=76 R=21 S60=199.
+[23] 2025-Silva...pdf - 34787 chars/495 sents EN | F=76 R=21 S60=199.
      Tecnicamente viavel, mas EN (fora do padrao PT do TCC).
-[24] 2019-Costa...pdf — 34191 chars/300 sents EN | F=75 R=27 S60=121.
+[24] 2019-Costa...pdf - 34191 chars/300 sents EN | F=75 R=27 S60=121.
      Idem [23].
-[25] 2014-Valarezo...pdf — 38566 chars/359 sents ES | F=84 R=33 S60=144.
+[25] 2014-Valarezo...pdf - 38566 chars/359 sents ES | F=84 R=33 S60=144.
      Tecnicamente viavel, mas espanhol.
 
 ================================================================
-PARTE 5 — OUTROS
+PARTE 5 - OUTROS
 ================================================================
 
 [26] Avaliacao-de-hibridos-de-milho-quanto-ao-complexo-do-enfezamento.pdf
-     27879 chars/313 sents | F=61 R=20 S60=126 — DUPLICATA byte-a-byte do milho [1].
-[27] ecofisiologia_soja_embrapa.pdf — 35302 chars/443 sents PT; fora do tema
+     27879 chars/313 sents | F=61 R=20 S60=126 - DUPLICATA byte-a-byte do milho [1].
+[27] ecofisiologia_soja_embrapa.pdf - 35302 chars/443 sents PT; fora do tema
      cigarrinha (doc legado do experimento original).
+
+================================================================
+PARTE 6 - CURADORIA-2 (21 PDFs PT, recebidos 20/10/2026)
+================================================================
+
+Achado principal: este lote responde a critica de atualidade. Todos os PDFs sao
+em PORTUGUES e de 2015-2025 (teses, dissertacoes, infotecnicos, revisoes),
+sobre milho-cigarrinha-enfezamento. Nenhum reprova no gate de extracao (ao
+contrario dos lotes anteriores), mas 3 sao grandes demais para o custo atual.
+
+Custo medido (BGE-M3 em CPU, config.EMBEDDINGS_DEVICE=cpu): ~1 s por sentenca
+no embed_documents. Logo:
+  <=500 sents  -> ~8 min de embedding na Fase 1 (aceitavel)
+  1000 sents  -> ~17 min
+  1800 sents  -> ~30 min (evitar)
+O que o script marcava como "TRAVA" e lentidao de volume, nao travamento.
+
+[28] DOC-149-2022-ONLINE-1.pdf - Embrapa 2022, "Desafios ao manejo de
+     enfezamentos e viroses na cultura do milho" | 65979 chars/1020 sents PT |
+     F=144 R=51 S60=409 | LONGO (~17 min de embedding)
+     RECOMENDADO: oficial, recente e com foco em manejo (complementa o guia).
+[29] FOCO+143.pdf - Revista Foco 2025, "Controle biologico de Dalbulus maidis
+     com macro e microrganismos: revisao de literatura" | 53371/473 PT |
+     F=116 R=37 S60=190 | LONGO (~8 min)
+     RECOMENDADO: preenche a lacuna do controle biologico, em que a revisao de
+     2023 trazia resultados contraditorios.
+[30] texto completo (1).pdf - Jeferson Alves Pereira (2023), "Incidencia de
+     Dalbulus maidis e enfezamentos em cultivos de milho silagem em Goias e
+     Minas Gerais" | 43335/479 PT | F=94 R=31 S60=192 | porte ideal
+     RECOMENDADO: dados epidemiologicos e regionais, data recente.
+[31] texto completo.pdf - UFV (2022), "Monitoramento populacional de Dalbulus
+     maidis com armadilhas amarelas adesivas" | 46904/466 PT | F=102 R=34 S60=187
+     RECOMENDADO: substitui a pratica de 2008 (armadilha) por monitoramento
+     vigente, uteis para a pergunta de contagem.
+[32] FELIPE-BARRIL-TONON.pdf - UFPR, "Problematic a da Cigarrinha-do-Milho e
+     seu controle" | 48272/542 PT | F=105 R=36 S60=216 | LONGO
+[33] lamperuch,RAC111 - Informativo Tecnico (Epagri/SC), panorama do problema
+     | 20240/153 PT | F=44 R=16 S60=62 | porte ideal, fonte oficial estadual
+[34] manejoinseticidascombinados.pdf - UFPA (2025), "Manejo de Dalbulus
+     maidis com o uso combinado de inseticidas quimicos e biologicos" |
+     142726/1145 PT | F=310 R=142 S60=459 | MUITO LONGO (~20 min de embedding)
+     RELEVANTE (combina com a pergunta de biologicos) mas caro.
+[35] R - D - GIANDREI DUDEK.pdf - UFPR, "Comportamento de genotipos de milho
+     frente ao complexo do enfezamento" | 71612/457 PT | F=156 R=59
+     S60=LENTO | MUITO RELEVANTE (resistencia, como o milho) e tamanho ok, mas
+     o semantico fica lento.
+[36] Maria_Wickert_2025.pdf - UEOPR (2025), genotipos x doencas | 97026/900
+     PT | F=211 R=69 S60=361 | MUITO LONGO
+[37] ControleDalbulusMaidis.pdfa.pdf - pulverizacao eletrostatica | 60667/784
+     PT | F=132 R=45 S60=314 | LONGO
+[38] Ronaldo de Melo Dorneles - 2022.pdf - UNIPAMPA, "Cigarrinha na cultura do
+     milho" | 62357/693 PT | F=136 R=46 S60=278 | LONGO
+[39] TFG Stefany Final 2025.pdf - UFSCar | 91676/1170 PT | F=199 R=67 S60=469
+     | MUITO LONGO
+[40] William Iordi dos Anjos.pdf - UEPG, controle microbiologico | 133702/1396
+     PT | F=290 R=103 | MUITO LONGO
+[41] Alexandre Goncalves Ochonski.pdf - 198194/1814 PT | F=431 R=143 |
+     MUITO LONGO (30 min de embedding) - NAO RECOMENDADO
+[42] JOAO-PEDRO-C-RODRIGUES.pdf - 67399/673 PT | F=147 R=48 | LONGO
+[43] Dialnet-EstudosRecentesSobreResistenciaDeGenotiposDeMilho.pdf - 36963/437
+     PT | F=81 R=28 S60=175 | Revisao de resistencia, mas de periodico de
+     economia latino-americana: verificar a qualidade editorial.
+[44] Cap31-294-301.pdf - Cap. 31 "Dalbulus maidis" do livro "Doencas em
+     milho" (Oliveira & Sabato, Embrapa 2017) | 15586/223 PT | F=34 R=13 S60=90
+     | CURTO mas denso e autoritativo. RESERVA.
+[45] Resumo-CBE-2024-CPAC-p346.pdf - resumo de congresso, "Ecologia e
+     Biodiversidade: paisagem agricola e as populacoes de Dalbulus maidis: o
+     papel das plantas abrigo" | 2735/29 PT | F=6 R=2 S60=12
+     | REPROVADO: so um resumo, sem texto integral.
+
+REPROVADOS:
+[46] Artigo-Cesar-Beal.pdf - 40961/440 PT | F=89 R=32 S60=177
+     Passa na extracao, mas fora do tema: doses de nitrogenio e densidades no
+     acumulo de massa para silagem, sem Cigarrinha-do-Milho nem enfezamento.
+[47] 20231112_114428.pdf - 34538/305 PT | F=75 R=25 S60=123
+     DUPLICATA do doc de revisao de 2023 que ja esta no dataset.
+[48] Cartilha-Manejo-cigarrinha-enfezamentos-milho.pdf - 32068/318 PT |
+     F=70 R=23 S60=128 | DUPLICATA da cartilha (recorte de referencias
+     diferente, mesmo documento).
