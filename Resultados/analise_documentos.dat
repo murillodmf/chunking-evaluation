@@ -1,0 +1,120 @@
+ANALISE DOCUMENTAL — BENCHMARK RAG MILHO/CIGARRINHA/CEM
+Gerado por triagem automatica (gate de extracao de src/common.py) + chunkability real
+(fixed 512/51, recursive 512/51, semantic BGE-M3 p60). Faixa de custo de referencia:
+milho (27,9k chars / 313 sents). Contagens sem corte de referencias (teto).
+Legenda: F=fixed R=recursive S60=semantic_p60. PT~=fração de stopwords PT (relativo).
+
+================================================================
+PARTE 1 — DOCUMENTOS ESCOLHIDOS (dataset final, 6 PDFs em PT)
+================================================================
+
+[1] milho_hibridos_enfezamento.pdf (Textos_exemplo; original: Avaliacao-de-hibridos...)
+    chars=27879 sents=313 PT~=0.19 | F=61 R=20 S60=126
+    O que e: artigo sobre resistencia de hibridos experimentais (1Q,3P,2R,HT,3S)
+    aos enfezamentos, ensaio Sete Lagoas/MG, fatorial 5x2, notas 1-6.
+    Por que entrou: extracao limpa, porte de referencia, denso em numeros
+    (densidades 55/70 mil plantas/ha, F=16,7358, perdas ate 90%), 15 QA ja
+    curados e avaliados (recursive vence fidelidade 0.82).
+
+[2] cartilha_manejo_cigarrinhas.pdf (Textos_exemplo; original: Cartilha-Manejo-...)
+    chars=30516 sents=292 PT~=0.23 | F=67 R=22 S60=117
+    O que e: cartilha Embrapa/IDR-PR com 4 protocolos (identificacao/coleta,
+    resistencia, colmo, rendimento) + diagnose PCR + amostragem.
+    Por que entrou: maior PT do corpus, complementar ao milho (manejo x hibridos),
+    15 QA curados e avaliados (recursive 0.88, melhor retrieval 0.99).
+
+[2b] guia-de-boas-praticas-para-o-manejo-da-cigarrinha-e-dos-enfezamentos.pdf
+    (original: Charles-Guia-Boas-Praticas-Cigarinha-do-Milho.pdf)
+    chars=16172 sents=164 PT~=0.21 | F=35 R=13 S60=65 (media 249 chars/chunk)
+    O que e: "Guia de boas praticas" CropLife Brasil + Embrapa, nov/2020, com
+    10 medidas numeradas de manejo, latencia de 17-28 dias, janela de semeadura
+    de 20-30 dias, base Agrofit (MAPA) e rotacao de modos de acao.
+    Por que entrou (2a avaliacao, apos a analise da pos-doutoranda): e o
+    documento mais RECENTE do corpus em PT e o unico com recomendacao oficial
+    vigente. Corrige o problema de desatualizacao (doses/inseticidas de 2007
+    e 2008), traz o registro Agrofit, o "nenhuma medida isolada e eficaz" e
+    o "nivel de dano economico nao se determina para vetor", e NAO cita
+    endossulfan (proibido no Brasil)._PASSOU no gate e no teste de chunking
+    (F=35/R=13/S60=65 sem colapso). Curto para 15 pares, mas o benchmark
+    usa 10 perguntas por nivel, o que cabe.
+    Usado em 23 das 30 perguntas do benchmark.
+
+[3] 2007-Oliveira_ControleQuimicoCigarrinhaMilhoIncidenciaEnfezamentoMolicutes.pdf
+    chars=30806 sents=305 PT~=0.18 | F=67 R=23 S60=123
+    O que e: paper sobre controle quimico da cigarrinha e incidencia de
+    enfezamento/molicutes. Cobre o tema QUIMICOS/INSETICIDAS do prompt1.
+    Por que entrou: mesmo porte e perfil de chunking do milho/cartilha
+    (nenhum colapso), PT, tema sem cobertura nos 2 docs atuais.
+
+[4] 2008-Martins_EficienciaInseticidasControleDalbulusMaidisMilho.pdf
+    chars=21214 sents=202 PT~=0.16 | F=46 R=18 S60=81
+    O que e: paper sobre eficiencia de inseticidas contra Dalbulus maidis.
+    Por que entrou: PT, extracao limpa, o mais barato de rodar (21k chars);
+    par ideal para perguntas CONTRADITORIAS (eficacia x Oliveira-2007).
+
+[5] 2023-Xavier_TratamentosControleCigarrinhaMilho_RevisaoLiteratura.pdf
+    chars=34538 sents=305 PT~=0.19 | F=75 R=25 S60=123
+    O que e: revisao de literatura sobre tratamentos de controle.
+    Por que entrou: PT, revisao = ponte natural para perguntas MULTI-DOC;
+    porte proximo ao teto aceitavel (34,5k).
+
+================================================================
+PARTE 2 — DESCARTADOS: FALHA DE EXTRACAO (todas as tecnicas cegas)
+================================================================
+
+[6] Resistencia de hibridos experimentais...Sete Lagoas MG.pdf
+    chars=16828 sents=12 PT~=0.00 | chunkers: semântico TRAVA (sequencia gigante)
+    Como falhou: fonte sem mapa ToUnicode; 16,8k chars viram 12 "sentenças".
+    Por que saiu: gate nsent/dots reprova; embeddings sem sentido; retrieval aleatorio.
+[7] milho_enfezamento.pdf (Textos_exemplo) — idem ao [6] (mesmo arquivo).
+[8] Estrategias-contra-a-cigarrinha-do-milho.pdf
+    chars=8111 sents=31 PT~=0.00 | F=18 R=15 S60=13 (sobre lixo)
+    Como falhou: pagina escaneada/imagem; pypdf retorna 1 sentença gigante.
+    Por que saiu: garbage-in-garbage-out + embedding de sequência gigante e lento.
+[9] Protecao antecipada...tratamento de sementes..pdf
+    chars=5204 sents=67 PT~=0.00 | chunkers: semântico TRAVA
+    Como falhou: idem [8]. Por que saiu: idem [8].
+
+================================================================
+PARTE 3 — DESCARTADOS: CURTOS (percentil sem sentido, recursive colapsa)
+================================================================
+
+[10] DIAGNOSE MOLECULAR...pdf — 5024 chars/18 sents | F=11 R=4 S60=8.
+     Falha: 18 sentenças nao sustentam percentil; recursive com 4 chunks.
+[11] Impacto-dos-danos...qualidade dos graos...pdf — 3795 chars/27 sents | F=9 R=3 S60=11.
+     Falha: recursive com 3 chunks; 15 pares especificos impossiveis.
+[12] Charles-Guia-Boas-Praticas...pdf — 16172 chars/160 sents PT~=0.21 | F=35 R=13 S60=65.
+     REAVALIADO e APROVADO (ver [2b] na Parte 1): guia de boas praticas nov/2020.
+[13] Application of drone-based imagery...pdf — 17297 chars/172 sents EN | F=38 R=10 S60=69.
+     Tecnicamente passa, mas curto + EN (reserva).
+
+================================================================
+PARTE 4 — DESCARTADOS: GRANDES (custo GPU/juiz 2-5x; semantico fragmenta)
+================================================================
+
+[14] 2022-Pozebon...pdf — 104661 chars/2711 sents EN | F=227 R=68 S60=1085 (media ~100 chars).
+     Falha: semântico fragmenta em 1085 micro-chunks; retrieval e juiz 5x o custo.
+[15] 2022-Neves...pdf — 66043 chars/398 sents EN | F=144 R=42 S60=160.
+[16] 2026-Medrada...pdf — 52952 chars/581 sents EN | F=115 R=35 S60=233.
+[17] 2024-Luz...pdf — 51014 chars/432 sents EN | F=111 R=51 S60=173.
+[18] 2025-Moritz...pdf — 52287 chars/358 sents EN | F=114 R=33 S60=144.
+[19] 2022-Carpane...pdf — 52226 chars/652 sents EN | F=114 R=33 S60=261.
+[20] 2025-Oliveira_EscapeBehaviour...pdf — 50475 chars/889 sents EN | F=111 R=34 S60=356.
+[21] Is_insecticide_resistance...pdf — 50368 chars/380 sents EN | F=110 R=37 S60=153.
+[22] 2025-Redoan...pdf — 45950 chars/536 sents EN | contagem n/concluida (timeout);
+     excluido por porte+idioma independentemente da contagem.
+[23] 2025-Silva...pdf — 34787 chars/495 sents EN | F=76 R=21 S60=199.
+     Tecnicamente viavel, mas EN (fora do padrao PT do TCC).
+[24] 2019-Costa...pdf — 34191 chars/300 sents EN | F=75 R=27 S60=121.
+     Idem [23].
+[25] 2014-Valarezo...pdf — 38566 chars/359 sents ES | F=84 R=33 S60=144.
+     Tecnicamente viavel, mas espanhol.
+
+================================================================
+PARTE 5 — OUTROS
+================================================================
+
+[26] Avaliacao-de-hibridos-de-milho-quanto-ao-complexo-do-enfezamento.pdf
+     27879 chars/313 sents | F=61 R=20 S60=126 — DUPLICATA byte-a-byte do milho [1].
+[27] ecofisiologia_soja_embrapa.pdf — 35302 chars/443 sents PT; fora do tema
+     cigarrinha (doc legado do experimento original).

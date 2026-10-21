@@ -1,0 +1,328 @@
+[
+  {
+    "id": "N1-01",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "martins-2008"
+    ],
+    "question": "Como identificar a cigarrinha-do-milho e o que ela transmite?",
+    "ground_truth": "A cigarrinha-do-milho se chama Dalbulus maidis. O adulto tem de 3,7 a 4,3 mm, cor amarelo-palha e duas manchinhas pretas redondas na frente da cabeça, e fica no cartucho do milho. O ovinho amarelo leva uns nove dias para nascer dentro do tecido da folha. A ninfa passa por cinco fases e leva uns 17 dias. Ela transmite o vírus da risca e dois molicutes que causam os enfezamentos pálido e vermelho."
+  },
+  {
+    "id": "N1-02",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Qual grupo químico se destaca no tratamento de sementes contra a cigarrinha-do-milho?",
+    "ground_truth": "Os neonicotinoides, como imidacloprid, thiamethoxan, clotianidina e acetamiprid, usados no tratamento de sementes para a proteção inicial da lavoura. Na prática combina-se a semente tratada com monitoramento da emergência às oito folhas e pulverizações alternando os ativos."
+  },
+  {
+    "id": "N1-03",
+    "nivel": 1,
+    "tipo": "multi",
+    "docs": [
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Qual o potencial de perdas causado pelos enfezamentos transmitidos pela cigarrinha?",
+    "ground_truth": "Os enfezamentos podem cortar a produção de grãos em até mais de 90%, com prejuízos milionários nas regiões produtoras. Sem controle, a revisão aponta que a perda pode chegar a 100% da lavoura."
+  },
+  {
+    "id": "N1-04",
+    "nivel": 1,
+    "tipo": "multi",
+    "docs": [
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Quais são as vias de aplicação de inseticidas contra a cigarrinha e quando usar cada uma?",
+    "ground_truth": "São três: tratar a semente (proteção desde a emergência), pulverizar as folhas (por exemplo aos 10 dias após emergir) e aplicar na dessecação antes do plantio. A dessecação teve resultado fraco. O recomendado é tratar a semente e depois pulverizar conforme o monitoramento entre a emergência e oito folhas, alternando os produtos."
+  },
+  {
+    "id": "N1-05",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "xavier-2023"
+    ],
+    "question": "Quando controlar a cigarrinha e qual o indicativo para entrar com o controle?",
+    "ground_truth": "Não há um número oficial de ação, mas a lavoura precisa ficar livre da cigarrinha entre uma e cinco folhas. Conta-se nas plantas: achando em média um ou mais insetos por planta, é hora de controlar."
+  },
+  {
+    "id": "N1-06",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "xavier-2023"
+    ],
+    "question": "Como se reproduz e vive a cigarrinha-do-milho?",
+    "ground_truth": "Cada fêmea põe de 400 a 500 ovos na nervura da folha e dentro do cartucho. As ninfas ficam em grupo embaixo da folha por uns 17 dias até virar adultas. O adulto vive cerca de 8 semanas passando os molicutes de plantas doentes para sadias ao sugar a seiva. A infecção acontece no comecinho da lavoura."
+  },
+  {
+    "id": "N1-07",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "oliveira-2007"
+    ],
+    "question": "O tratamento de sementes contra a cigarrinha-do-milho funcionou em viveiro telado e em campo?",
+    "ground_truth": "Em viveiro telado o tratamento da semente matou mais da metade das cigarrinhas até os 30 dias e diminuiu a doença em plantas expostas logo após emergir. No campo, com cigarrinhas chegando voando de lavouras vizinhas o tempo todo, não houve queda da doença nem ganho de produção."
+  },
+  {
+    "id": "N1-08",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "xavier-2023"
+    ],
+    "question": "Qual a receita básica do manejo integrado da cigarrinha?",
+    "ground_truth": "Tratar a semente com produto registrado, vigiar a lavoura da emergência até oito folhas e pulverizar alternando produtos quando preciso. Na região, plantar na mesma época, não emendar um plantio no outro, não plantar perto de lavoura doente, acabar com as tigueras e trocar as cultivares. Um método sozinho não resolve."
+  },
+  {
+    "id": "N1-09",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "martins-2008"
+    ],
+    "question": "Como funciona a armadilha cônica ('Chapéu-de-bruxa') para contar cigarrinhas?",
+    "ground_truth": "É uma armadilha em forma de cone de tecido preto com 60 cm de altura: a boca larga de 35 cm cobre a planta e o topo de 20 cm termina numa garrafa pet transparente. A cigarrinha sobe atraída pela claridade e cai na garrafa, onde é contada. Avaliam-se três plantas por parcela nas linhas do meio."
+  },
+  {
+    "id": "N1-10",
+    "nivel": 1,
+    "tipo": "unico",
+    "docs": [
+      "oliveira-2007"
+    ],
+    "question": "Por que não se determina nível de dano econômico para a cigarrinha?",
+    "ground_truth": "Porque o estrago não cresce junto com o número de insetos: poucas cigarrinhas doentes já espalham a doença. Sem número de referência, o controle tem que ser preventivo, protegendo a planta desde novinha, que é quando ela pega os molicutes."
+  },
+  {
+    "id": "N2-01",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008"
+    ],
+    "question": "Quais doses e volumes se usam no tratamento de sementes e na pulverização contra Dalbulus maidis?",
+    "ground_truth": "No tratamento de sementes usam-se imidacloprid (480 g por 100 kg de sementes ou 0,35 kg por 100 kg) e thiamethoxan (200 g por 100 kg ou 60 g por 60 mil sementes), além de thiodicarb + imidacloprid, clothianidim e acetamiprid. Na pulverização: imidacloprid 175 g por hectare e thiamethoxan 37,5 g por hectare aos 10 e 20 dias após emergir, com 150 a 250 litros de calda por hectare. A eficiência é calculada pela fórmula de Abbott e as médias comparadas a 5% de probabilidade."
+  },
+  {
+    "id": "N2-02",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008"
+    ],
+    "question": "Quanto tempo dura o residual dos principais inseticidas contra a cigarrinha?",
+    "ground_truth": "Em viveiro, imidacloprid e thiamethoxan mantêm 70% ou mais de controle até os 23 dias, com imidacloprid superior aos 16 dias e efeito marcante na redução da doença com inoculação aos 2 dias (imidacloprid até 9 dias). Em campo, thiodicarb + imidacloprid chegou a 85% aos 14 dias, clothianidim a 75% aos 20 dias, imidacloprid a 74% aos 28 dias, e aos 40 dias imidacloprid com 72% e cipermetrina + thiametoxan com 61% ainda seguravam residual. Dessecação ficou para trás, com o pior abaixo de 50%."
+  },
+  {
+    "id": "N2-03",
+    "nivel": 2,
+    "tipo": "unico",
+    "docs": [
+      "oliveira-2007"
+    ],
+    "question": "Por que o campo não repetiu o viveiro telado no controle da cigarrinha-do-milho com tratamento de sementes?",
+    "ground_truth": "No viveiro o tratamento segurou doença e dano com exposição aos 2 dias após emergir. No campo, com cigarrinha chegando voando de milho doente vizinho sem parar, a incidência ficou entre 19% e 36,4% e a produtividade entre 3.347 e 4.631 kg por hectare, sem ganho. O detalhe que explica tudo é o tempo: fitoplasma passa com meia hora e espiroplasma com uma hora de alimentação, e a cigarrinha viaja com o vento quando acaba o residual. O produto mata, só que depois de inocular."
+  },
+  {
+    "id": "N2-04",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "xavier-2023",
+      "martins-2008"
+    ],
+    "question": "Fungos entomopatogênicos funcionam sozinhos contra Dalbulus maidis?",
+    "ground_truth": "Os fungos Beauveria bassiana e Metarhizium anisopliae matam por contato e seguem colonizando o inseto por dentro, com residual longo e sem atacar outra coisa. Só que no campo o resultado cai. Beauveria rendeu menos que Metarhizium e que o químico em um ensaio, ficou aquém em outro e insatisfatória num terceiro. Só entra como complemento, com temperatura e umidade ajudando e pressão moderada. Como referência de químico, imidacloprid em semente segurou 72% aos 40 dias."
+  },
+  {
+    "id": "N2-05",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "A pulverização foliar sozinha resolve contra a cigarrinha?",
+    "ground_truth": "Só cipermetrina com thiametoxan em pulverização manteve 61% aos 40 dias, e olhe que foi dentro de programa com tratamento de sementes. Quando se testou foliar puro, com nove produtos, nenhum passou de 80% e a conclusão foi que só foliar não controla, e só químico depois de emergido não segura os molicutes. A regra de campo é direta. Foliar entra depois da semente tratada e do monitoramento da emergência às oito folhas, trocando os ativos. Sem essa base, pulverizar tarde é chegar depois da inoculação."
+  },
+  {
+    "id": "N2-06",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008"
+    ],
+    "question": "Por que inseticidas sistêmicos perdem efeito contra a cigarrinha-do-milho conforme a planta cresce?",
+    "ground_truth": "O produto vai diluindo na seiva conforme a planta cresce, e aí a cigarrinha precisa sugar mais tempo para morrer. Esse tempo extra basta para transmitir, que leva de meia a uma hora. Na prática o controle despenca dos 20 aos 40 dias e a doença sobe nas inoculações tardias. A mesma dose que protege a plântula de 2 dias falha na planta de 30 dias. Sistêmico é assim: pico na janela inicial e ladeira abaixo com a idade."
+  },
+  {
+    "id": "N2-07",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "xavier-2023"
+    ],
+    "question": "Qual o papel das cultivares resistentes aos enfezamentos frente ao controle químico da cigarrinha?",
+    "ground_truth": "Cultivar resistente é o alicerce mais barato e eficiente que existe, mas pouca cultivar de mercado tem resistência que preste. Por isso o químico é indispensável justo no começo, quando acontece a infecção. O arranjo que funciona junta os dois. Resistente quando tiver, semente tratada com sistêmico, troca de cultivares, semeadura sincronizada e fim das tigueras. A resistência segura o fundo e o químico segura o começo."
+  },
+  {
+    "id": "N2-08",
+    "nivel": 2,
+    "tipo": "unico",
+    "docs": [
+      "xavier-2023"
+    ],
+    "question": "Quais alternativas de aplicação e produtos existem contra a cigarrinha-do-milho além do padrão semente + foliar?",
+    "ground_truth": "Além do padrão, há: gotejamento subterrâneo versus pulverizador tratorizado (ambos até 14 dias após aplicar; gotejo melhor aos 7 dias com imidacloprid, tratorizado melhor aos 14 com acefato + residual); extrato de mamona a 0,07 e 0,007 g/L com efeito parecido ao imidacloprid até o pendoamento; mistura de amplo espectro à base de acefato com piretroide que liderou um ensaio; imidacloprid na dose de 1 litro por 100 kg de sementes; e mistura com endossulfan e sal eficiente nas quatro primeiras semanas, melhor no início."
+  },
+  {
+    "id": "N2-09",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "martins-2008",
+      "oliveira-2007"
+    ],
+    "question": "Como decidir se vale a pena aplicar inseticida contra a cigarrinha?",
+    "ground_truth": "Não basta matar bem no ensaio. Conta-se a praga, calcula-se a eficiência e testa-se a 5%, mas a decisão é de bolso. O ganho de produtividade vezes o preço do milho tem que pagar o produto. E como vetor não tem nível de dano, porque poucos insetos já transmitem, aplica-se preventivo na janela inicial em vez de esperar por um número mágico."
+  },
+  {
+    "id": "N2-10",
+    "nivel": 2,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Qual é a janela crítica de controle da cigarrinha?",
+    "ground_truth": "A janela crítica é a mesma nos três: proteger do nascimento até umas oito folhas. O tratamento de sementes cobre os primeiros dias (efeito forte até ~9 dias); o residual químico segura até ~40 dias mas caindo; e o monitoramento da emergência até oito folhas decide as pulverizações. Infecção precoce = prejuízo máximo; tardia = dano menor. Quem perde essa janela, perde a safra para o enfezamento."
+  },
+  {
+    "id": "N3-01",
+    "nivel": 3,
+    "tipo": "contraditoria",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008"
+    ],
+    "question": "Por que o tratamento de sementes reduz os enfezamentos em área isolada mas não sob migração contínua da cigarrinha?",
+    "ground_truth": "Não há contradição real: um mediu doença sob invasão constante (incidência de 19% a 36% sem ganho) e o outro mediu insetos sem fonte do lado (até 72% de mortalidade). Como a transmissão leva de meia a uma hora e o inseticida age devagar, o vetor morre depois de inocular. Sem migração, o tratamento de sementes derruba o inóculo inicial; com migração, cada leva nova reinfecta. Eficácia sobre o inseto não é eficácia sobre a doença em campo aberto."
+  },
+  {
+    "id": "N3-02",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "xavier-2023",
+      "oliveira-2007"
+    ],
+    "question": "Quando um método isolado basta e quando exige associação contra Dalbulus maidis?",
+    "ground_truth": "A regra vale para programa de safra com pressão de fora. Nenhum isolado segura a lavoura o ciclo inteiro. Mas em janela curta e sem reinfestação o isolado resolve. Extrato vegetal rendeu como químico até o pendoamento, mistura com sal segurou as quatro primeiras semanas e gotejo com tratorizado seguraram 14 dias. É questão de escala, não de princípio. Quanto mais tempo e mais chegada de fora, mais métodos juntos vão ser precisos."
+  },
+  {
+    "id": "N3-03",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "xavier-2023",
+      "martins-2008"
+    ],
+    "question": "Como decidir o uso de Beauveria bassiana num programa contra a cigarrinha?",
+    "ground_truth": "Beauveria rende em ensaio controlado e degrada no campo, onde clima, sol e pressão alta castigam. Metarhizium rende mais, mas também pede companhia. Use o biológico como complemento, com temperatura e umidade a favor e pressão moderada, e com químico de base, que com imidacloprid em sementes segurou 72% aos 40 dias. Nunca como programa exclusivo, porque no campo ele já ficou abaixo do esperado e atrás do químico."
+  },
+  {
+    "id": "N3-04",
+    "nivel": 3,
+    "tipo": "contraditoria",
+    "docs": [
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Pulverização com 61% de controle do vetor aos 40 dias garante controle dos enfezamentos?",
+    "ground_truth": "Os 61% contam insetos mortos com residual de neonicotinoide. Os levantamentos que reprovam o foliar contam doença e resultado prático. O foliar derruba o vetor que está ali, mas não desfaz a inoculação já feita nem barra quem chega voando. E sem semente tratada protegendo o início mais o cultural, ele chega tarde. Foliar bom no vetor e ruim na doença é exatamente o esperado quando falta a base do programa."
+  },
+  {
+    "id": "N3-05",
+    "nivel": 3,
+    "tipo": "contraditoria",
+    "docs": [
+      "oliveira-2007",
+      "xavier-2023"
+    ],
+    "question": "O tratamento de sementes é eficaz ou não contra a cigarrinha?",
+    "ground_truth": "É eficaz e insuficiente ao mesmo tempo. Necessário porque protege os 2 a 9 dias, a janela da inoculação primária. Insuficiente sob pressão externa sem parar. A variável escondida é a paisagem. Fonte do lado e plantio emendado anulam o residual. A recomendação fecha assim. Semente sempre, vigia desde a emergência, foliar de ação rápida ao achar um ou mais por planta, repetindo em intervalo curto até oito folhas com rotação, mais sincronia de semeadura na região."
+  },
+  {
+    "id": "N3-06",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008",
+      "xavier-2023",
+      "cartilha"
+    ],
+    "question": "Como montar um programa completo contra a cigarrinha se a região tem milho doente ao lado?",
+    "ground_truth": "Comece pela região. Semeadura sincronizada, nada de plantio emendado, distância de contaminados e fim das tigueras, porque é a fonte que anula o químico. Depois a semente com neonicotinoide registrado, cobrindo os primeiros dias. Da emergência às oito folhas, vigiar com armadilha ou cartucho e pulverizar na hora ao achar um ou mais por planta, em intervalo curto e trocando os ativos até oito folhas. Some o biológico com clima a favor e a cultivar resistente quando houver. Cada peça cobre a falha da outra, da fonte à reinfestação."
+  },
+  {
+    "id": "N3-07",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "xavier-2023"
+    ],
+    "question": "Por que 70% de mortalidade da cigarrinha pode coexistir com 36% de incidência de enfezamentos?",
+    "ground_truth": "Matar não é impedir de transmitir. O fitoplasma passa em meia hora e o espiroplasma em uma hora de alimentação, enquanto o sistêmico age devagar. Com 70% de mortos em quatro dias e 36% de doentes, a conta fecha. A maioria foi inoculada antes de morrer. Por isso na hora de escolher foliar pesa também a velocidade de ação, não só a mortalidade final."
+  },
+  {
+    "id": "N3-08",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "Mistura com sal funciona para cigarrinha porque funcionou na soja?",
+    "ground_truth": "O sal funciona como ajudante de contato conforme a espécie e a dose. Deu certo contra percevejo de soja, mas contra a cigarrinha ligeira e sugadora do milho ficou entre os piores, com 53% e 36%. Com outro parceiro a mistura segurou as primeiras semanas, o que mostra que o efeito é da combinação, não do sal. Não recomendar para cigarrinha com base em soja. Extrapolação entre pragas só vale com teste local."
+  },
+  {
+    "id": "N3-09",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008"
+    ],
+    "question": "Mortalidade do vetor e incidência da doença são a mesma eficiência na avaliação do controle da cigarrinha-do-milho e dos enfezamentos?",
+    "ground_truth": "Não. Um mediu insetos, com contagem e mortalidade até 40 dias. O outro mediu doença, com sintomas aos 100 dias, altura e produção sob inóculo. Um produto pode derrubar a população sem derrubar a doença, porque a doença depende de quando inoculou. O jeito certo cobra os dois. Mortalidade para o vetor e incidência, severidade e produção para a doença, sempre dizendo se havia fonte de inóculo ao lado. Sem isso, comparar percentual de morte com sem efeito é comparar coisa com coisa diferente."
+  },
+  {
+    "id": "N3-10",
+    "nivel": 3,
+    "tipo": "multi",
+    "docs": [
+      "oliveira-2007",
+      "martins-2008",
+      "xavier-2023"
+    ],
+    "question": "O que fazer se o milho jovem ficar ao lado de milho com enfezamentos em enchimento de grãos?",
+    "ground_truth": "O melhor é nem semear, porque sem fonte não há inóculo. Se semear, trate a semente, vigie desde a emergência com armadilha e pulverize com produto de ação rápida ao primeiro sinal, que é um ou mais por planta. Repita em intervalo curto até oito folhas trocando os ativos e acabe com as tigueras do entorno. Aos 100 dias confira incidência e produção para auditar. Na safra seguinte, combine a semeadura com a região. Cada medida fecha uma porta. Fonte, janela inicial, residual e reinfestação."
+  }
+]
