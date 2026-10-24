@@ -19,6 +19,8 @@ import common
 def main() -> None:
     ap = argparse.ArgumentParser(description="Fase 2: avaliação RAGAS (Qwen 2.5 7B).")
     ap.add_argument("--doc", default=config.DOC_ATIVO, choices=list(config.DOCS))
+    ap.add_argument("--corpus", action="store_true",
+                    help="Avalia o benchmark multi-documento (geracoes_corpus_*)")
     ap.add_argument("--strategy", default="todas",
                     choices=["todas", "fixed", "recursive", "semantic", "baseline"],
                     help="Avalia 1 estrategia por processo (menos VRAM). Default: %(default)s")
@@ -27,11 +29,12 @@ def main() -> None:
     args = ap.parse_args()
 
     common.setup_reproducibility()
-    paths = config.paths(args.doc)
+    paths = config.corpus_paths() if args.corpus else config.paths(args.doc)
+    doc_label = "corpus" if args.corpus else args.doc
     common.vram_log("início Fase 2 (esperado ~0 GiB em processo novo)")
 
     print("=" * 60)
-    print(f" FASE 2: AVALIAÇÃO RAGAS — doc='{args.doc}'")
+    print(f" FASE 2: AVALIAÇÃO RAGAS — doc='{doc_label}'")
     print("=" * 60)
 
     # Shim de compatibilidade: Ragas importa ChatVertexAI por padrão.
@@ -57,7 +60,8 @@ def main() -> None:
     for s in strategies:
         p = paths["geracoes"](s)
         if not p.exists():
-            raise SystemExit(f"Falta {p.name}: rode a Fase 1 (02_gerar_respostas.py --doc {args.doc}) primeiro.")
+            flag = "--corpus" if args.corpus else f"--doc {args.doc}"
+            raise SystemExit(f"Falta {p.name}: rode a Fase 1 (02_gerar_respostas.py {flag}) primeiro.")
         dfs[s] = pd.DataFrame(common.load_json(p))
         print(f"{s}: {len(dfs[s])} registros carregados de {p.name}.")
 

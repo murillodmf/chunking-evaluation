@@ -64,6 +64,74 @@ DOCS = {
 DOC_ATIVO = "milho"
 
 # ----------------------------------------------------------------------------
+# Corpus do benchmark final (10 PDFs em Documentos/Dataset/)
+# ----------------------------------------------------------------------------
+CORPUS_QA = "Textos_exemplo/qa_benchmark_3niveis.json"
+
+_DEFAULT_REF_MARKERS = [
+    "REFERÊNCIAS", "Referências", "REFERENCIAS", "Referencias",
+    "BIBLIOGRAFIA", "Bibliografia",
+]
+
+
+def _corpus_doc(pdf: str, area: str, **overrides) -> dict:
+    cfg = {
+        "pdf": pdf,
+        "start_page": 0,
+        "start_marker": None,
+        "ref_markers": _DEFAULT_REF_MARKERS,
+        "drop_substrings": [],
+        "block_chars": 5000,
+        "area": area,
+    }
+    cfg.update(overrides)
+    return cfg
+
+
+CORPUS_DOCS = {
+    "milho": _corpus_doc(
+        "Documentos/Dataset/resistencia-de-hibridos-aos-enfezamentos.pdf",
+        "milho — resistência de híbridos e severidade dos enfezamentos",
+    ),
+    "cartilha": _corpus_doc(
+        "Documentos/Dataset/cartilha-manejo-das-cigarrinhas-e-enfezamentos.pdf",
+        "milho — amostragem, diagnose e avaliação de enfezamentos",
+    ),
+    "oliveira-2007": _corpus_doc(
+        "Documentos/Dataset/controle-quimico-da-cigarrinha-e-enfezamentos-por-molicutes.pdf",
+        "milho — controle químico em viveiro e campo",
+    ),
+    "martins-2008": _corpus_doc(
+        "Documentos/Dataset/eficiencia-de-inseticidas-contra-dalbulus-maidis.pdf",
+        "milho — eficiência de inseticidas e amostragem",
+    ),
+    "xavier-2023": _corpus_doc(
+        "Documentos/Dataset/tratamentos-para-controle-da-cigarrinha-revisao.pdf",
+        "milho — revisão de tratamentos e controle biológico",
+    ),
+    "charles-2020": _corpus_doc(
+        "Documentos/Dataset/guia-de-boas-praticas-para-o-manejo-da-cigarrinha-e-dos-enfezamentos.pdf",
+        "milho — guia de boas práticas e manejo integrado",
+    ),
+    "embrapa-2022": _corpus_doc(
+        "Documentos/Dataset/embrapa-2022-desafios-ao-manejo-de-enfezamentos-e-viroses-na-cultura-do-milho.pdf",
+        "milho — transmissão, perdas regionais e manejo integrado",
+    ),
+    "revisao-2025": _corpus_doc(
+        "Documentos/Dataset/artigo-revisao-2025-controle-biologico-de-dalbulus-maidis-com-macro-e-microrganismos.pdf",
+        "milho — controle biológico com macro e microrganismos",
+    ),
+    "ufv-monitoramento-2023": _corpus_doc(
+        "Documentos/Dataset/dissertacao-mestrado-ufv-2023-monitoramento-populacional-de-dalbulus-maidis-com-armadilhas-amarelas-adesivas.pdf",
+        "milho — monitoramento com armadilhas amarelas adesivas",
+    ),
+    "ufv-incidencia-2023": _corpus_doc(
+        "Documentos/Dataset/dissertacao-mestrado-ufv-2023-incidencia-de-dalbulus-maidis-e-enfezamentos-em-milho-silagem-em-goias-e-minas-gerais.pdf",
+        "milho — incidência de enfezamentos e produtividade de silagem",
+    ),
+}
+
+# ----------------------------------------------------------------------------
 # Modelos (100% locais, quantização 4 bits)
 # ----------------------------------------------------------------------------
 MODELS = {
@@ -123,4 +191,14 @@ def paths(doc: str) -> dict:
         "geracoes": lambda strategy: ANALISES_DIR / f"geracoes_{doc}_{strategy}.json",
         "ragas_csv": ANALISES_DIR / f"ragas_results_{doc}.csv",
         "ragas_summary": ANALISES_DIR / f"ragas_summary_{doc}.csv",
+    }
+
+
+def corpus_paths() -> dict:
+    """Resolve os caminhos de artefatos do benchmark multi-documento."""
+    return {
+        "qa": BASE_DIR / CORPUS_QA,
+        "geracoes": lambda strategy: ANALISES_DIR / f"geracoes_corpus_{strategy}.json",
+        "ragas_csv": ANALISES_DIR / "ragas_results_corpus.csv",
+        "ragas_summary": ANALISES_DIR / "ragas_summary_corpus.csv",
     }

@@ -5,10 +5,10 @@
     "tipo": "unico",
     "docs": [
       "martins-2008",
-      "charles-2020"
+      "embrapa-2022"
     ],
-    "question": "Como se identifica a Cigarrinha-do-Milho e por quais vias ela transmite os patógenos ao milho?",
-    "ground_truth": "O adulto mede de 3,7 a 4,3 mm, tem coloração amarelo-palha, duas manchas circulares negras na parte frontal e é encontrado preferencialmente no cartucho. O ovo, de coloração amarela, tem período embrionário de cerca de nove dias e é colocado dentro dos tecidos, sobretudo na nervura central. A ninfa passa por cinco estádios, num período de aproximadamente 17 dias. A transmissão é persistente e propagativa: a Cigarrinha-do-Milho adquire o espiroplasma e o fitoplasma ao se alimentar da seiva do floema de plantas doentes, e os patógenos passam a circular e se multiplicar no inseto, colonizando as glândulas salivares. Depois de um período de latência de 17 a 28 dias, no qual ainda não transmite, passa a inocular plântulas sadias sempre que se alimenta, tendo o cartucho como habitat preferencial por oferecer proteção e umidade. O milho é hospedeiro obrigatório para sua multiplicação, mas o inseto consegue sobreviver em outras gramíneas, cultivadas ou espontâneas, funcionando como abrigo. Houve registro de transmissão simultânea de fitoplasma e espiroplasma pela mesma Cigarrinha-do-Milho."
+    "question": "Como reconhecer a cigarrinha-do-milho na lavoura e quais doenças ela transmite?",
+    "ground_truth": "A cigarrinha-do-milho (Dalbulus maidis) adulta mede cerca de 4 mm (3,7 a 4,3 mm), tem cor amarelo-palha com duas manchas pretas redondas na frente da cabeça e costuma ficar abrigada no cartucho da planta. Os ovos, de coloração amarela, são colocados na nervura central da folha e levam cerca de 9 dias para eclodir, enquanto a fase jovem (ninfa) dura aproximadamente 17 dias. Ao sugar a seiva de plantas doentes, o inseto adquire e passa a transmitir os agentes que causam o enfezamento-pálido, o enfezamento-vermelho e a virose da risca do milho."
   },
   {
     "id": "N1-02",
@@ -17,11 +17,10 @@
     "docs": [
       "oliveira-2007",
       "martins-2008",
-      "xavier-2023",
       "charles-2020"
     ],
-    "question": "Qual grupo químico concentra-se no tratamento de sementes contra a Cigarrinha-do-Milho e como o produto deve ser manejado?",
-    "ground_truth": "O tratamento de sementes concentra-se nos neonicotinoides, entre eles imidacloprido, tiametoxam, clotianidina e acetamiprido, por proteger a plântula desde a germinação. A relação de produtos e de doses, porém, muda com a regulamentação: o guia de boas práticas recomenda usar apenas produtos registrados para a Cigarrinha-do-Milho, consultando a base Agrofit do Ministério da Agricultura, respeitar a dose recomendada pelo fabricante e alternar os modos de ação para evitar resistência. Na lavoura, combina-se a semente tratada com o monitoramento entre a emergência e o oitavo estádio e pulverizações alternando os ativos. Um levantamento de 2008 já registrava acetamiprido entre os neonicotinoides usados em semente, mas a adequação de cada um ao uso em semente deve ser conferida na bula e no registro vigentes."
+    "question": "Quais produtos são usados no tratamento de sementes contra a cigarrinha-do-milho e como manejá-los?",
+    "ground_truth": "No tratamento de sementes utilizam-se inseticidas do grupo dos neonicotinoides, como imidacloprido, tiametoxam e clotianidina (além de registros em estudo com acetamiprido), que protegem a planta logo após a emergência. Como essa proteção dura apenas nas primeiras semanas, o produtor deve combinar a semente tratada com o monitoramento da lavoura da emergência até o estádio de oito folhas, aplicando apenas produtos registrados no Ministério da Agricultura (Agrofit), seguindo a dose da bula e alternando os produtos."
   },
   {
     "id": "N1-03",
@@ -29,10 +28,12 @@
     "tipo": "multi",
     "docs": [
       "martins-2008",
-      "charles-2020"
+      "embrapa-2022",
+      "cartilha",
+      "ufv-incidencia-2023"
     ],
-    "question": "Qual é a magnitude das perdas de produtividade atribuídas aos enfezamentos do milho e a que fatores elas dependem?",
-    "ground_truth": "Os valores divergem entre as fontes. Um levantamento de 2008 registra reduções de até 91,3% na produção de grãos, enquanto o guia de boas práticas cita redução de até 100% na produção da planta doente. O que as fontes convergem é a regra: o dano é proporcional à quantidade de plantas atacadas e à severidade dos sintomas, sendo mais acentuado quanto mais cedo a plântula for infectada. Por isso os percentuais não são generalizáveis, pois dependem da incidência, da época de infecção, da suscetibilidade do híbrido e das condições ambientais."
+    "question": "Qual o tamanho do prejuízo que os enfezamentos podem causar na produção de milho?",
+    "ground_truth": "O prejuízo varia muito conforme a situação da lavoura: estudos registram desde perdas moderadas (como até 25% em lavouras de milho silagem com baixa infestação) até quebras severas de 60% a mais de 80% na produção de grãos em áreas muito atacadas. Essa diferença acontece porque o tamanho da perda depende de quão cedo a planta foi infectada (quanto mais nova a planta, maior o dano), da quantidade de plantas doentes, da resistência da semente escolhida e do clima da região."
   },
   {
     "id": "N1-04",
@@ -43,8 +44,8 @@
       "xavier-2023",
       "charles-2020"
     ],
-    "question": "Quais são as vias de aplicação de inseticidas contra a Cigarrinha-do-Milho e em que situações cada uma é empregada?",
-    "ground_truth": "São três vias. O tratamento de sementes protege a planta desde a germinação e é apontado como a base do programa. A pulverização foliar atua sobre a população presente, sendo recomendada a partir do monitoramento entre a emergência e o oitavo estádio. O manejo da dessecação, aplicado antes do plantio, apresentou baixa eficiência no ensaio de 2008 e não é indicado pela revisão. A recomendação consolidada é semente tratada com produto registrado, monitoramento da lavoura e pulverizações alternando os ativos dentro da janela da cultura."
+    "question": "De que formas é possível aplicar inseticidas contra a cigarrinha-do-milho e quando usar cada uma?",
+    "ground_truth": "Existem três formas avaliadas: no tratamento da semente, na pulverização sobre as folhas e na dessecação antes do plantio. Aplicar inseticida na dessecação teve resultado fraco (abaixo de 50% de controle) e não é indicado. O manejo recomendado é começar com a semente tratada para proteger o início da lavoura e complementar com pulverizações nas folhas entre a emergência e a fase de oito folhas, conforme a presença da praga e seguindo a bula."
   },
   {
     "id": "N1-05",
@@ -52,10 +53,12 @@
     "tipo": "multi",
     "docs": [
       "xavier-2023",
-      "charles-2020"
+      "charles-2020",
+      "embrapa-2022",
+      "ufv-monitoramento-2023"
     ],
-    "question": "Como se define o momento de controle da Cigarrinha-do-Milho na lavoura?",
-    "ground_truth": "A resposta depende da fonte. Para um inseto-vetor não se consegue determinar um nível de dano econômico, porque a severidade da doença depende de quantas Cigarrinhas-do-Milho são portadoras dos molicutes e não do tamanho da população, de modo que a decisão acaba sendo tomada com base na presença ou ausência do inseto. Uma revisão de 2023 registra, com base em recomendação de entidade de assistência técnica, o indicativo de um ou mais indivíduos por planta para acionar o controle, mas trata-se de um valor de referência daquela fonte, e não de um nível validado para todas as regiões. A janela de maior risco é o período entre a emergência e o oitavo estádio, quando a Cigarrinha-do-Milho prefere colonizar as plantas novas."
+    "question": "Quando é o momento de entrar com o controle da cigarrinha-do-milho na lavoura?",
+    "ground_truth": "Não existe um número oficial de cigarrinhas por planta validado para todas as regiões, pois poucas cigarrinhas contaminadas já bastam para espalhar a doença. Por isso, o controle deve focar na proteção preventiva desde a emergência até as oito folhas, decidindo as aplicações pela presença do inseto na área e pelo histórico da região. Alguns materiais técnicos usam como referência prática encontrar um ou mais insetos por planta (Epagri) ou capturas acima de 40 cigarrinhas por mês em armadilhas amarelas, mas esses números servem apenas como alerta regional."
   },
   {
     "id": "N1-06",
@@ -63,41 +66,46 @@
     "tipo": "multi",
     "docs": [
       "martins-2008",
-      "xavier-2023",
-      "charles-2020"
+      "charles-2020",
+      "embrapa-2022"
     ],
-    "question": "Como se reproduz e se multiplica a Cigarrinha-do-Milho, e em que fase da cultura concentra-se o risco?",
-    "ground_truth": "Cada fêmea põe de 400 a 500 ovos na nervura central das folhas e no interior do cartucho, e o ovo leva cerca de nove dias para eclose. As ninfas vivem em colônias na parte inferior da folha por aproximadamente 17 dias, atravessando cinco estádios, e o adulto vive cerca de oito semanas, durante as quais transmite os patógenos. A preferência de colonização está entre a emergência e o oitavo estádio, na fase inicial de estabelecimento da cultura, ainda que o inseto possa se multiplicar durante todo o período vegetativo. A infecção da lavoura decorre de Cigarrinhas-do-Milho que migram de milhos mais velhos para os recém semeados ou de insetos que permaneceram em plantas-abrigo e no milho voluntário."
+    "question": "Como a cigarrinha-do-milho se reproduz e em qual fase o milho corre mais risco?",
+    "ground_truth": "Cada fêmea coloca de 400 a 500 ovos nas folhas; os ovos levam cerca de 9 dias para eclodir, as ninfas levam cerca de 17 dias até chegar à fase adulta e o adulto vive por volta de 8 semanas. Na entressafra, o inseto sobrevive em capins e no milho voluntário (tiguera) que nasce de grãos caídos. A fase de maior risco para a lavoura vai da emergência até as oito folhas, período em que as plantas novas atraem as cigarrinhas vindas de lavouras mais velhas."
   },
   {
     "id": "N1-07",
     "nivel": 1,
     "tipo": "unico",
     "docs": [
-      "oliveira-2007"
+      "oliveira-2007",
+      "embrapa-2022"
     ],
-    "question": "O tratamento de sementes contra a Cigarrinha-do-Milho funcionou em viveiro telado e em campo?",
-    "ground_truth": "O resultado depende do ambiente. Em viveiro telado, o tratamento de sementes com imidacloprido ou tiametoxam controlou mais de metade dos adultos até o trigésimo dia e reduziu a incidência de doença e os danos em plantas expostas às Cigarrinhas-do-Milho infectantes aos dois dias após a emergência. Em campo, não se observou redução da incidência de enfezamentos nem ganho de produção, em uma área com infestação natural e com uma lavoura de milho doente ao lado, servindo de fonte de Cigarrinhas-do-Milho. A interpretação dos autores para essa diferença é o fluxo migratório de Cigarrinhas-do-Milho infectantes, que supera a capacidade de os inseticidas reduzirem o inóculo inicial."
+    "question": "O tratamento de sementes contra a cigarrinha-do-milho funcionou em viveiro telado e no campo?",
+    "ground_truth": "O resultado foi diferente nos dois ambientes. Em viveiro telado (ambiente fechado), o tratamento de sementes com imidacloprido ou tiametoxam matou mais da metade das cigarrinhas até os 30 dias e reduziu a doença nas plantas jovens. Já em campo aberto, ao lado de uma lavoura mais velha e doente, o tratamento de sementes sozinho não reduziu os enfezamentos nem aumentou a colheita, porque continuaram chegando cigarrinhas contaminadas das áreas vizinhas."
   },
   {
     "id": "N1-08",
     "nivel": 1,
     "tipo": "unico",
     "docs": [
-      "charles-2020"
+      "charles-2020",
+      "embrapa-2022",
+      "milho"
     ],
-    "question": "Quais são as medidas de manejo indicadas para reduzir a Cigarrinha-do-Milho e os enfezamentos?",
-    "ground_truth": "O guia de boas práticas enumera dez medidas. Não semear milho ao lado de lavouras com plantas adultas que apresentem sintomas de enfezamentos ou de virose da risca. Manter as lavouras limpas, com dessecação por herbicidas, e eliminar as plantas hospedeiras, o milho voluntário, nas áreas, margens de estradas, lotes vagos e canteiros. Sincronizar o período de semeadura da região, evitando janelas de plantio superiores a 20 a 30 dias. Escolher híbridos com maior tolerância genética aos enfezamentos. Monitorar a presença da Cigarrinha-do-Milho entre a emergência e o oitavo estádio e aplicar inseticidas químicos e biológicos nesse período. Utilizar sementes certificadas e tratadas profissionalmente. Usar apenas inseticidas registrados, na dose recomendada, alternando os modos de ação. Planejar a colheita com máquinas reguladas para não deixar grãos e espigas remanescentes, transportar o milho colhido em caminhões apropriados para não dispersar grãos pelas estradas e fazer rotação de cultivos, evitando o plantio de milho sobre milho. A medida mais relevante para o ciclo é a janela de 20 a 30 dias de sincronia, que impede que plantas mais velhas sirvam de fonte de inóculo para as mais jovens. O guia afirma que nenhuma medida isolada é eficaz, porque a severidade decorre da interação entre o inseto-vetor, os patógenos e a planta hospedeira."
+    "question": "Quais são os cuidados básicos de manejo para reduzir a cigarrinha-do-milho e os enfezamentos?",
+    "ground_truth": "O manejo eficiente combina dez cuidados principais: não plantar milho ao lado de lavouras mais velhas com sintomas; eliminar o milho tiguera na área e nas beiras de estrada; concentrar o plantio da região numa janela curta (20 a 30 dias); escolher e alternar híbridos mais tolerantes; usar sementes certificadas e tratadas; monitorar a lavoura da emergência até oito folhas; aplicar produtos químicos e biológicos registrados alternando os modos de ação; regular a colhedora e vedar caminhões para não derrubar grãos; e fazer rotação de culturas."
   },
   {
     "id": "N1-09",
     "nivel": 1,
-    "tipo": "unico",
+    "tipo": "multi",
     "docs": [
-      "martins-2008"
+      "martins-2008",
+      "cartilha",
+      "ufv-monitoramento-2023"
     ],
-    "question": "Como funciona a armadilha cônica usada na contagem de Cigarrinha-do-Milho?",
-    "ground_truth": "É uma armadilha em forma de cone, revestida de tecido nylon preto, com 60 cm de altura, base inferior de 35 cm aberta e base superior de 20 cm, esta última vedada por uma garrafa PET transparente. A base maior recobre a planta, e as Cigarrinhas-do-Milho, atraídas pela claridade, deslocam-se para a garrafa, onde são contadas. A contagem foi feita em três plantas por parcela, ao acaso, nas fileiras centrais. Trata-se de uma prática de monitoramento registrada em 2008, que não aparece nas revisões mais recentes, nas quais a contagem é descrita no cartucho das plantas; convém, portanto, verificar sua adoção corrente antes de tratá-la como procedimento vigente."
+    "question": "Como é feito o monitoramento e a contagem da cigarrinha-do-milho na lavoura?",
+    "ground_truth": "O monitoramento pode ser feito pela observação direta do cartucho da planta ou com auxílio de coletores e armadilhas. Na lavoura comercial, a cartilha recomenda avaliar semanalmente até a fase de oito folhas (em 4 pontos por talhão de até 100 ha, olhando 8 plantas por ponto) ou ensacar rapidamente o cartucho com saco plástico para contagem precisa. Em pesquisas e levantamentos regionais, usam-se também a armadilha cônica de tecido preto com garrafa PET no topo e as armadilhas adesivas amarelas, que ajudam a indicar o risco na região, embora não meçam diretamente o dano na colheita."
   },
   {
     "id": "N1-10",
@@ -105,10 +113,12 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "charles-2020"
+      "charles-2020",
+      "milho",
+      "ufv-incidencia-2023"
     ],
-    "question": "Por que não se determina um nível de dano econômico para a Cigarrinha-do-Milho?",
-    "ground_truth": "Porque o estrago não é proporcional ao número de insetos: poucas Cigarrinhas-do-Milho doentes já disseminam a doença, de modo que o tamanho da população não informa o risco. Por isso as medidas são preventivas, protegendo a planta desde a fase inicial, quando ocorrem as infecção. O guia de boas práticas explicita que a tomada de decisão reativa fica baseada na presença ou ausência do inseto, e não em um limiar populacional validado."
+    "question": "Por que não existe um número mínimo de cigarrinhas por planta para começar o controle?",
+    "ground_truth": "Porque o prejuízo não depende apenas da quantidade de cigarrinhas na lavoura, mas sim de quantas delas estão carregando as bactérias e os vírus dos enfezamentos: poucos insetos contaminados já são suficientes para infectar as plantas novas. Estudos em lavouras de grãos e de silagem mostraram que até áreas com poucas cigarrinhas por planta podem ter perdas se os insetos estiverem infectados, razão pela qual a proteção precisa ser preventiva logo após o nascimento do milho."
   },
   {
     "id": "N2-01",
@@ -120,7 +130,7 @@
       "charles-2020"
     ],
     "question": "Quais doses de inseticida foram testadas no tratamento de sementes e na pulverização contra a Cigarrinha-do-Milho?",
-    "ground_truth": "Nos ensaios, o tratamento de sementes usou imidacloprido nas doses de 480 g por 100 kg de sementes e de 0,35 kg por 100 kg, tiametoxam a 200 g por 100 kg e a 60 g por 60 mil sementes, além de tiodicarbe mais imidacloprido, clotianidina a 0,35 kg por 100 kg e acetamiprido a 0,3 kg por 100 kg. Na pulverização, foram usados imidacloprido a 175 g por hectare e tiametoxam a 37,5 g por hectare, aos 10 e aos 20 dias após a emergência, com 150 a 250 litros de calda por hectare. São doses experimentais, de ensaios específicos: a dose a ser usada deve ser a da bula do produto registrado, conforme orienta o guia de boas práticas. A eficiência foi calculada pela fórmula de Abbott e as médias comparadas a 5% de probabilidade."
+    "ground_truth": "Em ensaios experimentais de tratamento de sementes, avaliaram-se imidacloprido (480 g ou 0,35 kg/100 kg de sementes), tiametoxam (200 g/100 kg ou 60 g/60 mil sementes), clotianidina (0,35 kg/100 kg), acetamiprido (0,3 kg/100 kg) e tiodicarbe + imidacloprido; nas pulverizações aos 10 e 20 DAE, testaram-se imidacloprido (175 g/ha) e tiametoxam (37,5 g/ha) com 150 a 250 L de calda/ha, avaliados pela fórmula de Abbott e Scott-Knott a 5%. Ressalta-se que esses valores são estritamente experimentais: no manejo atual, produto, dose e método devem seguir a bula e o registro vigente no Agrofit/MAPA."
   },
   {
     "id": "N2-02",
@@ -128,20 +138,22 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "martins-2008"
+      "martins-2008",
+      "embrapa-2022"
     ],
     "question": "Quanto tempo o efeito dos inseticidas contra a Cigarrinha-do-Milho permanece após a aplicação?",
-    "ground_truth": "Os dados divergem conforme o ambiente e a métrica. Em viveiro telado, imidacloprido e tiametoxam mantiveram 70% ou mais de controle até o 23º dia, com imidacloprido superior aos 16 dias, e o efeito sobre a doença foi mais marcante com inoculação aos dois dias, persistindo até os nove dias. Em campo, a eficiência medida sobre a população foi de 85% aos 14 dias para tiodicarbe mais imidacloprido, 75% aos 20 dias para clotianidina e 74% aos 28 dias para imidacloprido; aos 40 dias, imidacloprido mantinha 72% e a mistura de cipermetrina com tiametoxam 61%, com a dessecação entre as piores respostas. Já a incidência de doença em campo não se reduziu, o que os autores atribuem à chegada contínua de Cigarrinhas-do-Milho infectantes. Tratar esses percentuais como duração de efeito para a doença seria uma generalização indevida: valem para o que foi medido, nas condições do ensaio."
+    "ground_truth": "O período residual varia com o ambiente e a variável medida. Em viveiro telado, imidacloprido e tiametoxam mantiveram controle ≥70% até 23 DAE (>50% até 30 DAE), mas reduziram os enfezamentos principalmente nas exposições de 2 a 9 DAE. Em campo, o controle populacional atingiu 85% aos 14 DAE (tiodicarbe + imidacloprido), 75% aos 20 DAE (clotianidina), 74% aos 28 DAE e 72% aos 40 DAE (imidacloprido), contra 61% da mistura cipermetrina + tiametoxam aos 40 DAE e <50% na dessecação. Esses percentuais referem-se à mortalidade no ensaio e não garantem ausência de infecção sob alta pressão de inóculo."
   },
   {
     "id": "N2-03",
     "nivel": 2,
     "tipo": "unico",
     "docs": [
-      "oliveira-2007"
+      "oliveira-2007",
+      "embrapa-2022"
     ],
     "question": "Por que o resultado de campo não reproduziu o resultado de viveiro telado no controle da Cigarrinha-do-Milho?",
-    "ground_truth": "O que foi observado: em campo, a incidência de enfezamentos variou de 19% a 36,4% e a produtividade de 3.347 a 4.631 kg por hectare, sem diferença entre os tratamentos, ao passo que em viveiro telado o tratamento de sementes reduziu a incidência e os danos. As diferenças de condições entre os dois experimentos: em campo houve infestação natural, com lavoura de milho em enchimento de grãos e plantas com sintomas ao lado da área experimental, o que permitiu a entrada contínua de Cigarrinhas-do-Milho infectantes, enquanto o viveiro telado isolou as plantas de qualquer migração. A interpretação dos autores: a entrada contínua de Cigarrinhas-do-Milho infectantes teve efeito superior ao que os inseticidas conseguiram reduzir em termos de inóculo inicial. Soma-se a isso o tempo de alimentação necessário para a transmissão, de cerca de meia hora para o fitoplasma e de uma hora para o espiroplasma, e a ação mais lenta de alguns inseticidas, o que permite a infecção antes da morte do vetor. A hipótese é compatível com os dados, sem que os dados a confirmem de forma definitiva."
+    "ground_truth": "No experimento de campo, a incidência de enfezamentos variou de 19% a 36,4% e a produtividade de 3.347 a 4.631 kg/ha sem diferença estatística entre tratamentos, contrastando com a redução de danos obtida no viveiro telado. A diferença experimental foi a presença de uma lavoura adulta com sintomas ao lado do ensaio de campo, permitindo imigração contínua de vetores infectantes. Segundo a interpretação dos autores, esse influxo constante e o curto tempo necessário para inoculação dos molicutes (30 a 60 minutos) frente à velocidade de ação do inseticida superaram a proteção inicial do tratamento."
   },
   {
     "id": "N2-04",
@@ -149,11 +161,12 @@
     "tipo": "multi",
     "docs": [
       "xavier-2023",
-      "martins-2008",
+      "embrapa-2022",
+      "revisao-2025",
       "charles-2020"
     ],
-    "question": "Os inseticidas biológicos à base de fungos entomopatogênicos são eficaz no controle da Cigarrinha-do-Milho?",
-    "ground_truth": "Os resultados são condicionais. Beauveria bassiana e Metarhizium anisopliae matam por contato, colonizam os órgãos internos do inseto e têm efeito residual prolongado, além de serem específicos à praga-alvo. Em campo, entretanto, o desempenho se diferenciou entre os estudos: em ensaio em Arizona o fungo Beauveria teve os menores valores de eficiência, a mistura com silício ficou intermediária e Metarhizium e o inseticida foram superiores ao final do período; em Selvíria, Beauveria obtido em laboratório ficou aquém do esperado em campo; em outros ensaios os fungos não foram eficazes e o tratamento químico foi superior. A aplicação depende de temperatura e umidade favoráveis e de pressão moderada da praga. Como referência de resultado químico, o tratamento de sementes com imidacloprido manteve 72% de eficiência aos 40 dias em um dos ensaios. O guia de boas práticas recomenda o uso de biológicos em combinação com químicos, buscando o efeito imediato de choque do químico e o efeito residual do biológico, e não como programa isolado."
+    "question": "Os inseticidas biológicos à base de fungos entomopatogênicos são eficazes no controle da Cigarrinha-do-Milho?",
+    "ground_truth": "Fungos como Beauveria bassiana, Metarhizium anisopliae e Cordyceps javanica atuam por contato e colonização interna, alcançando mortalidade superior a 70–80% em laboratório e bons resultados comerciais quando B. bassiana é associada a C. javanica. Em campo, porém, a eficácia oscila conforme temperatura, umidade, formulação e pressão da praga, além de sofrer inibição por fungicidas convencionais e ter ação mais lenta que os químicos. Por isso, são recomendados como complemento ao controle químico e cultural dentro do manejo integrado, e não de forma isolada."
   },
   {
     "id": "N2-05",
@@ -162,10 +175,10 @@
     "docs": [
       "martins-2008",
       "xavier-2023",
-      "charles-2020"
+      "embrapa-2022"
     ],
     "question": "A pulverização foliar, utilizada de forma isolada, é suficiente para controlar a Cigarrinha-do-Milho?",
-    "ground_truth": "Os dados apontam que não. A mistura de cipermetrina com tiametoxam em pulverização manteve 61% de eficiência sobre a população aos 40 dias, sempre dentro de programa que incluía tratamento de sementes. Quando se testou foliar de forma isolada, com nove produtos, nenhum passou de 80% de eficiência, e a conclusão foi que só a pulverização não controla a praga; a mesma linha de evidência indica que apenas o químico aplicado depois da emergência não reduz os danos dos molicutes. A leitura consistente é que o foliar entra como complemento, depois do tratamento de sementes e do monitoramento entre a emergência e o oitovo estádio, alternando os ativos: pulverizar mais tarde, sem a base do programa, chega depois da inoculação."
+    "ground_truth": "Não. Em avaliação de nove inseticidas aplicados exclusivamente via pulverização foliar, nenhum atingiu 80% de eficiência, e observações em lavouras comerciais com híbridos suscetíveis registraram perdas severas mesmo após 4 a 5 pulverizações. Mesmo os 61% de eficiência aos 40 DAE com cipermetrina + tiametoxam ocorreram em programa que já contava com tratamento de sementes. A pulverização foliar atua apenas como complemento pós-emergência (de VE a V8) ao tratamento de sementes e às práticas culturais."
   },
   {
     "id": "N2-06",
@@ -176,19 +189,20 @@
       "martins-2008"
     ],
     "question": "Por que inseticidas sistêmicos perdem efeito contra a Cigarrinha-do-Milho conforme a planta cresce?",
-    "ground_truth": "O produto vai diluindo na seiva conforme a planta cresce, e aí a Cigarrinha-do-Milho precisa sugar mais tempo para morrer. Esse tempo extra basta para transmitir, que leva de meia a uma hora. Na prática o controle despenca dos 20 aos 40 dias e a doença sobe nas inoculações tardias: a mesma dose que protege a plântula de 2 dias falha na planta de 30 dias. A regra dos sistêmicos é, portanto, efeito máximo na janela inicial e ladeira abaixo com a idade da planta."
+    "ground_truth": "A hipótese sustentada pelos autores é que o ingrediente ativo sistêmico aplicado na semente sofre diluição nos tecidos à medida que a planta se desenvolve, exigindo maior tempo de alimentação na seiva para causar a morte do vetor. Como a transmissão dos molicutes ocorre em cerca de 30 a 60 minutos, esse atraso na mortalidade permite a inoculação do patógeno em plantas mais desenvolvidas, o que é coerente com a queda gradual de controle observada entre 20 e 40 DAE e com o aumento da doença nas exposições tardias."
   },
   {
     "id": "N2-07",
     "nivel": 2,
     "tipo": "multi",
     "docs": [
-      "oliveira-2007",
-      "xavier-2023",
-      "charles-2020"
+      "milho",
+      "embrapa-2022",
+      "charles-2020",
+      "xavier-2023"
     ],
     "question": "Qual o papel das cultivares resistentes aos enfezamentos frente ao controle químico da Cigarrinha-do-Milho?",
-    "ground_truth": "A cultivar resistente é a base mais barata e eficiente de que se dispõe, mas poucas cultivares do mercado têm resistência que preste, o que torna o químico indispensável na janela em que ocorre a infecção. O guia de boas práticas acrescenta que a escolha do híbrido deve considerar a ferramenta de posicionamento de híbridos, para diversificar o plantio e reduzir o risco de acordo com o pico populacional da praga. O arranjo que reúne as duas ações combina cultivar com maior tolerância genética, semente tratada com sistêmico, rotação de cultivares, semeadura sincronizada na região e eliminação do milho voluntário. A resistência segura o fundo da lavoura e o químico segura o começo."
+    "ground_truth": "A resistência genética é a base mais econômica e eficiente do manejo — sob a mesma pressão, híbridos tolerantes (como o genótipo experimental 3S) apresentam baixa severidade (<10% de incidência) enquanto suscetíveis ultrapassam 65%, lembrando que a tecnologia Bt não confere proteção contra a cigarrinha. Como a disponibilidade de híbridos com alta resistência comercial ainda é limitada, o controle químico (tratamento de sementes e pulverizações de VE a V8) permanece indispensável para proteger a fase inicial, associado à diversificação/rotação de híbridos e à eliminação de tigueras."
   },
   {
     "id": "N2-08",
@@ -196,10 +210,12 @@
     "tipo": "multi",
     "docs": [
       "xavier-2023",
+      "martins-2008",
+      "revisao-2025",
       "charles-2020"
     ],
     "question": "Quais alternativas de aplicação e de produtos existem contra a Cigarrinha-do-Milho além do padrão semente tratada e pulverização foliar?",
-    "ground_truth": "O guia de boas práticas indica o uso de sementes certificadas e tratadas profissionalmente, com inseticidas registrados, e a aplicação de produto biológico em combinação com o químico. Entre as alternativas testadas na literatura, a aplicação por gotejamento subterrâneo e por pulverizador tratorizado foi eficaz até 14 dias após a aplicação, com o gotejamento favorecendo os 7 dias e o tratorizado os 14 dias; o extrato de mamona em concentrações de 0,07 g/L e de 0,007 g/L apresentou efeito comparável ao do imidacloprido até o pendoamento; e a mistura de inseticida de base acefato com piretroide apresentou a maior eficiência em um dos ensaios. Registra-se também, em levantamento de 2008, a eficiência de uma mistura com endossulfan e sal de cozinha durante as quatro primeiras semanas de desenvolvimento, resultado histórico que não deve ser tomado como recomendação: o ingredient ativo endossulfan foi proibido no Brasil e a mistura não se sustenta como alternativa vigente."
+    "ground_truth": "Na literatura revisada (2007–2025), foram avaliadas alternativas experimentais como aplicação via gotejamento subterrâneo (melhor aos 7 DAA com imidacloprido) comparada ao pulverizador tratorizado (melhor aos 14 DAA com acefato), extrato foliar de mamona (0,07 e 0,007 g/L, com efeito semelhante ao imidacloprido até o pendoamento) e agentes biológicos (fungos, nematoides Heterorhabditis/Steinernema e bactérias). O ensaio de 2008 também testou endossulfan com sal de cozinha nas quatro primeiras semanas, mas trata-se apenas de registro histórico, pois o endossulfan foi proibido no Brasil; qualquer alternativa exige validação e registro vigente no Agrofit/MAPA."
   },
   {
     "id": "N2-09",
@@ -208,10 +224,11 @@
     "docs": [
       "martins-2008",
       "oliveira-2007",
-      "charles-2020"
+      "charles-2020",
+      "ufv-monitoramento-2023"
     ],
     "question": "Como decidir se vale a pena aplicar inseticida contra a Cigarrinha-do-Milho?",
-    "ground_truth": "Não basta medir bem no ensaio. Conta-se a praga, calcula-se a eficiência e compara-se a 5% de probabilidade, mas a decisão é de custo: o ganho de produtividade multiplicado pelo preço do milho tem que pagar o produto, além de o número de aplicações levar em conta a presença ou ausência de Cigarrinhas-do-Milho e a recomendação do fabricante. E como vetor não tem nível de dano, porque poucas Cigarrinhas-do-Milho já transmitem, aplica-se de forma preventiva na janela inicial em vez de esperar por um limiar populacional validado."
+    "ground_truth": "Além da eficiência estatística medida em ensaio (fórmula de Abbott e teste a 5%), a decisão econômica exige que o ganho de produtividade multiplicado pelo preço do milho supere o custo dos produtos e das aplicações. Como não existe nível de dano econômico validado para o vetor e as armadilhas amarelas indicam apenas risco regional (>40 cigarrinhas/armadilha/mês) sem correlação direta com a produtividade, a decisão baseia-se na proteção preventiva de VE a V8, na presença do inseto na lavoura, no histórico de enfezamentos da área e nas recomendações de bula."
   },
   {
     "id": "N2-10",
@@ -220,11 +237,11 @@
     "docs": [
       "oliveira-2007",
       "martins-2008",
-      "xavier-2023",
-      "charles-2020"
+      "charles-2020",
+      "embrapa-2022"
     ],
     "question": "Qual é a janela crítica de controle da Cigarrinha-do-Milho?",
-    "ground_truth": "A janela crítica concentra-se entre a emergência e o oitavo estádio, período em que a Cigarrinha-do-Milho prefere colonizar as plantas novas e em que a infecção causa os maiores prejuízos, sendo menor quando a infecção é tardia. Dentro dessa janela, o tratamento de sementes cobre os primeiros dias, com efeito sobre a doença mais marcante quando a exposição ocorre entre 2 e 9 dias após a emergência, e o residual químico ainda se sustenta em torno dos 40 dias, embora em queda. Some-se a isso o período de latência de 17 a 28 dias, durante o qual a Cigarrinha-do-Milho carrega o patógeno sem transmitir, e a janela de sincronia de 20 a 30 dias de semeadura, que evita a existência de ponte verde entre lavouras."
+    "ground_truth": "A janela crítica estende-se da emergência (VE) até o estádio de oito folhas (V8), fase em que a cigarrinha prefere colonizar o milho e na qual a infecção precoce provoca as maiores perdas de produtividade. Nesse intervalo, o tratamento de sementes protege os primeiros dias (efeito mais forte sobre a doença entre 2 e 9 DAE) e o monitoramento orienta as pulverizações complementares enquanto o residual químico declina até cerca de 40 DAE, devendo ser aliado à janela regional de semeadura de 20 a 30 dias para evitar a ponte verde."
   },
   {
     "id": "N3-01",
@@ -232,11 +249,10 @@
     "tipo": "contraditoria",
     "docs": [
       "oliveira-2007",
-      "martins-2008",
-      "charles-2020"
+      "embrapa-2022"
     ],
     "question": "Por que o tratamento de sementes reduz os enfezamentos em área isolada, mas não sob migração contínua da Cigarrinha-do-Milho?",
-    "ground_truth": "Há dois conjuntos de observação e eles não se contradizem. Em área isolada, com plantas confinadas, o tratamento de sementes com imidacloprido ou tiametoxam reduziu a incidência de doença e os danos em plantas expostas às Cigarrinhas-do-Milho infectantes aos dois dias após a emergência, e o efeito persistiu até a exposição aos nove dias. Em campo, com infestação natural e lavoura de milho doente ao lado, a incidência ficou entre 19% e 36,4% e a produtividade entre 3.347 e 4.631 kg por hectare, sem diferença entre os tratamentos. A interpretação dos autores é que a entrada contínua de Cigarrinhas-do-Milho infectantes, com o hábito migratório da espécie e a dispersão por correntes de vento, supera a capacidade de os inseticidas reduzirem o inóculo inicial. Uma explicação complementar é o tempo de alimentação necessário para a transmissão, de cerca de meia hora para o fitoplasma e de uma hora para o espiroplasma, combinado com a ação mais lenta dos inseticidas: o vetor pode inocular antes de morrer. Os dados apontam nessa direção, mas não a confirmam de forma definitiva."
+    "ground_truth": "Os resultados refletem condições distintas de pressão de inóculo. Em ambiente isolado (viveiro telado), o tratamento de sementes com imidacloprido ou tiametoxam eliminou a população confinada e reduziu a doença nas exposições de 2 a 9 DAE. Em campo aberto, ao lado de lavoura doente, a incidência permaneceu entre 19% e 36,4% sem ganho produtivo porque a chegada contínua de cigarrinhas infectantes e o curto tempo de inoculação dos molicutes (30 a 60 minutos) permitem que novos vetores transmitam o patógeno antes de morrerem pela ação do inseticida."
   },
   {
     "id": "N3-02",
@@ -244,23 +260,24 @@
     "tipo": "multi",
     "docs": [
       "xavier-2023",
-      "oliveira-2007",
-      "charles-2020"
+      "charles-2020",
+      "embrapa-2022",
+      "revisao-2025"
     ],
     "question": "Em que condições um único método de controle basta contra a Cigarrinha-do-Milho, e em que condições a associação de métodos é necessária?",
-    "ground_truth": "A resposta varia com a escala. Para programa de safra sob pressão migratória, a conclusão do guia de boas práticas é que nenhuma medida isolada é eficaz, porque a severidade decorre da interação entre inseto-vetor, patógenos e planta hospedeira, e o ensaio de campo confirma o efeito limitado do tratamento de sementes isolado. Em janela curta e sem reinfestação, o método isolado pode bastar: o extrato de mamona apresentou efeito comparável ao do imidacloprido até o pendoamento, a mistura de inseticida com endossulfan e sal de cozinha foi eficiente nas quatro primeiras semanas de desenvolvimento, e a aplicação por gotejamento ou por pulverizador tratorizado sustentou o controle por 14 dias. A divergência é, portanto, de escala e não de princípio: quanto maior o período da safra e a chegada de inóculo de fora, mais métodos associados tendem a ser necessários. Registre-se que o endossulfan foi proibido no Brasil, de modo que esse resultado é histórico e não constitui alternativa vigente."
+    "ground_truth": "A suficiência depende da pressão de inóculo e da escala temporal. Em áreas sem histórico de enfezamentos, sem sucessão de milho ou em avaliações de curta duração sem reinfestação externa (como ensaios de 7 a 14 dias ou em casa de vegetação), o tratamento de sementes ou aplicações isoladas podem reduzir a população inicial. Já em lavouras comerciais sob fluxo migratório ao longo da safra, nenhuma medida isolada é eficaz: exige-se associar tratamento de sementes, pulverizações químicas e biológicas sincronizadas de VE a V8, híbridos tolerantes e eliminação da ponte verde."
   },
   {
     "id": "N3-03",
     "nivel": 3,
     "tipo": "multi",
     "docs": [
-      "xavier-2023",
-      "martins-2008",
-      "charles-2020"
+      "revisao-2025",
+      "embrapa-2022",
+      "xavier-2023"
     ],
     "question": "Como decidir o uso de Beauveria bassiana em um programa de controle da Cigarrinha-do-Milho?",
-    "ground_truth": "Os ensaios indicam comportamento distinto entre laboratório e campo. Em ensaio controlado, os fungos entomopatogênicos matam por contato e colonizam o inseto por dentro, com efeito residual, e em um dos estudos o Beauveria teve os menores valores de eficiência enquanto Metarhizium e o inseticida foram superiores ao final do período. Em campo, o desempenho se inverteu: Beauveria obtido em laboratório ficou aquém do esperado, e em outros ensaios os fungos não foram eficazes, com o químico à frente. As condições de aplicação, com temperatura e umidade favoráveis e pressão moderada da praga, são parte do resultado. A leitura consistente é usar o biológico como complemento dentro de um programa com químico de base, que com imidacloprido em semente sustentou 72% aos 40 dias, e nunca como programa exclusivo, já que em campo ficou atrás do tratamento químico."
+    "ground_truth": "A decisão deve considerar a diferença de desempenho entre ambiente controlado e campo: enquanto ensaios de laboratório e formulações combinadas (como B. bassiana + Cordyceps javanica) mostram alta mortalidade, em campo o fungo tem ação mais lenta e pode apresentar eficiência inferior à de M. anisopliae e dos inseticidas químicos sob baixa umidade ou temperatura desfavorável. Portanto, B. bassiana deve ser empregada como complemento ao tratamento químico e às práticas culturais, utilizando produtos registrados no MAPA, sob condições climáticas favoráveis e evitando mistura com fungicidas incompatíveis."
   },
   {
     "id": "N3-04",
@@ -269,10 +286,10 @@
     "docs": [
       "martins-2008",
       "xavier-2023",
-      "charles-2020"
+      "ufv-incidencia-2023"
     ],
     "question": "Uma pulverização com 61% de controle da Cigarrinha-do-Milho aos 40 dias garante controle dos enfezamentos?",
-    "ground_truth": "Não, e a aparente contradição se explica pela métrica e pelas condições. O percentual de 61% refere-se à eficiência sobre a população de Cigarrinhas-do-Milho, medida por contagem, e foi obtido em programa que já contava com tratamento de sementes. Nos levantamentos que avaliam a doença e o resultado prático, a pulverização isolada não passou de 80% de eficiência, ou não se mostrou capaz de conter os enfezamentos. A diferença está no que se mede: o foliar derruba o vetor presente, mas não desfaz a inoculação já ocorrida nem impede a reinfestação, e sem o tratamento de sementes protegendo o início da cultura mais as medidas de manejo, ele atua depois do período crítico. Controlar o vetor e controlar a doença são grandezas distintas, que devem ser avaliadas separadamente. A aparente contradição se explica pela métrica e pelas condições. O percentual de 61% refere-se à eficiência sobre a população de Cigarrinhas-do-Milho, medida por contagem, e foi obtido em programa que já contava com tratamento de sementes. Nos levantamentos que avaliam a doença e o resultado prático, a pulverização isolada não passou de 80% de eficiência, ou não se mostrou capaz de conter os enfezamentos. A diferença está no que se mede: o foliar derruba o vetor presente, mas não desfaz a inoculação já ocorrida nem impede a reinfestação, e sem o tratamento de sementes protegendo o início da cultura mais as medidas de manejo, ele atua depois do período crítico. Controlar o vetor e controlar a doença são distintos e devem ser avaliados separadamente."
+    "ground_truth": "Não, pois eficácia sobre a população do vetor e controle da doença são métricas distintas. Os 61% de eficiência aos 40 DAE (cipermetrina + tiametoxam) mediram apenas a mortalidade de cigarrinhas em um programa que já possuía tratamento de sementes. Como o controle foliar não reverte a inoculação já ocorrida nos estádios iniciais e o levantamento em milho silagem confirma que a densidade do vetor não se correlaciona diretamente com a incidência de enfezamento (que reduz a produtividade), controlar parte da população tardia não garante proteção contra a doença."
   },
   {
     "id": "N3-05",
@@ -280,11 +297,10 @@
     "tipo": "contraditoria",
     "docs": [
       "oliveira-2007",
-      "xavier-2023",
-      "charles-2020"
+      "embrapa-2022"
     ],
     "question": "O tratamento de sementes é eficaz ou não contra a Cigarrinha-do-Milho?",
-    "ground_truth": "As duas leituras são sustentadas por medições distintas. No ensaio controlado, o tratamento de sementes com imidacloprido ou tiametoxam reduziu a incidência de enfezamentos e os danos, com efeito mais marcante quando a exposição ocorreu aos dois dias após a emergência e persistindo até os nove dias, o que é coerente com a proteção da janela em que ocorre a infecção primária. Em campo, com infestação natural e lavoura de milho doente ao lado, não houve redução da incidência, entre 19% e 36,4%, e nem ganho de produção. A variável que distingue os dois resultados é o aporte externo de inóculo: o residual do tratamento não se sustenta contra a chegada contínua de Cigarrinhas-do-Milho infectantes. Uma leitura de conjunto trata o tratamento de sementes como necessário, por cobrir os primeiros dias, e insuficiente, quando a lavoura está cercada de foco de inóculo; nesse caso, somam-se monitoramento desde a emergência, pulverizações de ação rápida ao detectar a praga, rotação de ativos e a sincronização de semeadura da região."
+    "ground_truth": "A eficácia é condicional ao cenário de infestação. Em casa de vegetação ou em áreas sem histórico de enfezamentos e sem sucessão de milho, o tratamento de sementes com neonicotinoides reduz a população do vetor (>50% até 30 DAE) e diminui perdas iniciais entre 20% e 60% até V4 (especialmente nas exposições de 2 a 9 DAE). Contudo, sob reinfestação contínua vinda de lavouras vizinhas doentes, o tratamento de sementes isolado mostra-se insuficiente para conter a incidência da doença em campo (19% a 36,4%), precisando ser integrado ao monitoramento, pulverizações coordenadas e manejo regional."
   },
   {
     "id": "N3-06",
@@ -292,13 +308,12 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "martins-2008",
-      "xavier-2023",
+      "embrapa-2022",
       "charles-2020",
-      "cartilha"
+      "revisao-2025"
     ],
     "question": "Como montar um programa completo de controle da Cigarrinha-do-Milho quando a região tem lavoura de milho com enfezamentos ao lado?",
-    "ground_truth": "O conjunto de medidas mais defensável, reunindo o que os quatro documentos sustentam, começa pela região: não semear milho ao lado de lavouras com plantas adultas e sintomáticas, ou, se semear, tratar a semente com produto registrado, proteger a janela inicial com neonicotinoide e concentrar a aplicação no período da emergência ao oitavo estágio, que é onde a Cigarrinha-do-Milho prefere colonizar as plantas novas. Vem o monitoramento da lavoura, com contagem em cartucho, e a pulverização de ação rápida ao primeiro registro de praga, em intervalos curtos e com rotação dos modos de ação até o oitavo estágio, porque nenhuma medida isolada se sustenta quando há aporte externo de inóculo. Somam-se a eliminação do milho voluntário e da ponte verde na vizinhança, a escolha de híbrido com maior tolerância genética, o uso de semente certificada e tratada profissionalmente, a semeadura sincronizada em janela de 20 a 30 dias e o uso de biológico como complemento do químico, em condições de temperatura e umidade favoráveis. As doses e o número de aplicações devem seguir a bula e o registro do produto e a avaliação local, e o programa deve ser auditado por incidência e produção ao final do ciclo."
+    "ground_truth": "Em uma análise de cenário sob alta pressão externa de inóculo, o manejo deve combinar ações regionais e locais: evitar semear ao lado de lavouras adultas sintomáticas, eliminar o milho tiguera, sincronizar a semeadura regional (janela de 20 a 30 dias) e escolher híbridos mais tolerantes. Na implantação, utilizam-se sementes certificadas com tratamento industrial registrado, seguidas de monitoramento constante de VE a V8 com pulverizações químicas (preferencialmente coordenadas na região e alternando modos de ação) e complemento biológico sob clima favorável, sempre respeitando a bula e o registro vigente no Agrofit."
   },
   {
     "id": "N3-07",
@@ -306,11 +321,11 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "xavier-2023",
-      "charles-2020"
+      "embrapa-2022",
+      "milho"
     ],
     "question": "Por que 70% de mortalidade da Cigarrinha-do-Milho pode coexistir com 36% de incidência de enfezamentos?",
-    "ground_truth": "Porque eliminar o inseto e impedir a infecção são coisas diferentes. A Cigarrinha-do-Milho precisa de alimentação para transmitir: cerca de meia hora para o fitoplasma e de uma hora para o espiroplasma, conforme os levantamentos citados no trabalho, e o inseticida de ação mais lenta permite que a infecção ocorra antes da morte do vetor. Soma-se a isso o período de latência de 17 a 28 dias, em que o inseto já carrega o patógeno mas ainda não transmite, e a possibilidade de infecção tardia, nos casos em que a exposição ocorreu mais tarde. Uma hipótese compatível com os números é que parte das plantas foi inoculada antes da mortalidade elevada, hipótese que os dados não confirmam de forma isolada. Daí a recomendação de escolher o produto também pela velocidade de ação na pulverização, e não apenas pela mortalidade final."
+    "ground_truth": "Porque a mortalidade avaliada após 96 horas de exposição ao inseticida não impede que o inseto infectivo transmita os patógenos antes de morrer, visto que o período de acesso à inoculação dos molicutes no floema é de apenas 30 a 60 minutos. Além disso, em campo aberto ocorre entrada contínua de novos vetores migrantes, e os ensaios com híbridos demonstram que a severidade da doença nos estádios reprodutivos independe da abundância de cigarrinhas na fase vegetativa, razão pela qual a velocidade de ação do produto é tão relevante quanto a mortalidade final."
   },
   {
     "id": "N3-08",
@@ -320,8 +335,8 @@
       "martins-2008",
       "xavier-2023"
     ],
-    "question": "A mistura de endossulfan com sal de cozinha, que presenting bons resultados na soja, é alternativa válida para a Cigarrinha-do-Milho?",
-    "ground_truth": "Não. O endossulfan foi proibido no Brasil, de modo que o resultado é histórico e não sustenta recomendação de uso. Quanto à eficiencia, a mistura foi uma das piores no ensaio de milho, com 53% de eficiência aos 14 dias e 36% aos 28 dias, enquanto funcionou contra percevejos da soja, com controle por até 15 dias. A explicação é que o sal atua como adjuvante de contato, com efeito dependente da espécie, da dose e da combinação: contra a Cigarrinha-do-Milho, inseto ágil e sugador, o efeito foi pequeno, e o desempenho de outra mistura com sal em outro produto foi melhor, o que indica que o que funcionou foi a associação, e não o sal isoladamente. A lição metodológica é que resultado obtido em outra praga e outra cultura exige validação local antes de virar recomendação."
+    "question": "A mistura de endossulfan com sal de cozinha, que apresentou bons resultados na soja, é alternativa válida para a Cigarrinha-do-Milho?",
+    "ground_truth": "Não. Em primeiro lugar, o endossulfan foi proibido no Brasil, tratando-se apenas de um dado histórico do ensaio de 2008 sem possibilidade de recomendação atual. Em segundo lugar, o uso de sal de cozinha como adjuvante mostrou efeito dependente do ingrediente ativo e da praga-alvo: enquanto funcionou contra percevejos na soja e na mistura histórica com endossulfan nas quatro primeiras semanas, a mistura de monocrotofós com sal teve um dos piores desempenhos contra a cigarrinha no milho (53% aos 14 DAE e 36% aos 28 DAE), demonstrando que resultados de outra cultura não podem ser extrapolados sem validação e registro vigente."
   },
   {
     "id": "N3-09",
@@ -329,10 +344,13 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "martins-2008"
+      "martins-2008",
+      "cartilha",
+      "milho",
+      "ufv-incidencia-2023"
     ],
     "question": "Mortalidade do vetor e incidência da doença correspondem à mesma eficiência na avaliação do controle da Cigarrinha-do-Milho e dos enfezamentos?",
-    "ground_truth": "Não são a mesma grandeza. Em um dos trabalhos, a métrica foi a população do inseto, com contagem e mortalidade calculada por Abbott até 40 dias após a emergência. No outro, a métrica foi a doença, com sintomas avaliados aos 100 dias, altura de planta e produção de grãos sob pressão de inóculo. Um produto pode reduzir a população sem reduzir a doença, porque a doença depende de quando a infecção ocorreu, e não apenas de quantos insetos restaram. A avaliação que cobre os dois ângulos mede mortalidade para o vetor e incidência, severidade e produção para a doença, sempre registrando se havia foco de inóculo na vizinhança e qual foi a pressão de infestação. Sem essa separação, comparar percentual de morte com ausência de efeito é comparar grandezas distintas."
+    "ground_truth": "Não, pois avaliam grandezas distintas. Enquanto ensaios entomológicos medem a mortalidade da população do vetor até 40 DAE pela fórmula de Abbott, a avaliação fitopatológica mede a incidência de plantas sintomáticas aos 90–100 DAE, a severidade (escala de notas de 1 a 6 em R2) e o rendimento de grãos ou silagem. Como demonstrado nos estudos de híbridos e de milho silagem, a densidade de cigarrinhas não se correlaciona com a incidência ou severidade, mas a incidência reduz significativamente a produtividade, exigindo avaliar tanto o vetor quanto a doença e a pressão de inóculo vizinha."
   },
   {
     "id": "N3-10",
@@ -340,11 +358,11 @@
     "tipo": "multi",
     "docs": [
       "oliveira-2007",
-      "martins-2008",
-      "xavier-2023",
-      "charles-2020"
+      "embrapa-2022",
+      "charles-2020",
+      "xavier-2023"
     ],
     "question": "O que fazer se o milho jovem estiver ao lado de lavoura de milho com enfezamentos, em enchimento de grãos?",
-    "ground_truth": "A situação descrita corresponde ao ensaio de campo em que o tratamento de sementes não se refletiu sobre a doença, com a lavoura doente ao lado como foco de inóculo. A medida de maior impacto é não semear nesse local, já que a semeadura elimina o foco. Se o plantio for mantido, o conjunto de medidas é tratar a semente com produto registrado, monitorar desde a emergência por contagem em cartucho, aplicar produto de ação rápida ao primeiro registro de praga e repetir em intervalos curtos até o oitavo estágio, alternando os modos de ação, eliminar as tigueras e o milho voluntário do entorno e, para a safra seguinte, combinar a data de semeadura com a dos vizinhos para evitar a ponte verde. Convém ainda registrar, ao fim do ciclo, a incidência e a produção, para auditar o resultado. As doses e o número de aplicações seguem a bula e o registro do produto e a avaliação local."
+    "ground_truth": "Esse cenário reproduz a condição crítica de campo em que a lavoura adulta atua como fonte contínua de cigarrinhas infectantes. Como análise de manejo, a medida preventiva prioritária é evitar o plantio contíguo a lavouras mais velhas com sintomas; caso a lavoura jovem já esteja implantada, deve-se combinar semente tratada, eliminação de tigueras no entorno, monitoramento intensivo de VE a V8 e pulverizações com produtos registrados de ação rápida (preferencialmente coordenadas na região e alternando modos de ação conforme bula e Agrofit), auditando a incidência e a produtividade ao final do ciclo."
   }
 ]

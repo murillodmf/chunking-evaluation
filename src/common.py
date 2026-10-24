@@ -159,12 +159,40 @@ def load_and_clean_pdf(pdf_path: str, doc_cfg: dict) -> str:
         if idx != -1:
             full = full[idx:]
 
+    ref_min_frac = doc_cfg.get("ref_min_frac", 0.5)
+    cut = len(full)
     for ref in doc_cfg.get("ref_markers", []):
-        idx = full.find(ref)
-        if idx != -1:
-            full = full[:idx]
-            break
+        start = 0
+        while True:
+            idx = full.find(ref, start)
+            if idx == -1:
+                break
+            if idx >= ref_min_frac * len(full):
+                cut = min(cut, idx)
+            start = idx + 1
+    if cut < len(full):
+        full = full[:cut]
     return full
+
+
+def load_corpus_texts(doc_ids: list = None) -> dict:
+    """Carrega e limpa os PDFs do corpus, devolvendo {doc_id: texto}."""
+    available = list(config.CORPUS_DOCS)
+    selected = available if not doc_ids else [d for d in doc_ids if d in config.CORPUS_DOCS]
+    unknown = [d for d in (doc_ids or []) if d not in config.CORPUS_DOCS]
+    if unknown:
+        raise ValueError(f"docs desconhecidos: {unknown}. Use: {available}")
+    missing = [d for d in (doc_ids or []) if d not in selected]
+    if missing:
+        raise ValueError(f"docs não selecionados: {missing}")
+
+    texts = {}
+    for doc_id in selected:
+        cfg = config.CORPUS_DOCS[doc_id]
+        pdf = BASE_DIR / cfg["pdf"]
+        print(f"\n[{doc_id}] {pdf.name}")
+        texts[doc_id] = load_and_clean_pdf(str(pdf), cfg)
+    return texts
 
 
 def split_blocks(text: str, block_chars: int = 5000) -> list:
