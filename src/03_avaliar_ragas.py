@@ -24,17 +24,19 @@ def main() -> None:
     ap.add_argument("--strategy", default="todas",
                     choices=["todas", "fixed", "recursive", "semantic", "baseline"],
                     help="Avalia 1 estrategia por processo (menos VRAM). Default: %(default)s")
+    ap.add_argument("--k", type=int, default=config.TOP_K,
+                    help="Valor de Top-K usado na Fase 1 (default: %(default)s)")
     ap.add_argument("--metrics", default=",".join(config.RAGAS_METRICS),
                     help="Subset separado por virgula p/ smoke test. Default: todas")
     args = ap.parse_args()
 
     common.setup_reproducibility()
-    paths = config.corpus_paths() if args.corpus else config.paths(args.doc)
+    paths = config.corpus_paths(k=args.k) if args.corpus else config.paths(args.doc, k=args.k)
     doc_label = "corpus" if args.corpus else args.doc
     common.vram_log("início Fase 2 (esperado ~0 GiB em processo novo)")
 
     print("=" * 60)
-    print(f" FASE 2: AVALIAÇÃO RAGAS — doc='{doc_label}'")
+    print(f" FASE 2: AVALIAÇÃO RAGAS — doc='{doc_label}' | K={args.k}")
     print("=" * 60)
 
     # Shim de compatibilidade: Ragas importa ChatVertexAI por padrão.
@@ -99,19 +101,29 @@ def main() -> None:
     metrics = [metric_map[m] for m in wanted]
 
     def persist(out: dict) -> "pd.DataFrame":
-        """Salva fundindo com o CSV ja em disco: cada run --strategy sobrescreve
-        APENAS as linhas das suas estrategias, sem apagar as demais."""
+        """Salva fundindo com o CSV ja em disco: preserva colunas de metricas
+        calculadas em rodadas anteriores da mesma estrategia."""
         merged = pd.concat(out.values(), ignore_index=True)
         if paths["ragas_csv"].exists():
             try:
                 prev = pd.read_csv(paths["ragas_csv"])
-                prev = prev[~prev["strategy"].isin(list(out))]
-                merged = pd.concat([prev, merged], ignore_index=True)
+                other_strats = prev[~prev["strategy"].isin(list(out))]
+                same_strats = prev[prev["strategy"].isin(list(out))]
+                if not same_strats.empty:
+                    # Preserva colunas de metricas anteriores para a mesma estrategia (alinhando por indice/ordem)
+                    for s in list(out):
+                        s_prev = same_strats[same_strats["strategy"] == s].reset_index(drop=True)
+                        s_curr = merged[merged["strategy"] == s].reset_index(drop=True)
+                        if len(s_prev) == len(s_curr):
+                            for col in s_prev.columns:
+                                if col not in s_curr.columns or s_curr[col].isna().all():
+                                    merged.loc[merged["strategy"] == s, col] = s_prev[col].values
+                merged = pd.concat([other_strats, merged], ignore_index=True)
             except Exception as e:
                 print(f"[aviso] nao fundiu CSV previo ({e}); salvando so o atual.")
         merged.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
-        present = [m for m in wanted if m in merged.columns]
-        summary = merged.groupby("strategy")[present].mean()
+        all_metrics = [m for m in config.RAGAS_METRICS if m in merged.columns]
+        summary = merged.groupby("strategy")[all_metrics].mean()
         summary.to_csv(paths["ragas_summary"], encoding="utf-8")
         return merged, summary
 
@@ -125,6 +137,7 @@ def main() -> None:
         )
         scored = res.to_pandas()
         scored["strategy"] = s
+        scored["top_k"] = 0 if s == "baseline" else args.k
         out[s] = scored
         # Media + n valido por metrica (jobs com OOM/parse-fail viram NaN)
         for m in wanted:

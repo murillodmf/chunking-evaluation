@@ -182,23 +182,44 @@ SEED = 42
 ANALISES_DIR = BASE_DIR / "analises"
 
 
-def paths(doc: str) -> dict:
+def _k_suffix(k: int | None = None) -> str:
+    """Retorna sufixo '_k5', '_k7', etc. quando k != TOP_K (3), preservando nomes originais para k=3."""
+    if k is None or k == TOP_K:
+        return ""
+    return f"_k{k}"
+
+
+def paths(doc: str, k: int | None = None) -> dict:
     """Resolve os caminhos de artefatos para um documento."""
     cfg = DOCS[doc]
+    ks = _k_suffix(k)
     return {
         "pdf": BASE_DIR / cfg["pdf"],
         "qa": BASE_DIR / cfg["qa"],
-        "geracoes": lambda strategy: ANALISES_DIR / f"geracoes_{doc}_{strategy}.json",
-        "ragas_csv": ANALISES_DIR / f"ragas_results_{doc}.csv",
-        "ragas_summary": ANALISES_DIR / f"ragas_summary_{doc}.csv",
+        "geracoes": lambda strategy, _ks=ks: (
+            ANALISES_DIR / f"geracoes_{doc}_{strategy}.json"
+            if strategy == "baseline"
+            else ANALISES_DIR / f"geracoes_{doc}{_ks}_{strategy}.json"
+        ),
+        "ragas_csv": ANALISES_DIR / f"ragas_results_{doc}{ks}.csv",
+        "ragas_summary": ANALISES_DIR / f"ragas_summary_{doc}{ks}.csv",
+        "tempos_json": ANALISES_DIR / f"tempos_{doc}.json",
+        "tempos_csv": ANALISES_DIR / f"tempos_{doc}.csv",
     }
 
 
-def corpus_paths() -> dict:
+def corpus_paths(k: int | None = None) -> dict:
     """Resolve os caminhos de artefatos do benchmark multi-documento."""
+    ks = _k_suffix(k)
     return {
         "qa": BASE_DIR / CORPUS_QA,
-        "geracoes": lambda strategy: ANALISES_DIR / f"geracoes_corpus_{strategy}.json",
-        "ragas_csv": ANALISES_DIR / "ragas_results_corpus.csv",
-        "ragas_summary": ANALISES_DIR / "ragas_summary_corpus.csv",
+        "geracoes": lambda strategy, _ks=ks: (
+            ANALISES_DIR / f"geracoes_corpus_{strategy}.json"
+            if strategy == "baseline"
+            else ANALISES_DIR / f"geracoes_corpus{_ks}_{strategy}.json"
+        ),
+        "ragas_csv": ANALISES_DIR / f"ragas_results_corpus{ks}.csv",
+        "ragas_summary": ANALISES_DIR / f"ragas_summary_corpus{ks}.csv",
+        "tempos_json": ANALISES_DIR / "tempos_corpus.json",
+        "tempos_csv": ANALISES_DIR / "tempos_corpus.csv",
     }
