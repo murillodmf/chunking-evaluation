@@ -22,8 +22,7 @@ def main() -> None:
     ap.add_argument("--corpus", action="store_true",
                     help="Avalia o benchmark multi-documento (geracoes_corpus_*)")
     ap.add_argument("--strategy", default="todas",
-                    choices=["todas", "fixed", "recursive", "semantic", "baseline"],
-                    help="Avalia 1 estrategia por processo (menos VRAM). Default: %(default)s")
+                    help="Avalia 1 estrategia ou lista separada por virgula (ex: semantic_p40,semantic_p50,semantic_p70). Default: %(default)s")
     ap.add_argument("--k", type=int, default=config.TOP_K,
                     help="Valor de Top-K usado na Fase 1 (default: %(default)s)")
     ap.add_argument("--metrics", default=",".join(config.RAGAS_METRICS),
@@ -57,7 +56,7 @@ def main() -> None:
 
     strategies = ["fixed", "recursive", "semantic"]
     if args.strategy != "todas":
-        strategies = [args.strategy]
+        strategies = [s.strip() for s in args.strategy.split(",") if s.strip()]
     dfs = {}
     for s in strategies:
         p = paths["geracoes"](s)

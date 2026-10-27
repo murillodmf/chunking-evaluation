@@ -60,6 +60,8 @@ def main() -> None:
     ap.add_argument("--k", type=int, default=config.TOP_K, help="Top-K recuperados")
     ap.add_argument("--k-list", default="",
                     help="Lista de valores de K separados por vírgula para rodar numa única sessão (ex: '5,7' ou '3,5,7')")
+    ap.add_argument("--percentile-list", default="",
+                    help="Lista de percentis do Semantic separados por vírgula (ex: '40,50,70')")
     ap.add_argument("--estrategias", default="fixed,recursive,semantic",
                     help="Chunkers a indexar/rodar (default: %(default)s)")
     ap.add_argument("--index-only", action="store_true",
@@ -72,6 +74,10 @@ def main() -> None:
         k_values = [int(x.strip()) for x in args.k_list.split(",") if x.strip()]
     else:
         k_values = [args.k]
+
+    percentiles_custom = [
+        float(x.strip()) for x in args.percentile_list.split(",") if x.strip()
+    ] if args.percentile_list.strip() else []
 
     common.setup_reproducibility()
     if args.corpus:
@@ -104,29 +110,58 @@ def main() -> None:
 
     from langchain_core.documents import Document
     from langchain_chroma import Chroma
+    from fixed_size_chunker import MeuFixedSizeChunkerTCC
+    from recursive_chunker import MeuRecursiveChunkerTCC
+    from semantic_chunker import MeuSemanticChunkerTCC
 
-    strategy_names = [s.strip() for s in args.estrategias.split(",") if s.strip()]
-    valid = {"fixed", "recursive", "semantic"}
-    unknown = [s for s in strategy_names if s not in valid]
+    raw_strategy_names = [s.strip() for s in args.estrategias.split(",") if s.strip()]
+    strategy_names = []
+    for s in raw_strategy_names:
+        if s == "semantic" and percentiles_custom:
+            for p in percentiles_custom:
+                p_lbl = int(p) if float(p).is_integer() else p
+                strategy_names.append(f"semantic_p{p_lbl}")
+        else:
+            strategy_names.append(s)
+
+    def _parse_sem_percentile(strat_name: str) -> float | None:
+        if strat_name == "semantic":
+            return float(config.SEMANTIC_PERCENTILE)
+        if strat_name.startswith("semantic_p"):
+            try:
+                return float(strat_name[len("semantic_p"):])
+            except ValueError:
+                return None
+        return None
+
+    unknown = [
+        s for s in strategy_names
+        if s not in {"fixed", "recursive", "semantic"} and _parse_sem_percentile(s) is None
+    ]
     if unknown:
-        raise SystemExit(f"--estrategias desconhecidas: {unknown}. Use: {list(valid)}")
+        raise SystemExit(
+            f"--estrategias desconhecidas: {unknown}. Use fixed, recursive, semantic ou semantic_p<N>."
+        )
+
+    def _make_chunkers(emb):
+        out = {}
+        for s in strategy_names:
+            if s == "fixed":
+                out[s] = MeuFixedSizeChunkerTCC(
+                    chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
+            elif s == "recursive":
+                out[s] = MeuRecursiveChunkerTCC(
+                    chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
+            else:
+                pct = _parse_sem_percentile(s)
+                out[s] = MeuSemanticChunkerTCC(
+                    embeddings=emb, percentile_threshold=pct)
+        return out
 
     if args.index_only:
-        from fixed_size_chunker import MeuFixedSizeChunkerTCC
-        from recursive_chunker import MeuRecursiveChunkerTCC
-        from semantic_chunker import MeuSemanticChunkerTCC
-
-        chunkers = {}
-        if "fixed" in strategy_names:
-            chunkers["fixed"] = MeuFixedSizeChunkerTCC(
-                chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
-        if "recursive" in strategy_names:
-            chunkers["recursive"] = MeuRecursiveChunkerTCC(
-                chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
-        if "semantic" in strategy_names:
-            chunkers["semantic"] = MeuSemanticChunkerTCC(
-                embeddings=common.build_embeddings(),
-                percentile_threshold=config.SEMANTIC_PERCENTILE)
+        needs_emb = any(_parse_sem_percentile(s) is not None for s in strategy_names)
+        emb_idx = common.build_embeddings() if needs_emb else None
+        chunkers = _make_chunkers(emb_idx)
 
         for name in strategy_names:
             splitter = chunkers[name]
@@ -140,7 +175,7 @@ def main() -> None:
         return
 
     embeddings = common.build_embeddings()  # CPU por default (config)
-    chunkers = common.build_chunkers(embeddings)
+    chunkers = _make_chunkers(embeddings)
 
     from transformers import pipeline as _  # noqa: F401 (garante backend carregado)
     dbs = {}
@@ -148,23 +183,28 @@ def main() -> None:
     for name in strategy_names:
         splitter = chunkers[name]
         t0_chunk = time.perf_counter()
+        t_standalone = 0.0
         if args.corpus:
             docs, counts = [], {}
             for doc_id, doc_text in texts.items():
                 chunks = splitter.split_text(doc_text)
+                t_standalone += getattr(splitter, "last_standalone_seconds", 0.0)
                 counts[doc_id] = len(chunks)
                 docs.extend(
                     Document(page_content=c, metadata={"strategy": name, "doc_id": doc_id})
                     for c in chunks
                 )
-            t_chunk = time.perf_counter() - t0_chunk
+            t_wall = time.perf_counter() - t0_chunk
+            t_chunk = t_standalone if t_standalone > 0 else t_wall
             detail = ", ".join(f"{d}={n}" for d, n in counts.items())
-            print(f"-> {name.upper()}: {len(docs)} chunks em {t_chunk:.3f}s ({detail}).")
+            print(f"-> {name.upper()}: {len(docs)} chunks em {t_wall:.3f}s (custo standalone={t_chunk:.3f}s) ({detail}).")
             collection = f"db_corpus_{name}"
         else:
             chunks = splitter.split_text(text)
-            t_chunk = time.perf_counter() - t0_chunk
-            print(f"-> {name.upper()}: {len(chunks)} chunks em {t_chunk:.3f}s.")
+            t_wall = time.perf_counter() - t0_chunk
+            t_standalone = getattr(splitter, "last_standalone_seconds", 0.0)
+            t_chunk = t_standalone if t_standalone > 0 else t_wall
+            print(f"-> {name.upper()}: {len(chunks)} chunks em {t_wall:.3f}s (custo standalone={t_chunk:.3f}s).")
             docs = [
                 Document(page_content=c, metadata={"strategy": name, "doc_id": args.doc})
                 for c in chunks
@@ -225,7 +265,7 @@ def main() -> None:
                 "doc": doc_label,
                 "strategy": strategy,
                 "top_k": k_val,
-                "semantic_percentile": config.SEMANTIC_PERCENTILE if strategy == "semantic" else None,
+                "semantic_percentile": _parse_sem_percentile(strategy),
                 "chunk_size": config.CHUNK_SIZE if strategy in ("fixed", "recursive") else None,
                 "n_chunks": chunk_stats[strategy]["n_chunks"],
                 "tempo_chunking_s": chunk_stats[strategy]["tempo_chunking_s"],

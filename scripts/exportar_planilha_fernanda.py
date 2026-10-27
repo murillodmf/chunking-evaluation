@@ -157,61 +157,58 @@ def main() -> None:
     base_data = json.loads(base_path.read_text(encoding="utf-8")) if base_path.exists() else []
 
     sheets = []
+    candidate_strats = ["fixed", "recursive", "semantic", "semantic_p40", "semantic_p50", "semantic_p70"]
     for k_val in k_list:
         c_paths = config.corpus_paths(k=k_val)
         strat_data = {}
-        for s in ("fixed", "recursive", "semantic"):
+        for s in candidate_strats:
             p = c_paths["geracoes"](s)
             if p.exists():
                 strat_data[s] = json.loads(p.read_text(encoding="utf-8"))
         if not strat_data:
             continue
 
-        rows = [[
+        present_strats = list(strat_data.keys())
+        header = [
             "ID",
             "Nível",
             "Pergunta",
             "Gabarito Oficial (Referência)",
             "Fontes Esperadas",
-            f"Resposta FIXED (K={k_val})",
-            f"Resposta RECURSIVE (K={k_val})",
-            f"Resposta SEMANTIC (K={k_val})",
-            "Resposta BASELINE (Sem RAG)",
-            "Nota Especialista — FIXED (1 a 5)",
-            "Nota Especialista — RECURSIVE (1 a 5)",
-            "Nota Especialista — SEMANTIC (1 a 5)",
+        ]
+        for s in present_strats:
+            header.append(f"Resposta {s.upper()} (K={k_val})")
+        header.append("Resposta BASELINE (Sem RAG)")
+        for s in present_strats:
+            header.append(f"Nota Especialista — {s.upper()} (1 a 5)")
+        header.extend([
             "Nota Especialista — BASELINE (1 a 5)",
             "Observações da Especialista (Fernanda)",
-            f"Docs Recuperados FIXED (K={k_val})",
-            f"Docs Recuperados RECURSIVE (K={k_val})",
-            f"Docs Recuperados SEMANTIC (K={k_val})",
-        ]]
+        ])
+        for s in present_strats:
+            header.append(f"Docs Recuperados {s.upper()} (K={k_val})")
+
+        rows = [header]
 
         for i, q in enumerate(qa_bench):
-            ans_fix = strat_data.get("fixed", [{}]*len(qa_bench))[i].get("answer", "") if i < len(strat_data.get("fixed", [])) else ""
-            ans_rec = strat_data.get("recursive", [{}]*len(qa_bench))[i].get("answer", "") if i < len(strat_data.get("recursive", [])) else ""
-            ans_sem = strat_data.get("semantic", [{}]*len(qa_bench))[i].get("answer", "") if i < len(strat_data.get("semantic", [])) else ""
             ans_bas = base_data[i].get("answer", "") if i < len(base_data) else ""
-
-            docs_fix = ", ".join(strat_data.get("fixed", [{}]*len(qa_bench))[i].get("retrieved_docs", [])) if i < len(strat_data.get("fixed", [])) else ""
-            docs_rec = ", ".join(strat_data.get("recursive", [{}]*len(qa_bench))[i].get("retrieved_docs", [])) if i < len(strat_data.get("recursive", [])) else ""
-            docs_sem = ", ".join(strat_data.get("semantic", [{}]*len(qa_bench))[i].get("retrieved_docs", [])) if i < len(strat_data.get("semantic", [])) else ""
-
-            rows.append([
+            row = [
                 q.get("id", f"Q{i+1:02d}"),
                 q.get("nivel", ""),
                 q.get("question", ""),
                 q.get("ground_truth", ""),
                 ", ".join(q.get("documentos_fonte", [])),
-                ans_fix,
-                ans_rec,
-                ans_sem,
-                ans_bas,
-                "", "", "", "", "",
-                docs_fix,
-                docs_rec,
-                docs_sem,
-            ])
+            ]
+            for s in present_strats:
+                s_list = strat_data.get(s, [])
+                row.append(s_list[i].get("answer", "") if i < len(s_list) else "")
+            row.append(ans_bas)
+            for _ in range(len(present_strats) + 2):
+                row.append("")
+            for s in present_strats:
+                s_list = strat_data.get(s, [])
+                row.append(", ".join(s_list[i].get("retrieved_docs", [])) if i < len(s_list) else "")
+            rows.append(row)
 
         sheets.append((f"Avaliacao_TOP_K_{k_val}", rows))
 
