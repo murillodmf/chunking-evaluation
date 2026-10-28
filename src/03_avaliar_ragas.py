@@ -27,6 +27,8 @@ def main() -> None:
                     help="Valor de Top-K usado na Fase 1 (default: %(default)s)")
     ap.add_argument("--metrics", default=",".join(config.RAGAS_METRICS),
                     help="Subset separado por virgula p/ smoke test. Default: todas")
+    ap.add_argument("--skip-existing", action="store_true",
+                    help="Pula estrategias que ja possuem todas as metricas solicitadas salvas no CSV resumo")
     args = ap.parse_args()
 
     common.setup_reproducibility()
@@ -87,6 +89,26 @@ def main() -> None:
     unknown = [m for m in wanted if m not in metric_map]
     if unknown:
         raise SystemExit(f"--metrics desconhecidas: {unknown}. Use: {list(metric_map)}")
+
+    if args.skip_existing and paths["ragas_summary"].exists():
+        try:
+            prev_s = pd.read_csv(paths["ragas_summary"], index_col="strategy")
+            remaining = []
+            for s in strategies:
+                req_cols = ["answer_relevancy", "answer_correctness"] if s == "baseline" else wanted
+                if s in prev_s.index and all(c in prev_s.columns and pd.notna(prev_s.loc[s, c]) for c in req_cols):
+                    print(f"[skip-existing] {s.upper()} já possui {req_cols} em {paths['ragas_summary'].name}; pulando.")
+                else:
+                    remaining.append(s)
+            if not remaining:
+                print("Todas as estratégias solicitadas já foram avaliadas!")
+                print(prev_s)
+                return
+            strategies = remaining
+            dfs = {s: dfs[s] for s in strategies}
+        except Exception as e:
+            print(f"[aviso] falha ao checar --skip-existing ({e}); avaliando todas.")
+
     metrics = [metric_map[m] for m in wanted]
 
     pipe, tokenizer, gen_kwargs = common.build_causal_llm(
