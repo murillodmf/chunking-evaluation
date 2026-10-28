@@ -120,9 +120,25 @@ def main() -> None:
                 merged = pd.concat([other_strats, merged], ignore_index=True)
             except Exception as e:
                 print(f"[aviso] nao fundiu CSV previo ({e}); salvando so o atual.")
+        prev_sum = None
+        if paths["ragas_summary"].exists():
+            try:
+                prev_sum = pd.read_csv(paths["ragas_summary"], index_col="strategy")
+            except Exception:
+                prev_sum = None
         merged.to_csv(paths["ragas_csv"], index=False, encoding="utf-8")
         all_metrics = [m for m in config.RAGAS_METRICS if m in merged.columns]
         summary = merged.groupby("strategy")[all_metrics].mean()
+        if prev_sum is not None:
+            combined = prev_sum.combine_first(summary)
+            for s_idx in summary.index:
+                for col in summary.columns:
+                    val = summary.loc[s_idx, col]
+                    if pd.notna(val):
+                        combined.loc[s_idx, col] = val
+            ordered_cols = [m for m in config.RAGAS_METRICS if m in combined.columns]
+            summary = combined[ordered_cols]
+            summary.index.name = "strategy"
         summary.to_csv(paths["ragas_summary"], encoding="utf-8")
         return merged, summary
 

@@ -170,7 +170,7 @@ JUDGE_TOKENS = 1024  # faithfulness gera 4-6 statements+reason+verdict; 256/512 
 JUDGE_TEMP = 0.1  # ignorado com greedy (mantido p/ documentacao)
 JUDGE_DO_SAMPLE = False  # greedy: deterministico, melhor p/ JSON estrito do RAGAS
 
-EMBEDDINGS_DEVICE = "cpu"  # BGE-M3 na CPU libera ~2,3 GB de VRAM p/ os LLMs
+EMBEDDINGS_DEVICE = "auto"  # 'cuda' em GPUs >= 20GB (A100/L4) e 'cpu' em T4 (15GB)
 RAGAS_METRICS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall",
                  "answer_correctness"]  # answer_correctness usa answer+ground_truth:
 # unica alem de answer_relevancy que avalia o braço baseline (sem contexts)

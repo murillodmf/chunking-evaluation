@@ -32,6 +32,8 @@ def setup_reproducibility(seed: int = config.SEED) -> None:
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
     except ImportError:
         pass
 
@@ -342,6 +344,15 @@ def build_hf_llm(pipe, tokenizer, gen_kwargs: dict, use_chat_template: bool = Fa
 
 def build_embeddings(device: str = config.EMBEDDINGS_DEVICE):
     from langchain_huggingface import HuggingFaceEmbeddings
+    if device == "auto":
+        try:
+            import torch
+            if torch.cuda.is_available() and (torch.cuda.get_device_properties(0).total_memory / 1024 ** 3) >= 20.0:
+                device = "cuda"
+            else:
+                device = "cpu"
+        except Exception:
+            device = "cpu"
     print(f"Inicializando embeddings {config.MODELS['embeddings']} (device={device})...")
     return HuggingFaceEmbeddings(
         model_name=config.MODELS["embeddings"], model_kwargs={"device": device}
