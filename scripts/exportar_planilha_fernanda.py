@@ -157,7 +157,11 @@ def main() -> None:
     base_data = json.loads(base_path.read_text(encoding="utf-8")) if base_path.exists() else []
 
     sheets = []
-    candidate_strats = ["fixed", "recursive", "semantic", "semantic_p40", "semantic_p50", "semantic_p70"]
+    candidate_strats = [
+        "fixed", "recursive", "semantic",
+        "semantic_p40", "semantic_p50", "semantic_p70",
+        "fixed_256", "fixed_1024", "recursive_256", "recursive_1024",
+    ]
     for k_val in k_list:
         c_paths = config.corpus_paths(k=k_val)
         strat_data = {}
@@ -197,7 +201,7 @@ def main() -> None:
                 q.get("nivel", ""),
                 q.get("question", ""),
                 q.get("ground_truth", ""),
-                ", ".join(q.get("documentos_fonte", [])),
+                ", ".join(q.get("docs", q.get("documentos_fonte", []))),
             ]
             for s in present_strats:
                 s_list = strat_data.get(s, [])

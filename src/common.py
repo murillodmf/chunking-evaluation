@@ -245,16 +245,22 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    print("Configurando quantização de 4 bits (bitsandbytes)...")
+    compute_dtype = (
+        torch.bfloat16
+        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+        else torch.float16
+    )
+    print(f"Configurando quantização de 4 bits (bitsandbytes, dtype={compute_dtype})...")
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_compute_dtype=compute_dtype,
     )
     print(f"Carregando modelo {model_id}...")
     model = AutoModelForCausalLM.from_pretrained(
         model_id, quantization_config=bnb, device_map="auto",
+        attn_implementation="sdpa",
         trust_remote_code=True,
     )
     try:

@@ -120,9 +120,12 @@ def main() -> None:
         if s == "semantic" and percentiles_custom:
             for p in percentiles_custom:
                 p_lbl = int(p) if float(p).is_integer() else p
-                strategy_names.append(f"semantic_p{p_lbl}")
+                s_name = "semantic" if float(p) == float(config.SEMANTIC_PERCENTILE) else f"semantic_p{p_lbl}"
+                if s_name not in strategy_names:
+                    strategy_names.append(s_name)
         else:
-            strategy_names.append(s)
+            if s not in strategy_names:
+                strategy_names.append(s)
 
     def _parse_sem_percentile(strat_name: str) -> float | None:
         if strat_name == "semantic":
@@ -134,24 +137,37 @@ def main() -> None:
                 return None
         return None
 
+    def _parse_token_chunker(strat_name: str) -> tuple[str, int, int] | None:
+        if strat_name in ("fixed", "recursive"):
+            return strat_name, config.CHUNK_SIZE, config.CHUNK_OVERLAP
+        for base in ("fixed_", "recursive_"):
+            if strat_name.startswith(base):
+                try:
+                    cs = int(strat_name[len(base):])
+                    return base[:-1], cs, max(1, cs // 10)
+                except ValueError:
+                    return None
+        return None
+
     unknown = [
         s for s in strategy_names
-        if s not in {"fixed", "recursive", "semantic"} and _parse_sem_percentile(s) is None
+        if _parse_token_chunker(s) is None and _parse_sem_percentile(s) is None
     ]
     if unknown:
         raise SystemExit(
-            f"--estrategias desconhecidas: {unknown}. Use fixed, recursive, semantic ou semantic_p<N>."
+            f"--estrategias desconhecidas: {unknown}. Use fixed, recursive, fixed_<N>, recursive_<N>, semantic ou semantic_p<N>."
         )
 
     def _make_chunkers(emb):
         out = {}
         for s in strategy_names:
-            if s == "fixed":
-                out[s] = MeuFixedSizeChunkerTCC(
-                    chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
-            elif s == "recursive":
-                out[s] = MeuRecursiveChunkerTCC(
-                    chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP)
+            tc = _parse_token_chunker(s)
+            if tc is not None:
+                kind, cs, co = tc
+                if kind == "fixed":
+                    out[s] = MeuFixedSizeChunkerTCC(chunk_size=cs, chunk_overlap=co)
+                else:
+                    out[s] = MeuRecursiveChunkerTCC(chunk_size=cs, chunk_overlap=co)
             else:
                 pct = _parse_sem_percentile(s)
                 out[s] = MeuSemanticChunkerTCC(
@@ -266,7 +282,7 @@ def main() -> None:
                 "strategy": strategy,
                 "top_k": k_val,
                 "semantic_percentile": _parse_sem_percentile(strategy),
-                "chunk_size": config.CHUNK_SIZE if strategy in ("fixed", "recursive") else None,
+                "chunk_size": _parse_token_chunker(strategy)[1] if _parse_token_chunker(strategy) else None,
                 "n_chunks": chunk_stats[strategy]["n_chunks"],
                 "tempo_chunking_s": chunk_stats[strategy]["tempo_chunking_s"],
                 "tempo_indexacao_s": chunk_stats[strategy]["tempo_indexacao_s"],
