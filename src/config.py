@@ -129,6 +129,18 @@ CORPUS_DOCS = {
         "Documentos/Dataset/dissertacao-mestrado-ufv-2023-incidencia-de-dalbulus-maidis-e-enfezamentos-em-milho-silagem-em-goias-e-minas-gerais.pdf",
         "milho — incidência de enfezamentos e produtividade de silagem",
     ),
+    "ufscar-2025": _corpus_doc(
+        "Documentos/Dataset/tcc-ufscar-2025-efeito-residual-de-inseticidas-em-tratamento-de-sementes-no-controle-de-dalbulus-maidis.pdf",
+        "milho — efeito residual curto de tratamento de sementes contra Dalbulus maidis (2025)",
+    ),
+    "revisao-genotipos-2025": _corpus_doc(
+        "Documentos/Dataset/artigo-revisao-2025-estudos-recentes-sobre-resistencia-de-genotipos-de-milho-a-cigarrinha.pdf",
+        "milho — estudos recentes de resistência genética, DC-EPG e dinâmica populacional (2025)",
+    ),
+    "ueopr-2025": _corpus_doc(
+        "Documentos/Dataset/dissertacao-mestrado-ueopr-2025-comportamento-de-genotipos-de-milho-as-doencas-transmitidas-pelo-inseto-vetor.pdf",
+        "milho — genótipos, resistência a inseticidas, amostragem, custos e bordaduras (2025)",
+    ),
 }
 
 # ----------------------------------------------------------------------------
