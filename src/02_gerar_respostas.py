@@ -135,7 +135,13 @@ def main() -> None:
                 return float(strat_name[len("semantic_p"):])
             except ValueError:
                 return None
+        if strat_name.startswith("semantic_") and strat_name[len("semantic_"):].isdigit():
+            return float(config.SEMANTIC_PERCENTILE)  # semantic_<N>: p60 + teto N tokens
         return None
+
+    def _parse_sem_max_tokens(strat_name: str) -> int | None:
+        suf = strat_name[len("semantic_"):] if strat_name.startswith("semantic_") else ""
+        return int(suf) if suf.isdigit() else None
 
     def _parse_token_chunker(strat_name: str) -> tuple[str, int, int] | None:
         if strat_name in ("fixed", "recursive"):
@@ -171,7 +177,8 @@ def main() -> None:
             else:
                 pct = _parse_sem_percentile(s)
                 out[s] = MeuSemanticChunkerTCC(
-                    embeddings=emb, percentile_threshold=pct)
+                    embeddings=emb, percentile_threshold=pct,
+                    max_tokens=_parse_sem_max_tokens(s))
         return out
 
     if args.index_only:

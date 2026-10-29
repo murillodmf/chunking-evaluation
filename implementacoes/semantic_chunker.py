@@ -11,11 +11,34 @@ class MeuSemanticChunkerTCC(TextSplitter):
     Subclasse customizada para o TCC que implementa a divisão semântica baseada em embeddings
     e distância de cosseno entre sentenças vizinhas.
     """
-    def __init__(self, embeddings: Any, percentile_threshold: float = 70.0, **kwargs: Any):
+    def __init__(self, embeddings: Any, percentile_threshold: float = 70.0,
+                 max_tokens: int | None = None, **kwargs: Any):
         super().__init__(**kwargs)
         self.embeddings = embeddings
         self.percentile_threshold = percentile_threshold
+        self.max_tokens = max_tokens  # teto opcional (ablação semantic_<N>)
         self.last_standalone_seconds = 0.0
+
+    def _enforce_max_tokens(self, chunks: List[str]) -> List[str]:
+        """Re-divide (por sentença) blocos semânticos que excedem max_tokens."""
+        import tiktoken
+        enc = tiktoken.get_encoding("cl100k_base")
+        out = []
+        for ch in chunks:
+            if len(enc.encode(ch)) <= self.max_tokens:
+                out.append(ch)
+                continue
+            cur, cur_tok = [], 0
+            for s in re.split(r'(?<=[.!?])\s+', ch):
+                n = len(enc.encode(s))
+                if cur and cur_tok + n > self.max_tokens:
+                    out.append(" ".join(cur))
+                    cur, cur_tok = [], 0
+                cur.append(s)
+                cur_tok += n
+            if cur:
+                out.append(" ".join(cur))
+        return out
 
     def split_text(self, text: str) -> List[str]:
         """
@@ -85,6 +108,9 @@ class MeuSemanticChunkerTCC(TextSplitter):
         
         if current_chunk:
             chunks.append(" ".join(current_chunk))
+
+        if self.max_tokens:
+            chunks = self._enforce_max_tokens(chunks)
 
         self.last_standalone_seconds = base_elapsed + (time.perf_counter() - t0_cut)
         return chunks

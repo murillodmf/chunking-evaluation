@@ -39,12 +39,15 @@ def setup_reproducibility(seed: int = config.SEED) -> None:
 
 
 def vram_log(tag: str) -> None:
-    """Imprime a VRAM ocupada (GB). Ajuda a diagnosticar OOM na banca/Colab."""
+    """Imprime a VRAM ocupada (GB). Ajuda a diagnosticar OOM na banca/Colab/Kaggle."""
     try:
         import torch
         if torch.cuda.is_available():
-            gb = torch.cuda.memory_allocated() / 1024 ** 3
-            print(f"[VRAM {tag}] {gb:.2f} GiB ocupados")
+            parts = []
+            for i in range(torch.cuda.device_count()):
+                gb = torch.cuda.memory_allocated(i) / 1024 ** 3
+                parts.append(f"cuda:{i}={gb:.2f} GiB")
+            print(f"[VRAM {tag}] {', '.join(parts)} ocupados")
         else:
             print(f"[VRAM {tag}] CUDA indisponível")
     except ImportError:
@@ -245,11 +248,13 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    compute_dtype = (
-        torch.bfloat16
-        if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
-        else torch.float16
+    # bfloat16 só tem aceleração nativa em hardware a partir de Ampere (sm_80: A100/L4).
+    # Em Turing/Pascal (T4 sm_75 / P100 sm_60 no Kaggle), float16 usa os Tensor Cores nativos (muito mais rápido!).
+    has_hw_bf16 = (
+        torch.cuda.is_available()
+        and torch.cuda.get_device_capability(0)[0] >= 8
     )
+    compute_dtype = torch.bfloat16 if has_hw_bf16 else torch.float16
     print(f"Configurando quantização de 4 bits (bitsandbytes, dtype={compute_dtype})...")
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -257,9 +262,13 @@ def build_causal_llm(model_id: str, max_new_tokens: int, temperature: float,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_compute_dtype=compute_dtype,
     )
-    print(f"Carregando modelo {model_id}...")
+    # Mantém o LLM 4-bit (5.7GB a 8.5GB) inteiro na GPU 0 (cuda:0):
+    # - Evita tráfego PCIe lento entre cuda:0 e cuda:1 no Kaggle (T4 x2)
+    # - Libera a GPU 1 (cuda:1) 100% dedicada para o BAAI/bge-m3 no modo T4 x2!
+    dev_map = {"": 0} if torch.cuda.is_available() else "auto"
+    print(f"Carregando modelo {model_id} (device_map={dev_map})...")
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, quantization_config=bnb, device_map="auto",
+        model_id, quantization_config=bnb, device_map=dev_map,
         attn_implementation="sdpa",
         trust_remote_code=True,
     )
@@ -316,12 +325,18 @@ def build_hf_llm(pipe, tokenizer, gen_kwargs: dict, use_chat_template: bool = Fa
 
     class _SanitizedHF(_BaseHF):  # type: ignore
         def _generate(self, prompts, stop=None, run_manager=None, **kwargs):
+            import torch
             kwargs.pop("max_length", None)
             if greedy:
                 for k in ("temperature", "top_p", "top_k"):
                     kwargs.pop(k, None)
-            return super()._generate(
-                prompts, stop=stop, run_manager=run_manager, **kwargs)
+            try:
+                return super()._generate(
+                    prompts, stop=stop, run_manager=run_manager, **kwargs)
+            finally:
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
 
     if not use_chat_template:
         return _SanitizedHF(pipeline=pipe, model_kwargs=clean)
@@ -353,8 +368,16 @@ def build_embeddings(device: str = config.EMBEDDINGS_DEVICE):
     if device == "auto":
         try:
             import torch
-            if torch.cuda.is_available() and (torch.cuda.get_device_properties(0).total_memory / 1024 ** 3) >= 20.0:
-                device = "cuda"
+            if torch.cuda.is_available():
+                if torch.cuda.device_count() > 1:
+                    # Kaggle T4 x2: usa a segunda GPU (cuda:1) 100% dedicada para embeddings!
+                    device = "cuda:1"
+                elif (torch.cuda.get_device_properties(0).total_memory / 1024 ** 3) >= 20.0:
+                    # A100 (40GB) ou L4 (24GB): cabe junto com Qwen-14B na cuda:0 com muita folga!
+                    device = "cuda:0"
+                else:
+                    # T4 única (15GB): deixa toda a VRAM da cuda:0 livre para o Qwen-14B!
+                    device = "cpu"
             else:
                 device = "cpu"
         except Exception:

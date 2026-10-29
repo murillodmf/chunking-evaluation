@@ -177,7 +177,7 @@ GEN_QA_TOKENS = 1024
 GEN_QA_TEMP = 0.3
 RAG_TOKENS = 512
 RAG_TEMP = 0.1
-JUDGE_TOKENS = 768  # 768 cabe folgado 4-6 statements das respostas enxutas (~550 chars) e evita loop longo de 1024 tokens.
+JUDGE_TOKENS = 1024  # 1024 evita truncar o JSON de ClassificationWithReason (que chega a ~850 tokens em PT-BR e causava 3x retry se cortado em 768).
 # Na A100 (40GB) cabe; smoke na T4: prefira --metrics faithfulness.
 JUDGE_TEMP = 0.1  # ignorado com greedy (mantido p/ documentacao)
 JUDGE_DO_SAMPLE = False  # greedy: deterministico, melhor p/ JSON estrito do RAGAS
