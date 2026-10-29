@@ -111,12 +111,26 @@ def main() -> None:
 
     metrics = [metric_map[m] for m in wanted]
 
-    pipe, tokenizer, gen_kwargs = common.build_causal_llm(
-        config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP,
-        do_sample=config.JUDGE_DO_SAMPLE)
-    evaluator_llm = LangchainLLM(
-        langchain_llm=common.build_hf_llm(
-            pipe, tokenizer, gen_kwargs, use_chat_template=True))
+    import os
+    backend = os.environ.get("JUDGE_BACKEND", "hf").lower()
+    workers = int(os.environ.get("RAGAS_WORKERS", config.RAGAS_WORKERS))
+    if backend == "vllm":
+        # Juiz servido pelo vLLM (batching contínuo); chat template aplicado no servidor.
+        from langchain_openai import ChatOpenAI
+        judge_model = os.environ.get("VLLM_MODEL", config.MODELS["juiz"])
+        print(f"[juiz] backend=vLLM model={judge_model} workers={workers}")
+        evaluator_llm = LangchainLLM(langchain_llm=ChatOpenAI(
+            model=judge_model,
+            base_url=os.environ.get("VLLM_URL", "http://localhost:8000/v1"),
+            api_key="EMPTY", temperature=0, max_tokens=config.JUDGE_TOKENS,
+            timeout=config.RAGAS_TIMEOUT, max_retries=2))
+    else:
+        pipe, tokenizer, gen_kwargs = common.build_causal_llm(
+            config.MODELS["juiz"], config.JUDGE_TOKENS, config.JUDGE_TEMP,
+            do_sample=config.JUDGE_DO_SAMPLE)
+        evaluator_llm = LangchainLLM(
+            langchain_llm=common.build_hf_llm(
+                pipe, tokenizer, gen_kwargs, use_chat_template=True))
     evaluator_embeddings = LangchainEmbeddings(embeddings=common.build_embeddings())
 
     metrics = [metric_map[m] for m in wanted]
@@ -170,7 +184,7 @@ def main() -> None:
         res = evaluate(
             dataset=Dataset.from_pandas(df), metrics=metrics,
             llm=evaluator_llm, embeddings=evaluator_embeddings,
-            run_config=RunConfig(timeout=config.RAGAS_TIMEOUT, max_workers=config.RAGAS_WORKERS),
+            run_config=RunConfig(timeout=config.RAGAS_TIMEOUT, max_workers=workers),
         )
         scored = res.to_pandas()
         scored["strategy"] = s
