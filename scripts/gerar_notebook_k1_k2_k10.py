@@ -42,11 +42,12 @@ def add_code(comment, code):
     })
 
 # Cabeçalho
-add_md("""# TCC — Experimentos Adicionais: Curva Estendida de TOP-K (K=1, K=2 e K=10)
+add_md("""# TCC — Experimentos Adicionais: Curva Estendida de TOP-K (K=1, K=2, K=10 e K=20)
 - **Objetivo**: Avaliar os extremos da curva de Top-K:
   - **K=1**: Mínimo absoluto (1 chunk recuperado — testa o recall estrito de primeira posição).
   - **K=2**: Contexto super enxuto (2 chunks).
   - **K=10**: Contexto expandido (10 chunks — testa saturação de ruído e 'lost in the middle').
+  - **K=20**: Limite superior de estresse (20 chunks — testa se excesso de contexto degrada a fidelidade e alucinação).
 - **Juiz**: Qwen2.5-14B-Instruct-AWQ via **vLLM** (8 workers paralelos, ~17 min por estratégia).
 - **Sem Google Drive**: Cada bloco possui um botão de download direto via HTML/base64.""")
 
@@ -84,35 +85,35 @@ for nome in up:
 !ls analises/ | head -40
 """)
 
-add_md("## Fase 1 — Geração de Respostas (Llama-3.1-8B) para K=1, K=2 e K=10")
+add_md("## Fase 1 — Geração de Respostas (Llama-3.1-8B) para K=1, K=2, K=10 e K=20")
 
 # Geração 1
-add_code("3 — Fase 1 (Geração): Fixed, Recursive e Semantic (p40, p50, p60, p70) em K=1, 2, 10", """
+add_code("3 — Fase 1 (Geração): Fixed, Recursive e Semantic (p40, p50, p60, p70) em K=1, 2, 10, 20", """
 %cd /content/chunking-evaluation
-!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed,recursive,semantic --percentile-list 40,50,60,70 --k-list 1,2,10 --sem-baseline
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed,recursive,semantic --percentile-list 40,50,60,70 --k-list 1,2,10,20 --sem-baseline
 """)
 
 # Geração 2
-add_code("4 — Fase 1 (Geração): Fixed e Recursive 256/1024 em K=1, 2, 10", """
+add_code("4 — Fase 1 (Geração): Fixed e Recursive 256/1024 em K=1, 2, 10, 20", """
 %cd /content/chunking-evaluation
-!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed_256,fixed_1024,recursive_256,recursive_1024 --k-list 1,2,10 --sem-baseline
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed_256,fixed_1024,recursive_256,recursive_1024 --k-list 1,2,10,20 --sem-baseline
 """)
 
 # Geração 3
-add_code("5 — Fase 1 (Geração): Semantic com Teto 256/1024 em K=1, 2, 10", """
+add_code("5 — Fase 1 (Geração): Semantic com Teto 256/1024 em K=1, 2, 10, 20", """
 %cd /content/chunking-evaluation
-!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias semantic_256,semantic_1024 --k-list 1,2,10 --sem-baseline
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias semantic_256,semantic_1024 --k-list 1,2,10,20 --sem-baseline
 """)
 
 # Download Fase 1
 download_fase1_code = """%cd /content/chunking-evaluation
-!zip -q -r /content/backup_respostas_k1_k2_k10.zip analises/geracoes_corpus*.json analises/tempos_corpus.*
+!zip -q -r /content/backup_respostas_k_estendido.zip analises/geracoes_corpus*.json analises/tempos_corpus.*
 import base64
 from IPython.display import HTML, display
-caminho = "/content/backup_respostas_k1_k2_k10.zip"
+caminho = "/content/backup_respostas_k_estendido.zip"
 with open(caminho, "rb") as f:
     b64 = base64.b64encode(f.read()).decode()
-nome = "backup_respostas_k1_k2_k10.zip"
+nome = "backup_respostas_k_estendido.zip"
 html = f'''
 <a download="{nome}" href="data:application/zip;base64,{b64}">
     <button style="padding:12px 24px; background-color:#28a745; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
@@ -121,7 +122,7 @@ html = f'''
 </a>
 '''
 display(HTML(html))"""
-add_code("6 — BAIXAR backup de todas as respostas geradas (K=1, 2, 10)", download_fase1_code)
+add_code("6 — BAIXAR backup de todas as respostas geradas (K=1, 2, 10, 20)", download_fase1_code)
 
 add_md("## Fase 2 — Inicialização do Servidor vLLM (Qwen2.5-14B-AWQ)")
 
@@ -164,7 +165,7 @@ print('Configuração vLLM ativa!')
 """)
 
 cell_counter = 10
-for k_val in [1, 2, 10]:
+for k_val in [1, 2, 10, 20]:
     add_md(f"## Avaliação RAGAS — Bloco TOP_K = {k_val} (12 Estratégias)")
     for label, strat in STRATEGIES:
         add_code(f"{cell_counter} — AVALIAR K={k_val} | {label}", f"""
@@ -196,7 +197,7 @@ display(HTML(html))"""
     cell_counter += 1
 
 # Célula Final: Consolidação Completa
-add_md("## Download Final Consolidado (Todos os K: 1, 2, 3, 5, 7, 10)")
+add_md("## Download Final Consolidado (Todos os K: 1, 2, 3, 5, 7, 10, 20)")
 dl_final = """%cd /content/chunking-evaluation
 !zip -q -r /content/backup_vllm_TODOS_OS_K_FINAL.zip analises/
 import base64
@@ -213,10 +214,10 @@ html = f'''
 </a>
 '''
 display(HTML(html))"""
-add_code(f"{cell_counter} — BAIXAR PACOTE MESTRE COMPLETO (K=1, 2, 3, 5, 7, 10)", dl_final)
+add_code(f"{cell_counter} — BAIXAR PACOTE MESTRE COMPLETO (K=1, 2, 3, 5, 7, 10, 20)", dl_final)
 
 # Salva arquivo TXT
-txt_path = BASE_DIR / "notebooks" / "celulas_k1_k2_k10.txt"
+txt_path = BASE_DIR / "notebooks" / "celulas_k1_k2_k10_k20.txt"
 txt_path.write_text("".join(cells_txt), encoding="utf-8")
 print("Salvo arquivo TXT:", txt_path)
 
@@ -232,7 +233,7 @@ nb_dict = {
     "nbformat": 4,
     "nbformat_minor": 0
 }
-ipynb_path = BASE_DIR / "notebooks" / "tcc_k1_k2_k10.ipynb"
+ipynb_path = BASE_DIR / "notebooks" / "tcc_k1_k2_k10_k20.ipynb"
 with open(ipynb_path, "w", encoding="utf-8") as f:
     json.dump(nb_dict, f, indent=1, ensure_ascii=False)
 print("Salvo arquivo IPYNB:", ipynb_path)

@@ -1,0 +1,593 @@
+# [MARKDOWN]
+# TCC — Experimentos Adicionais: Curva Estendida de TOP-K (K=1, K=2, K=10 e K=20)
+- **Objetivo**: Avaliar os extremos da curva de Top-K:
+  - **K=1**: Mínimo absoluto (1 chunk recuperado — testa o recall estrito de primeira posição).
+  - **K=2**: Contexto super enxuto (2 chunks).
+  - **K=10**: Contexto expandido (10 chunks — testa saturação de ruído e 'lost in the middle').
+  - **K=20**: Limite superior de estresse (20 chunks — testa se excesso de contexto degrada a fidelidade e alucinação).
+- **Juiz**: Qwen2.5-14B-Instruct-AWQ via **vLLM** (8 workers paralelos, ~17 min por estratégia).
+- **Sem Google Drive**: Cada bloco possui um botão de download direto via HTML/base64.
+
+======================================================================
+
+# 0 — Liberar VRAM do vLLM antes da Fase 1 (se estiver rodando na mesma sessão)
+!pkill -9 -f vllm 2>/dev/null || true
+import torch, gc
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+!nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv
+
+======================================================================
+
+# 1 — Setup / Atualização do Repositório
+%cd /content
+!test -d chunking-evaluation || git clone https://github.com/murillodmf/chunking-evaluation.git
+%cd /content/chunking-evaluation
+!git fetch origin && git reset --hard origin/main
+!git log -1 --oneline
+!pip install -q -U bitsandbytes transformers accelerate
+!pip install -q -r requirements.txt
+from huggingface_hub import login
+# Insira seu token Hugging Face caso solicitado:
+login()
+
+======================================================================
+
+# 2 — Envie o último backup_vllm_FINAL_COMPLETO.zip baixado
+%cd /content/chunking-evaluation
+from google.colab import files
+up = files.upload()
+for nome in up:
+    !unzip -o -q "{nome}" -d /content/chunking-evaluation
+!ls analises/ | head -40
+
+======================================================================
+
+# [MARKDOWN]
+## Fase 1 — Geração de Respostas (Llama-3.1-8B) para K=1, K=2, K=10 e K=20
+
+======================================================================
+
+# 3 — Fase 1 (Geração): Fixed, Recursive e Semantic (p40, p50, p60, p70) em K=1, 2, 10, 20
+%cd /content/chunking-evaluation
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed,recursive,semantic --percentile-list 40,50,60,70 --k-list 1,2,10,20 --sem-baseline
+
+======================================================================
+
+# 4 — Fase 1 (Geração): Fixed e Recursive 256/1024 em K=1, 2, 10, 20
+%cd /content/chunking-evaluation
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias fixed_256,fixed_1024,recursive_256,recursive_1024 --k-list 1,2,10,20 --sem-baseline
+
+======================================================================
+
+# 5 — Fase 1 (Geração): Semantic com Teto 256/1024 em K=1, 2, 10, 20
+%cd /content/chunking-evaluation
+!python src/02_gerar_respostas.py --corpus --amostra todas --estrategias semantic_256,semantic_1024 --k-list 1,2,10,20 --sem-baseline
+
+======================================================================
+
+# 6 — BAIXAR backup de todas as respostas geradas (K=1, 2, 10, 20)
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_respostas_k_estendido.zip analises/geracoes_corpus*.json analises/tempos_corpus.*
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_respostas_k_estendido.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_respostas_k_estendido.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:12px 24px; background-color:#28a745; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
+        📥 Clique aqui para baixar {nome}
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
+# [MARKDOWN]
+## Fase 2 — Inicialização do Servidor vLLM (Qwen2.5-14B-AWQ)
+
+======================================================================
+
+# 7 — Instala vLLM + cliente OpenAI
+!pip install -q vllm langchain-openai
+
+======================================================================
+
+# 8 — Inicia servidor vLLM em segundo plano (~3-5 min)
+import subprocess, time, requests
+log = open('/content/vllm.log', 'w')
+srv = subprocess.Popen(
+    ['vllm', 'serve', 'Qwen/Qwen2.5-14B-Instruct-AWQ',
+     '--served-model-name', 'qwen-juiz',
+     '--max-model-len', '16384', '--gpu-memory-utilization', '0.78',
+     '--port', '8000'],
+    stdout=log, stderr=subprocess.STDOUT)
+for i in range(120):
+    try:
+        if requests.get('http://localhost:8000/v1/models', timeout=2).ok:
+            print(f'vLLM PRONTO em ~{i*5}s'); break
+    except Exception:
+        pass
+    time.sleep(5)
+else:
+    print('vLLM nao subiu — veja o log:')
+    !tail -n 20 /content/vllm.log
+
+======================================================================
+
+# 9 — Configura RAGAS para usar o vLLM (8 chamadas em paralelo)
+import os
+os.environ['JUDGE_BACKEND'] = 'vllm'
+os.environ['VLLM_URL'] = 'http://localhost:8000/v1'
+os.environ['VLLM_MODEL'] = 'qwen-juiz'
+os.environ['RAGAS_WORKERS'] = '8'
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+print('Configuração vLLM ativa!')
+
+======================================================================
+
+# [MARKDOWN]
+## Avaliação RAGAS — Bloco TOP_K = 1 (12 Estratégias)
+
+======================================================================
+
+# 10 — AVALIAR K=1 | fixed
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy fixed --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 11 — AVALIAR K=1 | recursive
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy recursive --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 12 — AVALIAR K=1 | semantic
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 13 — AVALIAR K=1 | semantic_p40
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic_p40 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 14 — AVALIAR K=1 | semantic_p50
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic_p50 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 15 — AVALIAR K=1 | semantic_p70
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic_p70 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 16 — AVALIAR K=1 | fixed_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy fixed_256 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 17 — AVALIAR K=1 | fixed_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy fixed_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 18 — AVALIAR K=1 | recursive_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy recursive_256 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 19 — AVALIAR K=1 | recursive_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy recursive_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 20 — AVALIAR K=1 | semantic_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic_256 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 21 — AVALIAR K=1 | semantic_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 1 --strategy semantic_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k1.csv 2>/dev/null || true
+
+======================================================================
+
+# 22 — BAIXAR resultados do Bloco K=1
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_vllm_k1.zip analises/
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_vllm_k1.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_vllm_k1.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:12px 24px; background-color:#007bff; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
+        📥 Clique aqui para baixar {nome}
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
+# [MARKDOWN]
+## Avaliação RAGAS — Bloco TOP_K = 2 (12 Estratégias)
+
+======================================================================
+
+# 23 — AVALIAR K=2 | fixed
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy fixed --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 24 — AVALIAR K=2 | recursive
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy recursive --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 25 — AVALIAR K=2 | semantic
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 26 — AVALIAR K=2 | semantic_p40
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic_p40 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 27 — AVALIAR K=2 | semantic_p50
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic_p50 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 28 — AVALIAR K=2 | semantic_p70
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic_p70 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 29 — AVALIAR K=2 | fixed_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy fixed_256 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 30 — AVALIAR K=2 | fixed_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy fixed_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 31 — AVALIAR K=2 | recursive_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy recursive_256 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 32 — AVALIAR K=2 | recursive_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy recursive_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 33 — AVALIAR K=2 | semantic_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic_256 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 34 — AVALIAR K=2 | semantic_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 2 --strategy semantic_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k2.csv 2>/dev/null || true
+
+======================================================================
+
+# 35 — BAIXAR resultados do Bloco K=2
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_vllm_k2.zip analises/
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_vllm_k2.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_vllm_k2.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:12px 24px; background-color:#007bff; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
+        📥 Clique aqui para baixar {nome}
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
+# [MARKDOWN]
+## Avaliação RAGAS — Bloco TOP_K = 10 (12 Estratégias)
+
+======================================================================
+
+# 36 — AVALIAR K=10 | fixed
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy fixed --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 37 — AVALIAR K=10 | recursive
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy recursive --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 38 — AVALIAR K=10 | semantic
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 39 — AVALIAR K=10 | semantic_p40
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic_p40 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 40 — AVALIAR K=10 | semantic_p50
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic_p50 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 41 — AVALIAR K=10 | semantic_p70
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic_p70 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 42 — AVALIAR K=10 | fixed_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy fixed_256 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 43 — AVALIAR K=10 | fixed_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy fixed_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 44 — AVALIAR K=10 | recursive_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy recursive_256 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 45 — AVALIAR K=10 | recursive_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy recursive_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 46 — AVALIAR K=10 | semantic_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic_256 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 47 — AVALIAR K=10 | semantic_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 10 --strategy semantic_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k10.csv 2>/dev/null || true
+
+======================================================================
+
+# 48 — BAIXAR resultados do Bloco K=10
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_vllm_k10.zip analises/
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_vllm_k10.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_vllm_k10.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:12px 24px; background-color:#007bff; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
+        📥 Clique aqui para baixar {nome}
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
+# [MARKDOWN]
+## Avaliação RAGAS — Bloco TOP_K = 20 (12 Estratégias)
+
+======================================================================
+
+# 49 — AVALIAR K=20 | fixed
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy fixed --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 50 — AVALIAR K=20 | recursive
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy recursive --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 51 — AVALIAR K=20 | semantic
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 52 — AVALIAR K=20 | semantic_p40
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic_p40 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 53 — AVALIAR K=20 | semantic_p50
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic_p50 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 54 — AVALIAR K=20 | semantic_p70
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic_p70 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 55 — AVALIAR K=20 | fixed_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy fixed_256 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 56 — AVALIAR K=20 | fixed_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy fixed_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 57 — AVALIAR K=20 | recursive_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy recursive_256 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 58 — AVALIAR K=20 | recursive_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy recursive_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 59 — AVALIAR K=20 | semantic_256
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic_256 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 60 — AVALIAR K=20 | semantic_1024
+%cd /content/chunking-evaluation
+!python src/03_avaliar_ragas.py --corpus --k 20 --strategy semantic_1024 --skip-existing
+!cat analises/ragas_summary_corpus_k20.csv 2>/dev/null || true
+
+======================================================================
+
+# 61 — BAIXAR resultados do Bloco K=20
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_vllm_k20.zip analises/
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_vllm_k20.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_vllm_k20.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:12px 24px; background-color:#007bff; color:white; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;">
+        📥 Clique aqui para baixar {nome}
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
+# [MARKDOWN]
+## Download Final Consolidado (Todos os K: 1, 2, 3, 5, 7, 10, 20)
+
+======================================================================
+
+# 62 — BAIXAR PACOTE MESTRE COMPLETO (K=1, 2, 3, 5, 7, 10, 20)
+%cd /content/chunking-evaluation
+!zip -q -r /content/backup_vllm_TODOS_OS_K_FINAL.zip analises/
+import base64
+from IPython.display import HTML, display
+caminho = "/content/backup_vllm_TODOS_OS_K_FINAL.zip"
+with open(caminho, "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+nome = "backup_vllm_TODOS_OS_K_FINAL.zip"
+html = f'''
+<a download="{nome}" href="data:application/zip;base64,{b64}">
+    <button style="padding:14px 28px; background-color:#28a745; color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer;">
+        📦 BAIXAR PACOTE COMPLETO FINAL (TODOS OS K)
+    </button>
+</a>
+'''
+display(HTML(html))
+
+======================================================================
+
